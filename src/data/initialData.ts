@@ -320,5 +320,3 @@ export const INITIAL_CATEGORIES: Category[] = [
     ]
   }
 ];
-
-export const
