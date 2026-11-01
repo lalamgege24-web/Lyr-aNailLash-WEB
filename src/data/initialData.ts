@@ -70,6 +70,13 @@ export const INITIAL_TYPES: TypeItem[] = [
   { id: 'tp5', name: 'Curl Lash: D-Curl (Dramatic Doll)', description: 'Kelengkungan lentik maksimal efek mata boneka', imageUrl: 'https://images.unsplash.com/photo-1599940824399-b87987ceb72a?w=150&auto=format&fit=crop&q=80' },
 ];
 
+// Tambahan export data kosong yang diminta oleh store.ts agar tidak missing export
+export const INITIAL_VOUCHERS: Voucher[] = [];
+export const INITIAL_STAFF: StaffAccount[] = [];
+export const INITIAL_MEMBERS: MemberAccount[] = [];
+export const INITIAL_RESERVATIONS: Reservation[] = [];
+export const INITIAL_ATTENDANCE: StaffAttendance[] = [];
+
 export const INITIAL_CATEGORIES: Category[] = [
   {
     id: 'cat-nail',
