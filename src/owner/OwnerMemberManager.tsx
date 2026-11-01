@@ -28,8 +28,8 @@ export const OwnerMemberManager: React.FC<OwnerMemberManagerProps> = ({
   settings,
   onRefresh
 }) => {
-  // Coin Reward Percentage state (e.g. 2%)
-  const [coinPercentage, setCoinPercentage] = useState(settings.coinRewardPercentage || 2);
+  // Coin Reward Percentage state (e.g. 0.001%)
+  const [coinPercentage, setCoinPercentage] = useState(settings.coinRewardPercentage || 0.002);
   const [savePercentageSuccess, setSavePercentageSuccess] = useState(false);
 
   // New Voucher Form
