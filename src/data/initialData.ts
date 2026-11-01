@@ -292,5 +292,5 @@ export const INITIAL_CATEGORIES: Category[] = [
     id: 'cat-lash-lift',
     name: 'LASH LIFT',
     description: 'Pelentikan bulu mata asli menggunakan keratin alami tanpa bulu mata tambahan',
-  }
+  },
   
