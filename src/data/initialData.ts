@@ -24,8 +24,8 @@ export const INITIAL_SETTINGS: StoreSettings = {
   tiktokHandle: "@lyrasnaillash",
   tiktokUrl: "https://www.tiktok.com/@lyrasnaillash?_r=1&_t=ZS-9B1xfjpGu9q",
   ownerPin: "560605",
-  coinRewardPercentage: 0,002, // 0,001% of services bill
-  storeAddress: "Mall Taman Palem Lt G Blok A 30B, Cengkareng Timur, Jakarta Barat",
+  coinRewardPercentage: 0.002, // 0.001% of services bill
+  storeAddress: "Mall Taman Palem Lt G Blok A 30B Cengkareng Timur Jakarta Barat",
   storeCoordinate: { lat: -6.2348, lng: 106.8122 },
   operationalSchedule: DEFAULT_OPERATIONAL_SCHEDULE
 };
