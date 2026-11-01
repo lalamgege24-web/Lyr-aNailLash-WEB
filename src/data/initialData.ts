@@ -26,7 +26,7 @@ export const INITIAL_SETTINGS: StoreSettings = {
   ownerPin: "560605",
   coinRewardPercentage: 0.002, // 0.001% of services bill
   storeAddress: "Mall Taman Palem Lt G Blok A 30B Cengkareng Timur Jakarta Barat",
-  storeCoordinate: { lat: -6.1422, lng: 107.1390 }, // atau koordinat tepat Mall Taman Palem,
+  storeCoordinate: { lat: -6.1438, lng: 106.7356 },
   operationalSchedule: DEFAULT_OPERATIONAL_SCHEDULE
 };
 
@@ -80,8 +80,8 @@ export const INITIAL_CATEGORIES: Category[] = [
       {
         id: 'sub-gel-polis',
         name: 'Gel Polis',
-        price: 0, // Carried by sub-subcategories
-        discountPercentage: 0, // Carried by sub-subcategories
+        price: 0,
+        discountPercentage: 0,
         useColorManager: true,
         useCodeManager: false,
         useTypeManager: true,
@@ -110,8 +110,8 @@ export const INITIAL_CATEGORIES: Category[] = [
       {
         id: 'sub-fake-ext',
         name: 'Fake Extension',
-        price: 0, // Mutually exclusive: carried by sub-subcategories
-        discountPercentage: 0, // Carried by sub-subcategories
+        price: 0,
+        discountPercentage: 0,
         useColorManager: true,
         useCodeManager: true,
         useTypeManager: true,
@@ -141,7 +141,7 @@ export const INITIAL_CATEGORIES: Category[] = [
       {
         id: 'sub-accessories',
         name: 'Accessories',
-        price: 20000, // Custom / starting
+        price: 20000,
         discountPrice: 0,
         discountPercentage: 0,
         useColorManager: false,
@@ -486,10 +486,10 @@ export const INITIAL_RESERVATIONS: Reservation[] = [
     location: {
       isHomeService: false,
       province: 'DKI Jakarta',
-      regency: 'Jakarta Selatan',
-      district: 'Kebayoran Baru',
-      village: 'Senayan',
-      streetAddress: 'Studio Lyra’s Nail-Lash (Dine-in / Salon Visit)',
+      regency: 'Jakarta Barat',
+      district: 'Cengkareng',
+      village: 'Cengkareng Timur',
+      streetAddress: 'Mall Taman Palem Lt G Blok A 30B (Studio Visit)',
       calculatedDistanceKm: 0,
       baseDeliveryFee: 0,
       additional5KmFee: 0,
@@ -533,26 +533,26 @@ export const INITIAL_RESERVATIONS: Reservation[] = [
     location: {
       isHomeService: true,
       province: 'DKI Jakarta',
-      regency: 'Jakarta Selatan',
-      district: 'Cilandak',
-      village: 'Cipete Selatan',
-      streetAddress: 'Jl. Abdul Majid Dalam No. 18, RT 04/RW 02',
-      calculatedDistanceKm: 4.8,
-      baseDeliveryFee: 27370,
+      regency: 'Jakarta Barat',
+      district: 'Cengkareng',
+      village: 'Cengkareng Timur',
+      streetAddress: 'Mall Taman Palem Lt G Blok A 30B',
+      calculatedDistanceKm: 2.5,
+      baseDeliveryFee: 15000,
       additional5KmFee: 0,
-      coinDiscountAmount: 100, // 400 coins spent for delivery discount
-      totalDeliveryFee: 27270
+      coinDiscountAmount: 100,
+      totalDeliveryFee: 14900
     },
     servicesSubtotal: 200000,
-    deliveryFee: 27270,
-    voucherDiscount: 40000, // 20% voucher used
+    deliveryFee: 14900,
+    voucherDiscount: 40000,
     coinDiscount: 100,
     customAdjustment: 0,
-    totalPrice: 187170,
+    totalPrice: 174900,
     paymentStatus: 'DP',
     paymentMethod: 'TRANSFER',
     status: 'APPROVED',
-    ownerNotes: 'Home service area Cipete Selatan. Staf membawa portable bed & ring light.',
+    ownerNotes: 'Home service area Cengkareng.',
     randomCuteQuote: 'Bulu mata lentik dan senyuman manis adalah kombinasi paling mematikan di dunia! 🌷'
   },
   {
@@ -624,22 +624,22 @@ export const INITIAL_RESERVATIONS: Reservation[] = [
     location: {
       isHomeService: true,
       province: 'DKI Jakarta',
-      regency: 'Jakarta Selatan',
-      district: 'Setiabudi',
-      village: 'Kuningan Timur',
-      streetAddress: 'Apartemen Bellagio Mansion Tower B Unit 1402',
-      calculatedDistanceKm: 6.2,
-      baseDeliveryFee: 35352,
-      additional5KmFee: 800,
+      regency: 'Jakarta Barat',
+      district: 'Cengkareng',
+      village: 'Cengkareng Timur',
+      streetAddress: 'Mall Taman Palem Area',
+      calculatedDistanceKm: 1.0,
+      baseDeliveryFee: 10000,
+      additional5KmFee: 0,
       coinDiscountAmount: 0,
-      totalDeliveryFee: 36152
+      totalDeliveryFee: 10000
     },
     servicesSubtotal: 385000,
-    deliveryFee: 36152,
+    deliveryFee: 10000,
     voucherDiscount: 0,
     coinDiscount: 0,
     customAdjustment: 0,
-    totalPrice: 421152,
+    totalPrice: 395000,
     paymentStatus: 'BELUM_BAYAR',
     status: 'NEEDS_DISCUSSION',
     ownerNotes: 'Acara prewedding rombongan 3 orang. Jadwal H-1 telah dikirim.',
