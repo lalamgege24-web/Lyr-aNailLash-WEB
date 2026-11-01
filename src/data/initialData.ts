@@ -300,5 +300,4 @@ export const INITIAL_CATEGORIES: Category[] = [
   description: 'Pelentikan bulu mata asli menggunakan keratin alami tanpa bulu mata tambahan',
   estimatedMinutes: 60
 }
-```
   ]
