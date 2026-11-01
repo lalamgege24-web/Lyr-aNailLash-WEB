@@ -33,6 +33,7 @@ export const OwnerCatalogManager: React.FC<OwnerCatalogManagerProps> = ({
   const [targetCatIdForSub, setTargetCatIdForSub] = useState<string | null>(null);
   const [subName, setSubName] = useState('');
   const [subPrice, setSubPrice] = useState(50000);
+  const [subDiscount, setSubDiscount] = useState(0);
   const [subDesc, setSubDesc] = useState('');
   const [subUseColor, setSubUseColor] = useState(false);
   const [subUseCode, setSubUseCode] = useState(false);
@@ -43,6 +44,7 @@ export const OwnerCatalogManager: React.FC<OwnerCatalogManagerProps> = ({
   const [targetSubIdForSubSub, setTargetSubIdForSubSub] = useState<string | null>(null);
   const [subSubName, setSubSubName] = useState('');
   const [subSubPrice, setSubSubPrice] = useState(50000);
+  const [subSubDiscount, setSubSubDiscount] = useState(0);
 
   // Collapse toggle
   const [collapsedCategories, setCollapsedCategories] = useState<Record<string, boolean>>({});
@@ -88,6 +90,7 @@ export const OwnerCatalogManager: React.FC<OwnerCatalogManagerProps> = ({
         id: `sub-${Date.now()}`,
         name: subName.trim(),
         price: Number(subPrice),
+        discountPercentage: Number(subDiscount),
         description: subDesc.trim() || undefined,
         useColorManager: subUseColor,
         useCodeManager: subUseCode,
@@ -162,7 +165,8 @@ export const OwnerCatalogManager: React.FC<OwnerCatalogManagerProps> = ({
           const newSubSub: SubSubCategory = {
             id: `ssc-${Date.now()}`,
             name: subSubName.trim(),
-            price: Number(subSubPrice)
+            price: Number(subSubPrice),
+            discountPercentage: Number(subSubDiscount)
           };
           return {
             ...s,
@@ -177,6 +181,7 @@ export const OwnerCatalogManager: React.FC<OwnerCatalogManagerProps> = ({
     setTargetSubIdForSubSub(null);
     setSubSubName('');
     setSubSubPrice(50000);
+    setSubSubDiscount(0);
     onRefresh();
   };
 
@@ -295,7 +300,7 @@ export const OwnerCatalogManager: React.FC<OwnerCatalogManagerProps> = ({
                     <button type="button" onClick={() => setTargetCatIdForSub(null)} className="text-gray-400 hover:text-gray-600">✕</button>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
                     <div>
                       <label className="block font-semibold mb-1">Nama Subbab:</label>
                       <input
@@ -316,7 +321,21 @@ export const OwnerCatalogManager: React.FC<OwnerCatalogManagerProps> = ({
                         className="w-full py-1.5 px-3 rounded-lg border border-[#F8BBD0] bg-white font-mono font-medium"
                       />
                     </div>
+                    <div>
+                      <label className="block font-semibold mb-1">Diskon Promo (%):</label>
+                      <input
+                        type="number"
+                        min="0"
+                        max="100"
+                        value={subDiscount}
+                        onChange={(e) => setSubDiscount(Number(e.target.value))}
+                        placeholder="0"
+                        className="w-full py-1.5 px-3 rounded-lg border border-[#F8BBD0] bg-white font-mono font-medium text-rose-600"
+                      />
+                    </div>
                   </div>
+                </div>
+              </div>
 
                   {/* Subbab feature switches */}
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-[#D4AF37]/20 text-xs">
@@ -402,13 +421,27 @@ export const OwnerCatalogManager: React.FC<OwnerCatalogManagerProps> = ({
                               <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200 flex items-center gap-1">
                                 <Info size={11} /> Harga Dibebankan ke Sub-subbab ({sub.subSubCategories!.length} Variasi)
                               </span>
-                            ) : (
-                              <div className="flex items-center gap-1">
-                                <span className="font-mono text-xs font-bold text-[#B8860B]">
-                                  Rp {sub.price.toLocaleString('id-ID')}
-                                </span>
-                              </div>
-                            )}
+                           ) : (
+                      <div className="flex items-center gap-1.5 font-mono text-xs">
+                        {sub.discountPercentage ? (
+                          <>
+                            <span className="text-gray-400 line-through">
+                              Rp {sub.price.toLocaleString('id-ID')}
+                            </span>
+                            <span className="text-rose-600 font-bold">
+                              Rp {(sub.price - (sub.price * sub.discountPercentage / 100)).toLocaleString('id-ID')}
+                            </span>
+                            <span className="text-[10px] font-bold text-white bg-rose-500 px-1.5 py-0.2 rounded-full">
+                              -{sub.discountPercentage}%
+                            </span>
+                          </>
+                        ) : (
+                          <span className="font-bold text-[#B8860B]">
+                            Rp {sub.price.toLocaleString('id-ID')}
+                          </span>
+                        )}
+                      </div>
+                    )}
                           </div>
 
                           <div className="flex items-center gap-2 self-end sm:self-center">
@@ -431,19 +464,28 @@ export const OwnerCatalogManager: React.FC<OwnerCatalogManagerProps> = ({
                           </div>
                         </div>
 
-                        {/* SUBBAB FEATURE FLAGS (Warna, Kode, Tipe, Wajib Upload Desain) */}
+                       {/* SUBBAB FEATURE FLAGS (Warna, Kode, Tipe, Wajib Upload Desain) */}
                         <div className="flex flex-wrap items-center gap-3 text-xs bg-white p-2.5 rounded-xl border border-[#F8BBD0]/40">
                           <span className="text-[11px] font-bold text-[#8C7A82] uppercase tracking-wider">
                             Pengaturan Subbab:
                           </span>
 
+                          {!hasSubSub && (
+                            <label className="flex items-center gap-1 cursor-pointer text-[#4A3B40] font-semibold bg-rose-50 px-2 py-0.5 rounded border border-rose-200">
+                              <span>Diskon:</span>
+                              <input
+                                type="number"
+                                min="0"
+                                max="100"
+                                value={sub.discountPercentage || 0}
+                                onChange={(e) => handleUpdateSubCategoryFlag(category.id, sub.id, 'discountPercentage', Number(e.target.value))}
+                                className="w-12 py-0.5 px-1 rounded border border-rose-300 font-mono text-center text-xs text-rose-600"
+                              />
+                              <span>%</span>
+                            </label>
+                          )}
+
                           <label className="flex items-center gap-1.5 cursor-pointer text-[#4A3B40]">
-                            <input
-                              type="checkbox"
-                              checked={sub.useColorManager}
-                              onChange={(e) => handleUpdateSubCategoryFlag(category.id, sub.id, 'useColorManager', e.target.checked)}
-                              className="rounded text-[#D4AF37] focus:ring-[#D4AF37] h-3.5 w-3.5"
-                            />
                             <span>Manager Warna</span>
                           </label>
 
@@ -476,15 +518,7 @@ export const OwnerCatalogManager: React.FC<OwnerCatalogManagerProps> = ({
                             />
                             <span className="font-semibold text-rose-700">Wajib Upload Desain</span>
                           </label>
-                        </div>
-
-                        {/* Form Tambah Sub-subbab */}
-                        {targetSubIdForSubSub === sub.id && (
-                          <div className="p-3.5 rounded-xl bg-[#FFF8E7] border border-[#D4AF37] space-y-2.5 animate-fadeIn">
-                            <span className="text-xs font-bold text-[#4A3B40] block">
-                              Tambah Sub-subbab (Variasi) untuk &ldquo;{sub.name}&rdquo;:
-                            </span>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
                               <input
                                 type="text"
                                 required
@@ -500,6 +534,15 @@ export const OwnerCatalogManager: React.FC<OwnerCatalogManagerProps> = ({
                                 onChange={(e) => setSubSubPrice(Number(e.target.value))}
                                 placeholder="Harga Variasi (Rp)"
                                 className="py-1.5 px-3 rounded-lg border border-[#F8BBD0] bg-white font-mono font-medium"
+                              />
+                              <input
+                                type="number"
+                                min="0"
+                                max="100"
+                                value={subSubDiscount}
+                                onChange={(e) => setSubSubDiscount(Number(e.target.value))}
+                                placeholder="Diskon Variasi (%)"
+                                className="py-1.5 px-3 rounded-lg border border-[#F8BBD0] bg-white font-mono font-medium text-rose-600"
                               />
                             </div>
                             <div className="flex justify-end gap-2 pt-1">
