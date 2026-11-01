@@ -110,6 +110,7 @@ export default function App() {
                 availableTypes={types}
                 operationalSchedule={settings.operationalSchedule}
                 reservations={reservations}
+                settings={settings}
                 onSubmitReservation={handleReservationSubmitted}
                 onBack={() => setCurrentView('SELECTOR')}
               />
@@ -124,6 +125,7 @@ export default function App() {
                 vouchers={vouchers}
                 operationalSchedule={settings.operationalSchedule}
                 reservations={reservations}
+                settings={settings}
                 onSubmitReservation={handleReservationSubmitted}
                 onBack={() => setCurrentView('SELECTOR')}
               />
@@ -137,6 +139,7 @@ export default function App() {
                 availableTypes={types}
                 operationalSchedule={settings.operationalSchedule}
                 reservations={reservations}
+                settings={settings}
                 onSubmitReservation={handleReservationSubmitted}
                 onBack={() => setCurrentView('SELECTOR')}
               />
@@ -248,15 +251,12 @@ export default function App() {
           </main>
 
           {/* Footer */}
-          <footer className="bg-white border-t border-[#F8BBD0]/50 py-8 px-4 text-center text-xs text-[#8C7A82] space-y-2">
+          <footer className="bg-white border-t border-[#F8BBD0]/50 py-8 px-4 text-center text-xs text-[#8C7A82] space-y-1">
             <p className="font-serif font-bold text-[#4A3B40] text-sm">
               {settings.storeName}
             </p>
             <p>
-              {settings.storeAddress} • WhatsApp: {settings.ownerWhatsapp}
-            </p>
-            <p className="text-[11px] text-[#B8860B]">
-              Standard Estetika: Baby Pink (#FFD1DC) • Cream (#FFFDF9) • Gold (#D4AF37)
+              {settings.storeAddress}
             </p>
           </footer>
         </>

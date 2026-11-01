@@ -1,31 +1,49 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { MapPin, Navigation, Search, Check, Info, Home, Building2 } from 'lucide-react';
-import { LocationDetail } from '../types/salon';
+import { LocationDetail, StoreSettings } from '../types/salon';
 import {
   PROVINCES_34,
   REGION_HIERARCHY,
   calculateStoreDistance,
   searchIndonesianRegions
 } from '../data/indonesiaRegions';
+import { salonStore } from '../services/store';
 
 interface HomeServicePickerProps {
   value: LocationDetail;
   onChange: (location: LocationDetail) => void;
   memberCoins?: number; // Member can use coins for discount: 200 coins = -Rp 50
   allowCoinDiscount?: boolean;
+  settings?: StoreSettings;
 }
 
 export const HomeServicePicker: React.FC<HomeServicePickerProps> = ({
   value,
   onChange,
   memberCoins = 0,
-  allowCoinDiscount = false
+  allowCoinDiscount = false,
+  settings
 }) => {
+  const [internalSettings, setInternalSettings] = useState<StoreSettings>(() => settings || salonStore.getSettings());
+
+  useEffect(() => {
+    if (settings) {
+      setInternalSettings(settings);
+    } else {
+      const unsub = salonStore.subscribe(() => {
+        setInternalSettings(salonStore.getSettings());
+      });
+      return () => unsub();
+    }
+  }, [settings]);
+
+  const activeSettings = settings || internalSettings;
+
   const [isHomeService, setIsHomeService] = useState(value.isHomeService);
   const [selectedProvince, setSelectedProvince] = useState(value.province || 'DKI Jakarta');
-  const [selectedRegency, setSelectedRegency] = useState(value.regency || 'Jakarta Barat');
-  const [selectedDistrict, setSelectedDistrict] = useState(value.district || 'Cengkareng');
-  const [selectedVillage, setSelectedVillage] = useState(value.village || 'Cengkareng Timur');
+  const [selectedRegency, setSelectedRegency] = useState(value.regency || 'Jakarta Selatan');
+  const [selectedDistrict, setSelectedDistrict] = useState(value.district || 'Kebayoran Baru');
+  const [selectedVillage, setSelectedVillage] = useState(value.village || 'Senayan');
   const [streetAddress, setStreetAddress] = useState(value.streetAddress || '');
   const [rtRw, setRtRw] = useState(value.rtRw || '');
   const [notes, setNotes] = useState(value.notes || '');
@@ -58,14 +76,14 @@ export const HomeServicePicker: React.FC<HomeServicePickerProps> = ({
   // Quick typed search
   useEffect(() => {
     if (quickSearchQuery.trim().length >= 2) {
-      const hits = searchIndonesianRegions(quickSearchQuery, 8);
+      const hits = searchIndonesianRegions(quickSearchQuery, 8, activeSettings.storeCoordinate);
       setSearchResults(hits);
       setIsSearching(true);
     } else {
       setSearchResults([]);
       setIsSearching(false);
     }
-  }, [quickSearchQuery]);
+  }, [quickSearchQuery, activeSettings.storeCoordinate?.lat, activeSettings.storeCoordinate?.lng]);
 
   // Handle cascade updates
   const handleProvinceChange = (prov: string) => {
@@ -116,7 +134,7 @@ export const HomeServicePicker: React.FC<HomeServicePickerProps> = ({
         regency: 'Jakarta Barat',
         district: 'Cengkareng',
         village: 'Cengkareng Timur',
-        streetAddress: 'Mall Taman Palem Lt G Blok A 30B (Kunjungan Salon)',
+        streetAddress: `${activeSettings.storeAddress} (Kunjungan Salon)`,
         rtRw: '',
         notes: '',
         calculatedDistanceKm: 0,
@@ -133,7 +151,8 @@ export const HomeServicePicker: React.FC<HomeServicePickerProps> = ({
       regency: selectedRegency,
       district: selectedDistrict,
       village: selectedVillage,
-      useLongestRoute: true
+      useLongestRoute: true,
+      storeCoordinate: activeSettings.storeCoordinate
     });
 
     // Coin discount calculation: 200 coins = -Rp 50
@@ -174,7 +193,10 @@ export const HomeServicePicker: React.FC<HomeServicePickerProps> = ({
     notes,
     useCoinDiscount,
     memberCoins,
-    allowCoinDiscount
+    allowCoinDiscount,
+    activeSettings.storeAddress,
+    activeSettings.storeCoordinate?.lat,
+    activeSettings.storeCoordinate?.lng
   ]);
 
   const currentDistResult = useMemo(() => {
@@ -183,9 +205,17 @@ export const HomeServicePicker: React.FC<HomeServicePickerProps> = ({
       regency: selectedRegency,
       district: selectedDistrict,
       village: selectedVillage,
-      useLongestRoute: true
+      useLongestRoute: true,
+      storeCoordinate: activeSettings.storeCoordinate
     });
-  }, [selectedProvince, selectedRegency, selectedDistrict, selectedVillage]);
+  }, [
+    selectedProvince,
+    selectedRegency,
+    selectedDistrict,
+    selectedVillage,
+    activeSettings.storeCoordinate?.lat,
+    activeSettings.storeCoordinate?.lng
+  ]);
 
   return (
     <div className="luxury-card p-5 sm:p-6 space-y-6">
@@ -220,7 +250,7 @@ export const HomeServicePicker: React.FC<HomeServicePickerProps> = ({
                 {!isHomeService && <Check size={16} className="text-[#D4AF37]" />}
               </div>
               <p className="text-xs text-[#8C7A82] mt-0.5">
-                Mall Taman Palem Lt G Blok A 30B, Cengkareng Timur, Jakarta Barat. Gratis tanpa biaya transport.
+                {activeSettings.storeAddress}. Gratis tanpa biaya transport.
               </p>
             </div>
           </button>
@@ -384,7 +414,7 @@ export const HomeServicePicker: React.FC<HomeServicePickerProps> = ({
                 required
                 value={streetAddress}
                 onChange={(e) => setStreetAddress(e.target.value)}
-                placeholder="Contoh: Kemang Raya No. 12, Pagar Putih Sebelah Kafe"
+                placeholder="Contoh: Jl. Kemang Raya No. 12, Pagar Putih Sebelah Kafe"
                 className="w-full py-2 px-3 rounded-xl border border-[#F8BBD0] bg-white text-xs sm:text-sm text-[#4A3B40] focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/40"
               />
             </div>
@@ -439,6 +469,23 @@ export const HomeServicePicker: React.FC<HomeServicePickerProps> = ({
                 <span>Jarak Antar Toko & Customer:</span>
                 <strong className="text-[#B8860B] font-mono text-sm">{currentDistResult.distanceKm} km</strong>
               </div>
+            </div>
+
+            {/* Dynamic Store Departure Location & Google Maps Link */}
+            <div className="p-2.5 rounded-xl bg-white/70 border border-[#F8BBD0]/40 text-xs flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div className="flex items-center gap-1.5 text-[#4A3B40]">
+                <MapPin size={14} className="text-[#D4AF37] shrink-0" />
+                <span>Titik Berangkat Toko: <strong>{activeSettings.storeAddress}</strong></span>
+              </div>
+              <a
+                href={activeSettings.googleMapsUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1 text-[11px] font-bold text-[#B8860B] hover:underline shrink-0"
+              >
+                <span>Lihat di Google Maps</span>
+                <Navigation size={11} />
+              </a>
             </div>
 
             {/* Formula Explanation & Breakdown Items */}

@@ -37,11 +37,26 @@ export const OwnerSettings: React.FC<OwnerSettingsProps> = ({
   const [tagline, setTagline] = useState(settings.tagline);
   const [storeAddress, setStoreAddress] = useState(settings.storeAddress);
   const [googleMapsUrl, setGoogleMapsUrl] = useState(settings.googleMapsUrl);
+  const [latitude, setLatitude] = useState(settings.storeCoordinate?.lat ?? -6.1438);
+  const [longitude, setLongitude] = useState(settings.storeCoordinate?.lng ?? 106.7356);
   const [instagramUrl, setInstagramUrl] = useState(settings.instagramUrl);
   const [tiktokUrl, setTiktokUrl] = useState(settings.tiktokUrl);
 
   // Logo upload preview
   const [logoPreview, setLogoPreview] = useState(settings.logoUrl);
+
+  // Sync inputs with settings when settings changes
+  React.useEffect(() => {
+    setStoreName(settings.storeName);
+    setTagline(settings.tagline);
+    setStoreAddress(settings.storeAddress);
+    setGoogleMapsUrl(settings.googleMapsUrl);
+    setLatitude(settings.storeCoordinate?.lat ?? -6.1438);
+    setLongitude(settings.storeCoordinate?.lng ?? 106.7356);
+    setInstagramUrl(settings.instagramUrl);
+    setTiktokUrl(settings.tiktokUrl);
+    setLogoPreview(settings.logoUrl);
+  }, [settings]);
 
   // Security & OTP Flows
   // 1. Change Owner PIN via OTP WA
@@ -85,16 +100,42 @@ export const OwnerSettings: React.FC<OwnerSettingsProps> = ({
   // Save General Store Info
   const handleSaveStoreInfo = (e: React.FormEvent) => {
     e.preventDefault();
+
+    const trimmedMaps = googleMapsUrl.trim();
+    const formattedMaps = trimmedMaps
+      ? (trimmedMaps.startsWith('http') ? trimmedMaps : `https://${trimmedMaps}`)
+      : settings.googleMapsUrl;
+
+    const trimmedIg = instagramUrl.trim();
+    const formattedIg = trimmedIg
+      ? (trimmedIg.startsWith('http') ? trimmedIg : `https://instagram.com/${trimmedIg.replace(/^@/, '')}`)
+      : settings.instagramUrl;
+    const igHandle = formattedIg.includes('instagram.com/')
+      ? '@' + formattedIg.split('instagram.com/')[1].replace(/\/$/, '')
+      : settings.instagramHandle;
+
+    const trimmedTiktok = tiktokUrl.trim();
+    const formattedTiktok = trimmedTiktok
+      ? (trimmedTiktok.startsWith('http') ? trimmedTiktok : `https://tiktok.com/@${trimmedTiktok.replace(/^@/, '')}`)
+      : settings.tiktokUrl;
+    const tiktokHandle = formattedTiktok.includes('tiktok.com/@')
+      ? '@' + formattedTiktok.split('tiktok.com/@')[1].replace(/\/$/, '')
+      : settings.tiktokHandle;
+
     salonStore.updateSettings({
-      storeName,
-      tagline,
-      storeAddress,
-      googleMapsUrl,
-      instagramUrl,
-      tiktokUrl
+      storeName: storeName.trim(),
+      tagline: tagline.trim(),
+      storeAddress: storeAddress.trim(),
+      storeCoordinate: { lat: Number(latitude), lng: Number(longitude) },
+      googleMapsUrl: formattedMaps,
+      instagramUrl: formattedIg,
+      instagramHandle: igHandle,
+      tiktokUrl: formattedTiktok,
+      tiktokHandle: tiktokHandle
     });
-    setNotificationMsg('Informasi kontak dan media sosial resmi berhasil disimpan!');
-    setTimeout(() => setNotificationMsg(''), 3000);
+
+    setNotificationMsg('Perubahan informasi toko, titik Google Maps, medsos, dan koordinat berhasil disimpan! Seluruh website & kalkulator Home Service telah otomatis diperbarui.');
+    setTimeout(() => setNotificationMsg(''), 4000);
     onRefresh();
   };
 
@@ -226,6 +267,13 @@ export const OwnerSettings: React.FC<OwnerSettingsProps> = ({
           <span>Informasi Toko, Media Sosial & Tautan Resmi</span>
         </h3>
 
+        <div className="p-3 rounded-xl bg-[#FFF8E7] border border-[#D4AF37]/40 text-xs text-[#4A3B40] flex items-start gap-2.5">
+          <AlertCircle size={16} className="text-[#B8860B] shrink-0 mt-0.5" />
+          <p className="leading-relaxed">
+            <strong>Sinkronisasi Otomatis Real-Time:</strong> Setiap perubahan Alamat Fisik Studio, Titik Koordinat (Latitude & Longitude), Tautan Google Maps, Instagram, dan TikTok akan seketika tersinkronisasi di seluruh portal Customer, navigasi resmi, serta rumus kalkulasi tarif jarak <strong>Home Service</strong>.
+          </p>
+        </div>
+
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
           <div>
             <label className="block font-semibold mb-1 text-[#4A3B40]">Nama Toko:</label>
@@ -264,8 +312,33 @@ export const OwnerSettings: React.FC<OwnerSettingsProps> = ({
               type="url"
               value={googleMapsUrl}
               onChange={(e) => setGoogleMapsUrl(e.target.value)}
-              className="w-full py-2 px-3 rounded-xl border border-[#F8BBD0] bg-white font-mono"
+              className="w-full py-2 px-3 rounded-xl border border-[#F8BBD0] bg-white font-mono text-xs"
             />
+          </div>
+
+          <div className="grid grid-cols-2 gap-2">
+            <div>
+              <label className="block font-semibold mb-1 text-[#4A3B40] text-xs">Garis Lintang (Latitude):</label>
+              <input
+                type="number"
+                step="any"
+                value={latitude}
+                onChange={(e) => setLatitude(Number(e.target.value))}
+                className="w-full py-2 px-3 rounded-xl border border-[#F8BBD0] bg-white font-mono text-xs"
+                placeholder="-6.1438"
+              />
+            </div>
+            <div>
+              <label className="block font-semibold mb-1 text-[#4A3B40] text-xs">Garis Bujur (Longitude):</label>
+              <input
+                type="number"
+                step="any"
+                value={longitude}
+                onChange={(e) => setLongitude(Number(e.target.value))}
+                className="w-full py-2 px-3 rounded-xl border border-[#F8BBD0] bg-white font-mono text-xs"
+                placeholder="106.7356"
+              />
+            </div>
           </div>
 
           <div>

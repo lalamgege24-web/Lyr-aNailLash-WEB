@@ -264,8 +264,143 @@ for (const prov of PROVINCES_34) {
   }
 }
 
+export const REGION_COORDINATES: Record<string, { lat: number; lng: number }> = {
+  // Jakarta Barat
+  'Cengkareng': { lat: -6.1438, lng: 106.7356 },
+  'Kalideres': { lat: -6.1550, lng: 106.7020 },
+  'Kembangan': { lat: -6.1850, lng: 106.7380 },
+  'Kebon Jeruk': { lat: -6.1950, lng: 106.7690 },
+  'Grogol Petamburan': { lat: -6.1660, lng: 106.7890 },
+  'Palmerah': { lat: -6.1950, lng: 106.7970 },
+  'Taman Sari': { lat: -6.1480, lng: 106.8120 },
+  'Tambora': { lat: -6.1480, lng: 106.8020 },
+
+  // Jakarta Selatan
+  'Kebayoran Baru': { lat: -6.2420, lng: 106.8040 },
+  'Kebayoran Lama': { lat: -6.2480, lng: 106.7760 },
+  'Pesanggrahan': { lat: -6.2560, lng: 106.7550 },
+  'Cilandak': { lat: -6.2910, lng: 106.7970 },
+  'Pasar Minggu': { lat: -6.2850, lng: 106.8390 },
+  'Jagakarsa': { lat: -6.3310, lng: 106.8280 },
+  'Mampang Prapatan': { lat: -6.2520, lng: 106.8270 },
+  'Pancoran': { lat: -6.2490, lng: 106.8480 },
+  'Tebet': { lat: -6.2260, lng: 106.8580 },
+  'Setiabudi': { lat: -6.2160, lng: 106.8290 },
+
+  // Jakarta Pusat
+  'Menteng': { lat: -6.1960, lng: 106.8350 },
+  'Tanah Abang': { lat: -6.1980, lng: 106.8150 },
+  'Gambir': { lat: -6.1750, lng: 106.8280 },
+  'Senen': { lat: -6.1870, lng: 106.8450 },
+  'Cempaka Putih': { lat: -6.1780, lng: 106.8720 },
+  'Kemayoran': { lat: -6.1580, lng: 106.8610 },
+
+  // Jakarta Utara
+  'Penjaringan': { lat: -6.1260, lng: 106.7890 },
+  'Kelapa Gading': { lat: -6.1620, lng: 106.9080 },
+  'Pademangan': { lat: -6.1360, lng: 106.8360 },
+  'Tanjung Priok': { lat: -6.1280, lng: 106.8820 },
+  'Koja': { lat: -6.1220, lng: 106.9140 },
+  'Cilincing': { lat: -6.1270, lng: 106.9450 },
+
+  // Jakarta Timur
+  'Matraman': { lat: -6.2020, lng: 106.8620 },
+  'Jatinegara': { lat: -6.2310, lng: 106.8740 },
+  'Duren Sawit': { lat: -6.2340, lng: 106.9120 },
+  'Cakung': { lat: -6.1960, lng: 106.9480 },
+  'Pulo Gadung': { lat: -6.1930, lng: 106.8970 },
+  'Kramat Jati': { lat: -6.2730, lng: 106.8670 },
+  'Pasar Rebo': { lat: -6.3190, lng: 106.8620 },
+  'Ciracas': { lat: -6.3320, lng: 106.8770 },
+  'Cipayung': { lat: -6.3170, lng: 106.9030 },
+
+  // Banten & Sekitar
+  'Kota Tangerang': { lat: -6.1780, lng: 106.6310 },
+  'Tangerang Selatan': { lat: -6.2880, lng: 106.7170 },
+  'Kabupaten Tangerang': { lat: -6.1850, lng: 106.4860 },
+  'Kota Cilegon': { lat: -6.0170, lng: 106.0530 },
+  'Kota Serang': { lat: -6.1100, lng: 106.1500 },
+
+  // Jawa Barat
+  'Kota Depok': { lat: -6.4020, lng: 106.7940 },
+  'Pancoran Mas': { lat: -6.3980, lng: 106.8100 },
+  'Sukmajaya': { lat: -6.3920, lng: 106.8350 },
+  'Beji': { lat: -6.3710, lng: 106.8190 },
+  'Cinere': { lat: -6.3300, lng: 106.7850 },
+  'Kota Bekasi': { lat: -6.2380, lng: 106.9750 },
+  'Bekasi Barat': { lat: -6.2360, lng: 106.9720 },
+  'Bekasi Selatan': { lat: -6.2620, lng: 106.9850 },
+  'Bekasi Timur': { lat: -6.2550, lng: 107.0150 },
+  'Rawalumbu': { lat: -6.2780, lng: 106.9980 },
+  'Kabupaten Bekasi': { lat: -6.3050, lng: 107.1550 },
+  'Cikarang Pusat': { lat: -6.3650, lng: 107.1700 },
+  'Cikarang Selatan': { lat: -6.3320, lng: 107.1350 },
+  'Kota Bogor': { lat: -6.5970, lng: 106.8060 },
+  'Bogor Tengah': { lat: -6.5950, lng: 106.7950 },
+  'Bogor Selatan': { lat: -6.6350, lng: 106.8150 },
+  'Kabupaten Bogor': { lat: -6.4850, lng: 106.8500 },
+  'Cibinong': { lat: -6.4850, lng: 106.8500 },
+  'Babakan Madang': { lat: -6.5500, lng: 106.8800 },
+  'Kota Bandung': { lat: -6.9175, lng: 107.6191 },
+  'Coblong': { lat: -6.8850, lng: 107.6180 },
+  'Sukajadi': { lat: -6.8850, lng: 107.5950 },
+  'Sumur Bandung': { lat: -6.9180, lng: 107.6120 },
+  'Cicendo': { lat: -6.9050, lng: 107.5950 },
+  'Lengkong': { lat: -6.9320, lng: 107.6250 }
+};
+
+export const PROVINCE_CENTROIDS: Record<string, { lat: number; lng: number }> = {
+  'DKI Jakarta': { lat: -6.1754, lng: 106.8272 },
+  'Jawa Barat': { lat: -6.9175, lng: 107.6191 },
+  'Banten': { lat: -6.1100, lng: 106.1500 },
+  'Jawa Tengah': { lat: -6.9667, lng: 110.4381 },
+  'DI Yogyakarta': { lat: -7.7956, lng: 110.3695 },
+  'Jawa Timur': { lat: -7.2575, lng: 112.7521 },
+  'Bali': { lat: -8.6705, lng: 115.2126 },
+  'Sumatera Utara': { lat: 3.5952, lng: 98.6722 },
+  'Sumatera Barat': { lat: -0.9471, lng: 100.4172 },
+  'Riau': { lat: 0.5071, lng: 101.4478 },
+  'Kepulauan Riau': { lat: 0.9167, lng: 104.4500 },
+  'Jambi': { lat: -1.6101, lng: 103.6131 },
+  'Sumatera Selatan': { lat: -2.9761, lng: 104.7754 },
+  'Kepulauan Bangka Belitung': { lat: -2.1333, lng: 106.1167 },
+  'Bengkulu': { lat: -3.8004, lng: 102.2655 },
+  'Lampung': { lat: -5.4500, lng: 105.2667 },
+  'Nusa Tenggara Barat': { lat: -8.5833, lng: 116.1167 },
+  'Nusa Tenggara Timur': { lat: -10.1772, lng: 123.6070 },
+  'Kalimantan Barat': { lat: -0.0263, lng: 109.3425 },
+  'Kalimantan Tengah': { lat: -2.2167, lng: 113.9167 },
+  'Kalimantan Selatan': { lat: -3.3167, lng: 114.5900 },
+  'Kalimantan Timur': { lat: -0.5022, lng: 117.1536 },
+  'Kalimantan Utara': { lat: 2.8375, lng: 117.3653 },
+  'Sulawesi Utara': { lat: 1.4748, lng: 124.8428 },
+  'Gorontalo': { lat: 0.5435, lng: 123.0568 },
+  'Sulawesi Tengah': { lat: -0.9003, lng: 119.8780 },
+  'Sulawesi Barat': { lat: -2.6770, lng: 118.8890 },
+  'Sulawesi Selatan': { lat: -5.1477, lng: 119.4327 },
+  'Sulawesi Tenggara': { lat: -3.9985, lng: 122.5126 },
+  'Maluku': { lat: -3.6554, lng: 128.1908 },
+  'Maluku Utara': { lat: 0.7893, lng: 127.3610 },
+  'Papua Barat': { lat: -0.8615, lng: 134.0620 },
+  'Papua': { lat: -2.5337, lng: 140.7181 },
+  'Aceh': { lat: 5.5483, lng: 95.3238 }
+};
+
+function calculateHaversineKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const R = 6371; // Earth's radius in km
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
+
 /**
  * Calculate distance from Lyra's Nail-Lash Studio to the customer's selected location.
+ * Uses dynamic store coordinates configured by Owner in real-time.
  * Implements realistic Google Maps navigation distance calculation (including longest route option).
  */
 export function calculateStoreDistance(params: {
@@ -274,6 +409,7 @@ export function calculateStoreDistance(params: {
   district: string;
   village?: string;
   useLongestRoute?: boolean;
+  storeCoordinate?: { lat: number; lng: number };
 }): {
   distanceKm: number;
   baseDeliveryFee: number;
@@ -281,49 +417,36 @@ export function calculateStoreDistance(params: {
   totalDeliveryFee: number;
   routeType: string;
 } {
-  const { province, regency, district, village, useLongestRoute = true } = params;
+  const { province, regency, district, village, useLongestRoute = true, storeCoordinate } = params;
 
-  let baseDistance = 3.5; // Default distance inside main city
+  // Active store coordinate (default to Mall Taman Palem if not explicitly passed)
+  const storeLat = storeCoordinate?.lat ?? -6.1438;
+  const storeLng = storeCoordinate?.lng ?? 106.7356;
 
-  if (regency.includes('Jakarta Selatan') || regency.includes('Kebayoran') || regency.includes('Cilandak') || regency.includes('Mampang')) {
-    baseDistance = 2.4;
-    if (district.includes('Pesanggrahan') || district.includes('Jagakarsa')) baseDistance = 6.2;
-    if (district.includes('Setiabudi') || district.includes('Tebet')) baseDistance = 4.8;
-  } else if (regency.includes('Jakarta Pusat')) {
-    baseDistance = 7.5;
-  } else if (regency.includes('Jakarta Barat')) {
-    baseDistance = 11.2;
-  } else if (regency.includes('Jakarta Timur')) {
-    baseDistance = 13.6;
-  } else if (regency.includes('Jakarta Utara')) {
-    baseDistance = 18.4;
-  } else if (regency.includes('Depok') || regency.includes('Cinere')) {
-    baseDistance = 12.5;
-  } else if (regency.includes('Tangerang Selatan') || regency.includes('Bintaro') || regency.includes('Ciputat')) {
-    baseDistance = 9.8;
-  } else if (regency.includes('Tangerang')) {
-    baseDistance = 22.0;
-  } else if (regency.includes('Bekasi')) {
-    baseDistance = 24.5;
-  } else if (regency.includes('Bogor')) {
-    baseDistance = 38.0;
-  } else if (province === 'Jawa Barat') {
-    baseDistance = 45.0;
-  } else if (province === 'Banten') {
-    baseDistance = 35.0;
-  } else if (province === 'Jawa Tengah' || province === 'DI Yogyakarta') {
-    baseDistance = 75.0;
-  } else if (province === 'Jawa Timur') {
-    baseDistance = 110.0;
+  // Resolve destination coordinate
+  const destCoord =
+    REGION_COORDINATES[district] ||
+    REGION_COORDINATES[regency] ||
+    PROVINCE_CENTROIDS[province] ||
+    { lat: -6.1754, lng: 106.8272 };
+
+  // Calculate straight-line geographic distance
+  const straightLineKm = calculateHaversineKm(storeLat, storeLng, destCoord.lat, destCoord.lng);
+
+  let baseDistance = 3.5;
+
+  if (straightLineKm < 0.6) {
+    // Exact same subdistrict / vicinity
+    baseDistance = 1.0;
   } else {
-    // Inter-island / outer provinces
-    baseDistance = 150.0;
+    // Real-world road network winding factor (typically 1.35x - 1.45x)
+    baseDistance = straightLineKm * 1.38;
   }
 
-  // If subdistrict / village specific hash variation for natural variations
+  // If subdistrict / village specific hash variation for natural micro-variations
   if (village) {
     const hash = village.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
-    const variance = (hash % 15) / 10; // 0 to 1.4 km variance
+    const variance = (hash % 10) / 20; // 0 to 0.45 km variance
     baseDistance += variance;
   }
 
@@ -357,7 +480,11 @@ export function calculateStoreDistance(params: {
 /**
  * Instant search through all provinces, regencies, districts, and villages
  */
-export function searchIndonesianRegions(query: string, maxResults = 12): RegionOption[] {
+export function searchIndonesianRegions(
+  query: string,
+  maxResults = 12,
+  storeCoordinate?: { lat: number; lng: number }
+): RegionOption[] {
   if (!query || query.trim().length < 2) return [];
 
   const cleanQuery = query.toLowerCase().trim();
@@ -369,7 +496,13 @@ export function searchIndonesianRegions(query: string, maxResults = 12): RegionO
         for (const village of villages) {
           const matchString = `${village} ${district} ${regency} ${province}`.toLowerCase();
           if (matchString.includes(cleanQuery)) {
-            const distance = calculateStoreDistance({ province, regency, district, village }).distanceKm;
+            const distance = calculateStoreDistance({
+              province,
+              regency,
+              district,
+              village,
+              storeCoordinate
+            }).distanceKm;
             results.push({
               province,
               regency,

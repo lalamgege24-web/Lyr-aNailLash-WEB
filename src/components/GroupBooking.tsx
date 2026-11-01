@@ -20,7 +20,8 @@ import {
   LocationDetail, 
   Reservation, 
   GroupCustomerItem,
-  OperationalScheduleSettings
+  OperationalScheduleSettings,
+  StoreSettings
 } from '../types/salon';
 import { TransparentCatalog } from './TransparentCatalog';
 import { HomeServicePicker } from './HomeServicePicker';
@@ -34,6 +35,7 @@ interface GroupBookingProps {
   availableTypes: TypeItem[];
   operationalSchedule?: OperationalScheduleSettings;
   reservations: Reservation[];
+  settings?: StoreSettings;
   onSubmitReservation: (reservation: Omit<Reservation, 'id' | 'bookingCode' | 'createdAt' | 'randomCuteQuote'>) => void;
   onBack: () => void;
 }
@@ -45,6 +47,7 @@ export const GroupBooking: React.FC<GroupBookingProps> = ({
   availableTypes,
   operationalSchedule,
   reservations,
+  settings,
   onSubmitReservation,
   onBack
 }) => {
@@ -84,10 +87,10 @@ export const GroupBooking: React.FC<GroupBookingProps> = ({
   const [location, setLocation] = useState<LocationDetail>({
     isHomeService: false,
     province: 'DKI Jakarta',
-    regency: 'Jakarta Selatan',
-    district: 'Kebayoran Baru',
-    village: 'Senayan',
-    streetAddress: 'Studio Lyra’s Nail-Lash (Kunjungan Salon)',
+    regency: 'Jakarta Barat',
+    district: 'Cengkareng',
+    village: 'Cengkareng Timur',
+    streetAddress: `${settings?.storeAddress || 'Mall Taman Palem Lt G Blok A 30B, Cengkareng Timur, Jakarta Barat'} (Kunjungan Salon)`,
     calculatedDistanceKm: 0,
     baseDeliveryFee: 0,
     additional5KmFee: 0,
@@ -477,6 +480,7 @@ export const GroupBooking: React.FC<GroupBookingProps> = ({
             value={location}
             onChange={setLocation}
             allowCoinDiscount={false}
+            settings={settings}
           />
         </div>
 

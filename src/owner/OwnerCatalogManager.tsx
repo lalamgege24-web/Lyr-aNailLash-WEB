@@ -11,7 +11,8 @@ import {
   ChevronDown, 
   ChevronUp, 
   DollarSign, 
-  Info 
+  Info,
+  Percent
 } from 'lucide-react';
 import { Category, SubCategory, SubSubCategory } from '../types/salon';
 import { salonStore } from '../services/store';
@@ -33,6 +34,7 @@ export const OwnerCatalogManager: React.FC<OwnerCatalogManagerProps> = ({
   const [targetCatIdForSub, setTargetCatIdForSub] = useState<string | null>(null);
   const [subName, setSubName] = useState('');
   const [subPrice, setSubPrice] = useState(50000);
+  const [subDiscount, setSubDiscount] = useState(0);
   const [subDesc, setSubDesc] = useState('');
   const [subUseColor, setSubUseColor] = useState(false);
   const [subUseCode, setSubUseCode] = useState(false);
@@ -43,6 +45,7 @@ export const OwnerCatalogManager: React.FC<OwnerCatalogManagerProps> = ({
   const [targetSubIdForSubSub, setTargetSubIdForSubSub] = useState<string | null>(null);
   const [subSubName, setSubSubName] = useState('');
   const [subSubPrice, setSubSubPrice] = useState(50000);
+  const [subSubDiscount, setSubSubDiscount] = useState(0);
 
   // Collapse toggle
   const [collapsedCategories, setCollapsedCategories] = useState<Record<string, boolean>>({});
@@ -81,13 +84,19 @@ export const OwnerCatalogManager: React.FC<OwnerCatalogManagerProps> = ({
   const handleAddSubCategory = (catId: string) => {
     if (!subName.trim()) return;
 
+    const discountP = Math.min(100, Math.max(0, Number(subDiscount) || 0));
+    const baseP = Number(subPrice);
+    const discP = discountP > 0 ? Math.round(baseP * (1 - discountP / 100)) : baseP;
+
     const updated = categories.map(cat => {
       if (cat.id !== catId) return cat;
 
       const newSub: SubCategory = {
         id: `sub-${Date.now()}`,
         name: subName.trim(),
-        price: Number(subPrice),
+        price: baseP,
+        discountPercent: discountP,
+        discountPrice: discP,
         description: subDesc.trim() || undefined,
         useColorManager: subUseColor,
         useCodeManager: subUseCode,
@@ -103,6 +112,7 @@ export const OwnerCatalogManager: React.FC<OwnerCatalogManagerProps> = ({
     setTargetCatIdForSub(null);
     setSubName('');
     setSubPrice(50000);
+    setSubDiscount(0);
     setSubDesc('');
     setSubUseColor(false);
     setSubUseCode(false);
@@ -124,6 +134,46 @@ export const OwnerCatalogManager: React.FC<OwnerCatalogManagerProps> = ({
       salonStore.setCategories(updated);
       onRefresh();
     }
+  };
+
+  // Update Subbab Price and Discount %
+  const handleUpdateSubPriceAndDiscount = (
+    catId: string,
+    subId: string,
+    deltaPrice?: number,
+    exactPrice?: number,
+    discountPercent?: number
+  ) => {
+    const updated = categories.map(cat => {
+      if (cat.id !== catId) return cat;
+      return {
+        ...cat,
+        subCategories: cat.subCategories.map(s => {
+          if (s.id !== subId) return s;
+          let newPrice = s.price;
+          if (exactPrice !== undefined) {
+            newPrice = Math.max(0, exactPrice);
+          } else if (deltaPrice !== undefined) {
+            newPrice = Math.max(0, newPrice + deltaPrice);
+          }
+
+          let newDiscount = discountPercent !== undefined
+            ? Math.min(100, Math.max(0, discountPercent))
+            : (s.discountPercent || 0);
+
+          const discountPrice = newDiscount > 0 ? Math.round(newPrice * (1 - newDiscount / 100)) : newPrice;
+
+          return {
+            ...s,
+            price: newPrice,
+            discountPercent: newDiscount,
+            discountPrice
+          };
+        })
+      };
+    });
+    salonStore.setCategories(updated);
+    onRefresh();
   };
 
   // Toggle Subbab flags
@@ -152,6 +202,10 @@ export const OwnerCatalogManager: React.FC<OwnerCatalogManagerProps> = ({
   const handleAddSubSubCategory = (catId: string, subId: string) => {
     if (!subSubName.trim()) return;
 
+    const discountP = Math.min(100, Math.max(0, Number(subSubDiscount) || 0));
+    const baseP = Number(subSubPrice);
+    const discP = discountP > 0 ? Math.round(baseP * (1 - discountP / 100)) : baseP;
+
     const updated = categories.map(cat => {
       if (cat.id !== catId) return cat;
       return {
@@ -162,7 +216,9 @@ export const OwnerCatalogManager: React.FC<OwnerCatalogManagerProps> = ({
           const newSubSub: SubSubCategory = {
             id: `ssc-${Date.now()}`,
             name: subSubName.trim(),
-            price: Number(subSubPrice)
+            price: baseP,
+            discountPercent: discountP,
+            discountPrice: discP
           };
           return {
             ...s,
@@ -177,6 +233,54 @@ export const OwnerCatalogManager: React.FC<OwnerCatalogManagerProps> = ({
     setTargetSubIdForSubSub(null);
     setSubSubName('');
     setSubSubPrice(50000);
+    setSubSubDiscount(0);
+    onRefresh();
+  };
+
+  // Update Sub-subbab Price and Discount %
+  const handleUpdateSubSubPriceAndDiscount = (
+    catId: string,
+    subId: string,
+    sscId: string,
+    deltaPrice?: number,
+    exactPrice?: number,
+    discountPercent?: number
+  ) => {
+    const updated = categories.map(cat => {
+      if (cat.id !== catId) return cat;
+      return {
+        ...cat,
+        subCategories: cat.subCategories.map(s => {
+          if (s.id !== subId) return s;
+          return {
+            ...s,
+            subSubCategories: (s.subSubCategories || []).map(ssc => {
+              if (ssc.id !== sscId) return ssc;
+              let newPrice = ssc.price;
+              if (exactPrice !== undefined) {
+                newPrice = Math.max(0, exactPrice);
+              } else if (deltaPrice !== undefined) {
+                newPrice = Math.max(0, newPrice + deltaPrice);
+              }
+
+              let newDiscount = discountPercent !== undefined
+                ? Math.min(100, Math.max(0, discountPercent))
+                : (ssc.discountPercent || 0);
+
+              const discountPrice = newDiscount > 0 ? Math.round(newPrice * (1 - newDiscount / 100)) : newPrice;
+
+              return {
+                ...ssc,
+                price: newPrice,
+                discountPercent: newDiscount,
+                discountPrice
+              };
+            })
+          };
+        })
+      };
+    });
+    salonStore.setCategories(updated);
     onRefresh();
   };
 
@@ -295,7 +399,7 @@ export const OwnerCatalogManager: React.FC<OwnerCatalogManagerProps> = ({
                     <button type="button" onClick={() => setTargetCatIdForSub(null)} className="text-gray-400 hover:text-gray-600">✕</button>
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
                     <div>
                       <label className="block font-semibold mb-1">Nama Subbab:</label>
                       <input
@@ -314,6 +418,18 @@ export const OwnerCatalogManager: React.FC<OwnerCatalogManagerProps> = ({
                         value={subPrice}
                         onChange={(e) => setSubPrice(Number(e.target.value))}
                         className="w-full py-1.5 px-3 rounded-lg border border-[#F8BBD0] bg-white font-mono font-medium"
+                      />
+                    </div>
+                    <div>
+                      <label className="block font-semibold mb-1 text-rose-700">Diskon Awal (%):</label>
+                      <input
+                        type="number"
+                        min={0}
+                        max={100}
+                        value={subDiscount}
+                        onChange={(e) => setSubDiscount(Number(e.target.value))}
+                        placeholder="0 - 100%"
+                        className="w-full py-1.5 px-3 rounded-lg border border-rose-300 bg-rose-50/40 font-mono font-medium text-rose-700"
                       />
                     </div>
                   </div>
@@ -478,13 +594,152 @@ export const OwnerCatalogManager: React.FC<OwnerCatalogManagerProps> = ({
                           </label>
                         </div>
 
+                        {/* SUBBAB HARGA & DISKON CONTROLLER (Jika tidak ada Sub-subbab) */}
+                        {!hasSubSub && (
+                          <div className="bg-white p-3 rounded-xl border border-[#D4AF37]/50 space-y-2.5">
+                            <div className="flex flex-wrap items-center justify-between gap-3">
+                              {/* Price Controls */}
+                              <div className="flex items-center gap-1.5 flex-wrap">
+                                <span className="text-xs font-bold text-[#4A3B40] flex items-center gap-1">
+                                  <DollarSign size={13} className="text-[#D4AF37]" />
+                                  Harga:
+                                </span>
+                                <div className="flex items-center gap-1">
+                                  <button
+                                    type="button"
+                                    onClick={() => handleUpdateSubPriceAndDiscount(category.id, sub.id, -10000)}
+                                    className="px-2 py-1 rounded-lg bg-gray-100 hover:bg-gray-200 text-[10px] font-bold text-gray-700 transition"
+                                    title="Turunkan Rp 10.000"
+                                  >
+                                    -10rb
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleUpdateSubPriceAndDiscount(category.id, sub.id, -5000)}
+                                    className="px-2 py-1 rounded-lg bg-gray-100 hover:bg-gray-200 text-[10px] font-bold text-gray-700 transition"
+                                    title="Turunkan Rp 5.000"
+                                  >
+                                    -5rb
+                                  </button>
+                                  <div className="relative">
+                                    <span className="absolute left-2 top-1 text-xs text-gray-400 font-mono">Rp</span>
+                                    <input
+                                      type="number"
+                                      min={0}
+                                      step={1000}
+                                      value={sub.price}
+                                      onChange={(e) => handleUpdateSubPriceAndDiscount(category.id, sub.id, undefined, Number(e.target.value))}
+                                      className="w-28 pl-7 pr-2 py-1 text-xs font-mono font-bold text-[#B8860B] rounded-lg border border-[#F8BBD0] bg-[#FFFDF9] focus:outline-none focus:ring-1 focus:ring-[#D4AF37]"
+                                    />
+                                  </div>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleUpdateSubPriceAndDiscount(category.id, sub.id, 5000)}
+                                    className="px-2 py-1 rounded-lg bg-amber-50 hover:bg-amber-100 text-[10px] font-bold text-[#B8860B] border border-amber-200 transition"
+                                    title="Naikkan Rp 5.000"
+                                  >
+                                    +5rb
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleUpdateSubPriceAndDiscount(category.id, sub.id, 10000)}
+                                    className="px-2 py-1 rounded-lg bg-amber-50 hover:bg-amber-100 text-[10px] font-bold text-[#B8860B] border border-amber-200 transition"
+                                    title="Naikkan Rp 10.000"
+                                  >
+                                    +10rb
+                                  </button>
+                                </div>
+                              </div>
+
+                              {/* Discount % Controls */}
+                              <div className="flex items-center gap-1.5 flex-wrap">
+                                <span className="text-xs font-bold text-[#4A3B40] flex items-center gap-1">
+                                  <Percent size={13} className="text-rose-500" />
+                                  Diskon:
+                                </span>
+                                <div className="flex items-center gap-1">
+                                  <button
+                                    type="button"
+                                    onClick={() => handleUpdateSubPriceAndDiscount(category.id, sub.id, undefined, undefined, Math.max(0, (sub.discountPercent || 0) - 5))}
+                                    className="px-2 py-1 rounded-lg bg-gray-100 hover:bg-gray-200 text-[10px] font-bold text-gray-700 transition"
+                                    title="Kurangi Diskon 5%"
+                                  >
+                                    -5%
+                                  </button>
+                                  <div className="flex items-center">
+                                    <input
+                                      type="number"
+                                      min={0}
+                                      max={100}
+                                      step={1}
+                                      value={sub.discountPercent || 0}
+                                      onChange={(e) => handleUpdateSubPriceAndDiscount(category.id, sub.id, undefined, undefined, Number(e.target.value))}
+                                      className="w-16 px-2 py-1 text-xs font-mono font-bold text-center text-rose-700 rounded-lg border border-rose-300 bg-rose-50/40 focus:outline-none focus:ring-1 focus:ring-rose-400"
+                                    />
+                                    <span className="text-xs font-bold text-rose-700 ml-1">%</span>
+                                  </div>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleUpdateSubPriceAndDiscount(category.id, sub.id, undefined, undefined, Math.min(100, (sub.discountPercent || 0) + 5))}
+                                    className="px-2 py-1 rounded-lg bg-rose-100 hover:bg-rose-200 text-[10px] font-bold text-rose-800 transition"
+                                    title="Tambah Diskon 5%"
+                                  >
+                                    +5%
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Preset Buttons & Live Price Preview */}
+                            <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-gray-100 text-xs">
+                              <div className="flex items-center gap-1 flex-wrap">
+                                <span className="text-[10px] text-[#8C7A82] font-semibold">Preset Diskon:</span>
+                                {[0, 5, 10, 15, 20, 25, 30, 50].map((d) => (
+                                  <button
+                                    key={d}
+                                    type="button"
+                                    onClick={() => handleUpdateSubPriceAndDiscount(category.id, sub.id, undefined, undefined, d)}
+                                    className={`px-2 py-0.5 rounded-md text-[10px] font-mono transition ${
+                                      (sub.discountPercent || 0) === d
+                                        ? 'bg-rose-600 text-white font-bold'
+                                        : 'bg-gray-100 hover:bg-rose-100 text-gray-700'
+                                    }`}
+                                  >
+                                    {d === 0 ? '0% (Nonaktif)' : `${d}%`}
+                                  </button>
+                                ))}
+                              </div>
+
+                              <div className="flex items-center gap-2">
+                                {(sub.discountPercent || 0) > 0 ? (
+                                  <>
+                                    <span className="line-through text-gray-400 font-mono text-[11px]">
+                                      Rp {sub.price.toLocaleString('id-ID')}
+                                    </span>
+                                    <span className="text-[10px] font-bold bg-rose-100 text-rose-700 px-2 py-0.5 rounded-full border border-rose-200">
+                                      Diskon {sub.discountPercent}%
+                                    </span>
+                                    <span className="font-mono font-bold text-emerald-700 text-xs sm:text-sm">
+                                      Harga Akhir: Rp {Math.round(sub.price * (1 - (sub.discountPercent || 0) / 100)).toLocaleString('id-ID')}
+                                    </span>
+                                  </>
+                                ) : (
+                                  <span className="font-mono text-xs font-bold text-[#B8860B]">
+                                    Harga Akhir: Rp {sub.price.toLocaleString('id-ID')}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
                         {/* Form Tambah Sub-subbab */}
                         {targetSubIdForSubSub === sub.id && (
                           <div className="p-3.5 rounded-xl bg-[#FFF8E7] border border-[#D4AF37] space-y-2.5 animate-fadeIn">
                             <span className="text-xs font-bold text-[#4A3B40] block">
                               Tambah Sub-subbab (Variasi) untuk &ldquo;{sub.name}&rdquo;:
                             </span>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs">
                               <input
                                 type="text"
                                 required
@@ -500,6 +755,15 @@ export const OwnerCatalogManager: React.FC<OwnerCatalogManagerProps> = ({
                                 onChange={(e) => setSubSubPrice(Number(e.target.value))}
                                 placeholder="Harga Variasi (Rp)"
                                 className="py-1.5 px-3 rounded-lg border border-[#F8BBD0] bg-white font-mono font-medium"
+                              />
+                              <input
+                                type="number"
+                                min={0}
+                                max={100}
+                                value={subSubDiscount}
+                                onChange={(e) => setSubSubDiscount(Number(e.target.value))}
+                                placeholder="Diskon Awal % (0-100%)"
+                                className="py-1.5 px-3 rounded-lg border border-rose-300 bg-rose-50/40 font-mono font-medium text-rose-700"
                               />
                             </div>
                             <div className="flex justify-end gap-2 pt-1">
@@ -524,33 +788,142 @@ export const OwnerCatalogManager: React.FC<OwnerCatalogManagerProps> = ({
                         {/* Sub-subbab List */}
                         {hasSubSub && (
                           <div className="pl-3 sm:pl-5 border-l-2 border-[#D4AF37]/50 space-y-2 pt-1">
-                            <span className="text-[11px] font-bold text-[#8C7A82] uppercase tracking-wider block">
-                              Daftar Variasi (Sub-subbab):
-                            </span>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-                              {sub.subSubCategories!.map((ssc) => (
-                                <div
-                                  key={ssc.id}
-                                  className="p-2.5 rounded-lg bg-white border border-[#F8BBD0]/50 flex items-center justify-between gap-2 shadow-2xs"
-                                >
-                                  <div>
-                                    <span className="font-semibold text-xs text-[#4A3B40] block">
-                                      {ssc.name}
-                                    </span>
-                                    <span className="font-mono text-[11px] text-[#B8860B] font-bold">
-                                      Rp {ssc.price.toLocaleString('id-ID')}
-                                    </span>
-                                  </div>
-                                  <button
-                                    type="button"
-                                    onClick={() => handleDeleteSubSubCategory(category.id, sub.id, ssc.id)}
-                                    className="p-1 text-red-400 hover:text-red-600"
-                                    title="Hapus Variasi"
+                            <div className="flex items-center justify-between">
+                              <span className="text-[11px] font-bold text-[#8C7A82] uppercase tracking-wider block">
+                                Daftar Variasi & Atur Harga/Diskon (Sub-subbab):
+                              </span>
+                              <span className="text-[10px] text-[#B8860B] font-semibold">
+                                {sub.subSubCategories!.length} Variasi Tersedia
+                              </span>
+                            </div>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                              {sub.subSubCategories!.map((ssc) => {
+                                const hasDisc = (ssc.discountPercent || 0) > 0;
+                                const netPrice = hasDisc
+                                  ? Math.round(ssc.price * (1 - (ssc.discountPercent || 0) / 100))
+                                  : ssc.price;
+
+                                return (
+                                  <div
+                                    key={ssc.id}
+                                    className="p-3 rounded-xl bg-white border border-[#F8BBD0]/60 space-y-2.5 shadow-2xs hover:border-[#D4AF37]/60 transition"
                                   >
-                                    <Trash2 size={12} />
-                                  </button>
-                                </div>
-                              ))}
+                                    <div className="flex items-center justify-between gap-2 border-b border-[#F8BBD0]/30 pb-1.5">
+                                      <span className="font-semibold text-xs text-[#4A3B40]">
+                                        {ssc.name}
+                                      </span>
+                                      <button
+                                        type="button"
+                                        onClick={() => handleDeleteSubSubCategory(category.id, sub.id, ssc.id)}
+                                        className="p-1 text-red-400 hover:text-red-600 rounded transition"
+                                        title="Hapus Variasi"
+                                      >
+                                        <Trash2 size={13} />
+                                      </button>
+                                    </div>
+
+                                    {/* Price controls */}
+                                    <div className="flex items-center justify-between gap-1 text-xs">
+                                      <span className="text-[11px] text-[#8C7A82] font-semibold">Harga (Rp):</span>
+                                      <div className="flex items-center gap-1">
+                                        <button
+                                          type="button"
+                                          onClick={() => handleUpdateSubSubPriceAndDiscount(category.id, sub.id, ssc.id, -5000)}
+                                          className="px-1.5 py-0.5 rounded bg-gray-100 hover:bg-gray-200 text-[10px] font-bold text-gray-700"
+                                          title="Kurang Rp 5.000"
+                                        >
+                                          -5rb
+                                        </button>
+                                        <input
+                                          type="number"
+                                          min={0}
+                                          step={1000}
+                                          value={ssc.price}
+                                          onChange={(e) => handleUpdateSubSubPriceAndDiscount(category.id, sub.id, ssc.id, undefined, Number(e.target.value))}
+                                          className="w-20 px-1.5 py-0.5 text-xs font-mono font-bold text-[#B8860B] rounded border border-[#F8BBD0] bg-[#FFFDF9] text-center"
+                                        />
+                                        <button
+                                          type="button"
+                                          onClick={() => handleUpdateSubSubPriceAndDiscount(category.id, sub.id, ssc.id, 5000)}
+                                          className="px-1.5 py-0.5 rounded bg-amber-50 hover:bg-amber-100 text-[10px] font-bold text-[#B8860B] border border-amber-200"
+                                          title="Tambah Rp 5.000"
+                                        >
+                                          +5rb
+                                        </button>
+                                      </div>
+                                    </div>
+
+                                    {/* Discount controls */}
+                                    <div className="flex items-center justify-between gap-1 text-xs">
+                                      <span className="text-[11px] text-rose-700 font-semibold">Diskon (%):</span>
+                                      <div className="flex items-center gap-1">
+                                        <button
+                                          type="button"
+                                          onClick={() => handleUpdateSubSubPriceAndDiscount(category.id, sub.id, ssc.id, undefined, undefined, Math.max(0, (ssc.discountPercent || 0) - 5))}
+                                          className="px-1.5 py-0.5 rounded bg-gray-100 hover:bg-gray-200 text-[10px] font-bold text-gray-700"
+                                          title="Kurang Diskon 5%"
+                                        >
+                                          -5%
+                                        </button>
+                                        <input
+                                          type="number"
+                                          min={0}
+                                          max={100}
+                                          step={1}
+                                          value={ssc.discountPercent || 0}
+                                          onChange={(e) => handleUpdateSubSubPriceAndDiscount(category.id, sub.id, ssc.id, undefined, undefined, Number(e.target.value))}
+                                          className="w-12 px-1 py-0.5 text-xs font-mono font-bold text-rose-700 rounded border border-rose-300 bg-rose-50/40 text-center"
+                                        />
+                                        <span className="text-xs font-bold text-rose-700">%</span>
+                                        <button
+                                          type="button"
+                                          onClick={() => handleUpdateSubSubPriceAndDiscount(category.id, sub.id, ssc.id, undefined, undefined, Math.min(100, (ssc.discountPercent || 0) + 5))}
+                                          className="px-1.5 py-0.5 rounded bg-rose-100 hover:bg-rose-200 text-[10px] font-bold text-rose-800"
+                                          title="Tambah Diskon 5%"
+                                        >
+                                          +5%
+                                        </button>
+                                      </div>
+                                    </div>
+
+                                    {/* Quick presets */}
+                                    <div className="flex items-center gap-1 pt-1 border-t border-gray-100 flex-wrap">
+                                      {[0, 5, 10, 15, 20, 50].map((d) => (
+                                        <button
+                                          key={d}
+                                          type="button"
+                                          onClick={() => handleUpdateSubSubPriceAndDiscount(category.id, sub.id, ssc.id, undefined, undefined, d)}
+                                          className={`px-1.5 py-0.5 rounded text-[9px] font-mono transition ${
+                                            (ssc.discountPercent || 0) === d
+                                              ? 'bg-rose-600 text-white font-bold'
+                                              : 'bg-gray-100 hover:bg-rose-100 text-gray-700'
+                                          }`}
+                                        >
+                                          {d === 0 ? '0%' : `${d}%`}
+                                        </button>
+                                      ))}
+                                    </div>
+
+                                    {/* Net price display */}
+                                    <div className="pt-1 text-[11px] font-medium flex items-center justify-between border-t border-[#F8BBD0]/30">
+                                      {hasDisc ? (
+                                        <>
+                                          <span className="line-through text-gray-400 font-mono text-[10px]">
+                                            Rp {ssc.price.toLocaleString('id-ID')}
+                                          </span>
+                                          <span className="font-mono font-bold text-emerald-700 text-xs">
+                                            Net: Rp {netPrice.toLocaleString('id-ID')} (-{ssc.discountPercent}%)
+                                          </span>
+                                        </>
+                                      ) : (
+                                        <span className="font-mono font-bold text-[#B8860B] text-xs">
+                                          Net: Rp {ssc.price.toLocaleString('id-ID')}
+                                        </span>
+                                      )}
+                                    </div>
+                                  </div>
+                                );
+                              })}
                             </div>
                           </div>
                         )}

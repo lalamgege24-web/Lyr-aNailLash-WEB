@@ -117,28 +117,89 @@ export const OwnerMemberManager: React.FC<OwnerMemberManagerProps> = ({
           </p>
         </div>
 
-        {/* Setting: Ubah % Total Tagihan Menjadi Koin */}
-        <form onSubmit={handleSavePercentage} className="flex items-center gap-2 bg-white p-2 rounded-xl border border-[#D4AF37]/40 shadow-2xs">
-          <label className="text-xs font-semibold text-[#4A3B40] flex items-center gap-1 shrink-0">
-            <Percent size={13} className="text-[#D4AF37]" />
-            <span>Reward Koin (% tagihan):</span>
-          </label>
-          <input
-            type="number"
-            min={0}
-            max={50}
-            step={0.5}
-            value={coinPercentage}
-            onChange={(e) => setCoinPercentage(Number(e.target.value))}
-            className="w-16 py-1 px-2 rounded-lg border border-[#F8BBD0] font-mono font-bold text-center text-xs"
-          />
-          <button
-            type="submit"
-            className="py-1 px-3 rounded-lg gold-button text-xs font-bold"
-          >
-            {savePercentageSuccess ? 'Tersimpan ✓' : 'Simpan %'}
-          </button>
-        </form>
+        {/* Setting: Ubah % Total Tagihan Menjadi Koin (0,001% - 100%, presisi 0,001) */}
+        <div className="bg-white p-3.5 rounded-2xl border border-[#D4AF37]/50 shadow-sm space-y-2">
+          <form onSubmit={handleSavePercentage} className="flex flex-wrap items-center gap-2">
+            <label className="text-xs font-bold text-[#4A3B40] flex items-center gap-1.5 shrink-0">
+              <Percent size={14} className="text-[#D4AF37]" />
+              <span>% Reward Koin Member:</span>
+            </label>
+            <div className="flex items-center gap-1">
+              <button
+                type="button"
+                onClick={() => setCoinPercentage(prev => Math.max(0.001, parseFloat((prev - 0.001).toFixed(3))))}
+                className="w-7 h-7 rounded-lg border border-[#F8BBD0] bg-[#FFFDF9] text-[11px] font-bold text-[#4A3B40] hover:bg-[#FFD1DC] transition flex items-center justify-center"
+                title="Kurang 0,001%"
+              >
+                -0.001
+              </button>
+              <input
+                type="number"
+                min={0.001}
+                max={100}
+                step={0.001}
+                value={coinPercentage}
+                onChange={(e) => {
+                  const val = parseFloat(e.target.value);
+                  if (!isNaN(val)) {
+                    setCoinPercentage(parseFloat(val.toFixed(3)));
+                  } else {
+                    setCoinPercentage(0.001);
+                  }
+                }}
+                className="w-24 py-1 px-2 rounded-lg border border-[#D4AF37] font-mono font-bold text-center text-xs text-[#B8860B] bg-[#FFF8E7]/40 focus:outline-none focus:ring-1 focus:ring-[#D4AF37]"
+              />
+              <span className="text-xs font-bold text-[#B8860B]">%</span>
+              <button
+                type="button"
+                onClick={() => setCoinPercentage(prev => Math.min(100, parseFloat((prev + 0.001).toFixed(3))))}
+                className="w-7 h-7 rounded-lg border border-[#F8BBD0] bg-[#FFFDF9] text-[11px] font-bold text-[#4A3B40] hover:bg-[#FFD1DC] transition flex items-center justify-center"
+                title="Tambah 0,001%"
+              >
+                +0.001
+              </button>
+            </div>
+            
+            <button
+              type="submit"
+              className="py-1.5 px-4 rounded-xl gold-button text-xs font-bold shadow-2xs hover:scale-102 transition"
+            >
+              {savePercentageSuccess ? 'Tersimpan ✓' : 'Simpan % Koin'}
+            </button>
+          </form>
+
+          {/* Quick presets & Live Simulation */}
+          <div className="flex flex-wrap items-center justify-between gap-2 pt-1 border-t border-[#F8BBD0]/30 text-[11px]">
+            <div className="flex items-center gap-1.5 flex-wrap">
+              <span className="text-[#8C7A82] text-[10px] font-semibold">Preset:</span>
+              {[0.001, 0.5, 1, 2, 5, 10, 20, 50, 100].map((preset) => (
+                <button
+                  key={preset}
+                  type="button"
+                  onClick={() => setCoinPercentage(preset)}
+                  className={`px-1.5 py-0.5 rounded text-[10px] font-mono font-semibold transition ${
+                    coinPercentage === preset
+                      ? 'bg-[#D4AF37] text-white'
+                      : 'bg-[#FFF8E7] text-[#8C7A82] hover:bg-[#FFD1DC]/60'
+                  }`}
+                >
+                  {preset}%
+                </button>
+              ))}
+            </div>
+
+            <div className="text-[11px] text-[#4A3B40] bg-[#FFF8E7] px-2.5 py-1 rounded-lg border border-[#D4AF37]/20 flex items-center gap-1 font-medium">
+              <Coins size={12} className="text-[#D4AF37]" />
+              <span>
+                Simulasi Tagihan Rp 100.000 &rarr; Member dapat{' '}
+                <strong className="text-[#B8860B] font-mono">
+                  {Math.round((100000 * coinPercentage) / 100).toLocaleString('id-ID')}
+                </strong>{' '}
+                Koin
+              </span>
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* SECTION 1: Member Accounts Table */}

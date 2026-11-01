@@ -55,6 +55,16 @@ class SalonStore {
         }
       };
     }
+    if (typeof window !== 'undefined') {
+      window.addEventListener('storage', (e) => {
+        if (e.key && e.key.startsWith('lyras_')) {
+          this.notify();
+        }
+      });
+      window.addEventListener('lyras_store_updated', () => {
+        this.notify();
+      });
+    }
   }
 
   public subscribe(listener: () => void): () => void {
@@ -68,8 +78,15 @@ class SalonStore {
 
   private broadcast() {
     this.notify();
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('lyras_store_updated', { detail: { timestamp: Date.now() } }));
+    }
     if (syncChannel) {
-      syncChannel.postMessage({ type: 'STATE_UPDATED', timestamp: Date.now() });
+      try {
+        syncChannel.postMessage({ type: 'STATE_UPDATED', timestamp: Date.now() });
+      } catch (e) {
+        console.error('Failed to post to BroadcastChannel:', e);
+      }
     }
   }
 
@@ -97,13 +114,31 @@ class SalonStore {
   // --- SETTINGS ---
   public getSettings(): StoreSettings {
     const raw = this.getItem<StoreSettings>(STORAGE_KEYS.SETTINGS, INITIAL_SETTINGS);
-    if (!raw.operationalSchedule || !raw.operationalSchedule.regularWeeklySchedule) {
-      return {
-        ...raw,
-        operationalSchedule: INITIAL_SETTINGS.operationalSchedule
-      };
+    let updated = { ...raw };
+    let changed = false;
+
+    if (!updated.operationalSchedule || !updated.operationalSchedule.regularWeeklySchedule) {
+      updated.operationalSchedule = INITIAL_SETTINGS.operationalSchedule;
+      changed = true;
     }
-    return raw;
+
+    // Auto-update to new store address & Google Maps URL if holding initial placeholder
+    if (
+      !updated.storeAddress ||
+      updated.storeAddress.includes('Senopati') ||
+      !updated.storeCoordinate ||
+      updated.googleMapsUrl?.includes('maps.google.com/?q=Lyras')
+    ) {
+      updated.storeAddress = INITIAL_SETTINGS.storeAddress;
+      updated.storeCoordinate = INITIAL_SETTINGS.storeCoordinate;
+      updated.googleMapsUrl = INITIAL_SETTINGS.googleMapsUrl;
+      changed = true;
+    }
+
+    if (changed) {
+      this.setItem(STORAGE_KEYS.SETTINGS, updated);
+    }
+    return updated;
   }
 
   public updateSettings(partial: Partial<StoreSettings>): StoreSettings {
@@ -225,7 +260,9 @@ class SalonStore {
     if (!res) return null;
 
     const settings = this.getSettings();
-    const percentage = settings.coinRewardPercentage || 2;
+    const percentage = typeof settings.coinRewardPercentage === 'number' && settings.coinRewardPercentage > 0
+      ? settings.coinRewardPercentage
+      : 2;
     const coinsAwarded = Math.round((res.servicesSubtotal * percentage) / 100);
 
     // If customer is a registered member, add coins

@@ -147,51 +147,69 @@ export const TransparentCatalog: React.FC<TransparentCatalogProps> = ({
                     </div>
 
                     {/* If NO Sub-subbab: Show Price on Subbab */}
-                    {!hasSubSub && (
-                      <div className="flex items-center gap-3 self-end sm:self-center shrink-0">
-                        <div className="text-right">
-                          <span className="font-mono text-base font-bold text-[#B8860B]">
-                            {subCategory.price > 0 ? `Rp ${subCategory.price.toLocaleString('id-ID')}` : 'Harga Custom'}
-                          </span>
+                    {!hasSubSub && (() => {
+                      const hasDiscount = (subCategory.discountPercent ?? 0) > 0;
+                      const effectivePrice = hasDiscount
+                        ? Math.round(subCategory.price * (1 - (subCategory.discountPercent || 0) / 100))
+                        : subCategory.price;
+
+                      return (
+                        <div className="flex items-center gap-3 self-end sm:self-center shrink-0">
+                          <div className="text-right">
+                            {hasDiscount && (
+                              <div className="flex items-center justify-end gap-1.5 mb-0.5">
+                                <span className="line-through text-[11px] text-[#8C7A82] font-mono">
+                                  Rp {subCategory.price.toLocaleString('id-ID')}
+                                </span>
+                                <span className="text-[10px] font-bold bg-rose-100 text-rose-700 px-1.5 py-0.2 rounded-full border border-rose-200">
+                                  Diskon {subCategory.discountPercent}%
+                                </span>
+                              </div>
+                            )}
+                            <span className="font-mono text-base font-bold text-[#B8860B]">
+                              {effectivePrice > 0 ? `Rp ${effectivePrice.toLocaleString('id-ID')}` : 'Harga Custom'}
+                            </span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (directSelected && directInstance) {
+                                onRemoveService(directInstance.serviceId);
+                              } else {
+                                onToggleService({
+                                  serviceId: `srv-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+                                  categoryId: category.id,
+                                  categoryName: category.name,
+                                  subCategoryId: subCategory.id,
+                                  subCategoryName: subCategory.name,
+                                  price: subCategory.price,
+                                  discountPrice: hasDiscount ? effectivePrice : undefined,
+                                  finalPrice: effectivePrice,
+                                  selectedColors: []
+                                });
+                              }
+                            }}
+                            className={`py-1.5 px-4 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition ${
+                              directSelected
+                                ? 'bg-red-50 text-red-600 border border-red-200 hover:bg-red-100'
+                                : 'soft-button border border-[#F8BBD0] hover:scale-102'
+                            }`}
+                          >
+                            {directSelected ? (
+                              <>
+                                <Trash2 size={13} />
+                                <span>Batal</span>
+                              </>
+                            ) : (
+                              <>
+                                <Plus size={13} />
+                                <span>Pilih Layanan</span>
+                              </>
+                            )}
+                          </button>
                         </div>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            if (directSelected && directInstance) {
-                              onRemoveService(directInstance.serviceId);
-                            } else {
-                              onToggleService({
-                                serviceId: `srv-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
-                                categoryId: category.id,
-                                categoryName: category.name,
-                                subCategoryId: subCategory.id,
-                                subCategoryName: subCategory.name,
-                                price: subCategory.price,
-                                finalPrice: subCategory.price,
-                                selectedColors: []
-                              });
-                            }
-                          }}
-                          className={`py-1.5 px-4 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition ${
-                            directSelected
-                              ? 'bg-red-50 text-red-600 border border-red-200 hover:bg-red-100'
-                              : 'soft-button border border-[#F8BBD0] hover:scale-102'
-                          }`}
-                        >
-                          {directSelected ? (
-                            <>
-                              <Trash2 size={13} />
-                              <span>Batal</span>
-                            </>
-                          ) : (
-                            <>
-                              <Plus size={13} />
-                              <span>Pilih Layanan</span>
-                            </>
-                          )}
-                        </button>
-                      </div>
-                    )}
+                      );
+                    })()}
                   </div>
 
                   {/* If SubCategory has Sub-subcategories (Variations) */}
@@ -204,6 +222,10 @@ export const TransparentCatalog: React.FC<TransparentCatalogProps> = ({
                         {subCategory.subSubCategories!.map((subSub) => {
                           const variantSelected = isSelected(subCategory.id, subSub.id);
                           const variantInstance = variantSelected ? getSelectedInstance(subCategory.id, subSub.id) : null;
+                          const hasSubSubDiscount = (subSub.discountPercent ?? 0) > 0;
+                          const effectiveSubSubPrice = hasSubSubDiscount
+                            ? Math.round(subSub.price * (1 - (subSub.discountPercent || 0) / 100))
+                            : subSub.price;
 
                           return (
                             <div
@@ -221,7 +243,8 @@ export const TransparentCatalog: React.FC<TransparentCatalogProps> = ({
                                     subSubCategoryId: subSub.id,
                                     subSubCategoryName: subSub.name,
                                     price: subSub.price,
-                                    finalPrice: subSub.price,
+                                    discountPrice: hasSubSubDiscount ? effectiveSubSubPrice : undefined,
+                                    finalPrice: effectiveSubSubPrice,
                                     selectedColors: []
                                   });
                                 }
@@ -236,9 +259,21 @@ export const TransparentCatalog: React.FC<TransparentCatalogProps> = ({
                                 <span className="font-semibold text-[#4A3B40] block">
                                   {subSub.name}
                                 </span>
-                                <span className="text-[11px] text-[#B8860B] font-mono font-medium">
-                                  Rp {subSub.price.toLocaleString('id-ID')}
-                                </span>
+                                <div className="flex items-center gap-1.5 mt-0.5">
+                                  {hasSubSubDiscount && (
+                                    <>
+                                      <span className="line-through text-[10px] text-gray-400 font-mono">
+                                        Rp {subSub.price.toLocaleString('id-ID')}
+                                      </span>
+                                      <span className="text-[9px] font-bold bg-rose-100 text-rose-700 px-1 rounded-full border border-rose-200">
+                                        -{subSub.discountPercent}%
+                                      </span>
+                                    </>
+                                  )}
+                                  <span className="text-[11px] text-[#B8860B] font-mono font-bold">
+                                    Rp {effectiveSubSubPrice.toLocaleString('id-ID')}
+                                  </span>
+                                </div>
                               </div>
                               <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${
                                 variantSelected ? 'bg-[#D4AF37] text-white' : 'border border-gray-300'

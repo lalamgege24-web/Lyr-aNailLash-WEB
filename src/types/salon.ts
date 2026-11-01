@@ -31,6 +31,7 @@ export interface SubSubCategory {
   id: string;
   name: string;
   price: number;
+  discountPercent?: number; // Persentase diskon (0 - 100%)
   discountPrice?: number;
   description?: string;
   estimatedMinutes?: number;
@@ -40,6 +41,7 @@ export interface SubCategory {
   id: string;
   name: string;
   price: number; // If subSubCategories exist, this is 0 and subSubCategories carry the price
+  discountPercent?: number; // Persentase diskon (0 - 100%)
   discountPrice?: number;
   description?: string;
   estimatedMinutes?: number;

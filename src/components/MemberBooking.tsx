@@ -24,7 +24,8 @@ import {
   Reservation, 
   MemberAccount, 
   Voucher,
-  OperationalScheduleSettings 
+  OperationalScheduleSettings,
+  StoreSettings
 } from '../types/salon';
 import { salonStore } from '../services/store';
 import { TransparentCatalog } from './TransparentCatalog';
@@ -41,6 +42,7 @@ interface MemberBookingProps {
   vouchers: Voucher[];
   operationalSchedule?: OperationalScheduleSettings;
   reservations: Reservation[];
+  settings?: StoreSettings;
   onSubmitReservation: (reservation: Omit<Reservation, 'id' | 'bookingCode' | 'createdAt' | 'randomCuteQuote'>) => void;
   onBack: () => void;
 }
@@ -53,6 +55,7 @@ export const MemberBooking: React.FC<MemberBookingProps> = ({
   vouchers,
   operationalSchedule,
   reservations,
+  settings,
   onSubmitReservation,
   onBack
 }) => {
@@ -77,7 +80,7 @@ export const MemberBooking: React.FC<MemberBookingProps> = ({
   const [currentMember, setCurrentMember] = useState<MemberAccount | null>(null);
 
   // Reservation details
-  const [appointmentDate, setAppointmentDate] = useState('');
+  const [appointmentDate, setAppointmentDate] = useState(new Date().toISOString().slice(0, 10));
   const [appointmentTime, setAppointmentTime] = useState('13:00');
   const [customerNotes, setCustomerNotes] = useState('');
   const [selectedServices, setSelectedServices] = useState<SelectedServiceItem[]>([]);
@@ -86,10 +89,10 @@ export const MemberBooking: React.FC<MemberBookingProps> = ({
   const [location, setLocation] = useState<LocationDetail>({
     isHomeService: false,
     province: 'DKI Jakarta',
-    regency: 'Jakarta Selatan',
-    district: 'Kebayoran Baru',
-    village: 'Senayan',
-    streetAddress: 'Studio Lyra’s Nail-Lash (Kunjungan Salon)',
+    regency: 'Jakarta Barat',
+    district: 'Cengkareng',
+    village: 'Cengkareng Timur',
+    streetAddress: `${settings?.storeAddress || 'Mall Taman Palem Lt G Blok A 30B, Cengkareng Timur, Jakarta Barat'} (Kunjungan Salon)`,
     calculatedDistanceKm: 0,
     baseDeliveryFee: 0,
     additional5KmFee: 0,
@@ -781,6 +784,7 @@ export const MemberBooking: React.FC<MemberBookingProps> = ({
           onChange={setLocation}
           memberCoins={currentMember.coins}
           allowCoinDiscount={true}
+          settings={settings}
         />
 
         {/* Customer Notes */}
@@ -856,7 +860,7 @@ export const MemberBooking: React.FC<MemberBookingProps> = ({
               <span>Kirim Reservasi Member</span>
             </button>
             <p className="text-[11px] text-[#8C7A82] text-center mt-2">
-              Setelah perawatan selesai, Anda akan menerima bonus koin loyalty ke akun Member ini!
+              Setelah perawatan selesai, Anda akan menerima bonus koin loyalty {salonStore.getSettings().coinRewardPercentage || 2}% dari total perawatan ke akun Member ini!
             </p>
           </div>
         </div>

@@ -17,7 +17,8 @@ import {
   SelectedServiceItem, 
   LocationDetail, 
   Reservation,
-  OperationalScheduleSettings 
+  OperationalScheduleSettings,
+  StoreSettings
 } from '../types/salon';
 import { TransparentCatalog } from './TransparentCatalog';
 import { HomeServicePicker } from './HomeServicePicker';
@@ -31,6 +32,7 @@ interface RegularBookingProps {
   availableTypes: TypeItem[];
   operationalSchedule?: OperationalScheduleSettings;
   reservations: Reservation[];
+  settings?: StoreSettings;
   onSubmitReservation: (reservation: Omit<Reservation, 'id' | 'bookingCode' | 'createdAt' | 'randomCuteQuote'>) => void;
   onBack: () => void;
 }
@@ -42,6 +44,7 @@ export const RegularBooking: React.FC<RegularBookingProps> = ({
   availableTypes,
   operationalSchedule,
   reservations,
+  settings,
   onSubmitReservation,
   onBack
 }) => {
@@ -49,7 +52,7 @@ export const RegularBooking: React.FC<RegularBookingProps> = ({
   const [fullName, setFullName] = useState('');
   const [whatsapp, setWhatsapp] = useState('');
   const [email, setEmail] = useState('');
-  const [appointmentDate, setAppointmentDate] = useState('');
+  const [appointmentDate, setAppointmentDate] = useState(new Date().toISOString().slice(0, 10));
   const [appointmentTime, setAppointmentTime] = useState('11:00');
   const [customerNotes, setCustomerNotes] = useState('');
 
@@ -60,10 +63,10 @@ export const RegularBooking: React.FC<RegularBookingProps> = ({
   const [location, setLocation] = useState<LocationDetail>({
     isHomeService: false,
     province: 'DKI Jakarta',
-    regency: 'Jakarta Selatan',
-    district: 'Kebayoran Baru',
-    village: 'Senayan',
-    streetAddress: 'Studio Lyra’s Nail-Lash (Kunjungan Salon)',
+    regency: 'Jakarta Barat',
+    district: 'Cengkareng',
+    village: 'Cengkareng Timur',
+    streetAddress: `${settings?.storeAddress || 'Mall Taman Palem Lt G Blok A 30B, Cengkareng Timur, Jakarta Barat'} (Kunjungan Salon)`,
     calculatedDistanceKm: 0,
     baseDeliveryFee: 0,
     additional5KmFee: 0,
@@ -302,6 +305,7 @@ export const RegularBooking: React.FC<RegularBookingProps> = ({
           value={location}
           onChange={setLocation}
           allowCoinDiscount={false}
+          settings={settings}
         />
 
         {/* Section 4: Customer Notes */}
