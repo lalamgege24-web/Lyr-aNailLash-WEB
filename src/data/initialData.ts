@@ -16,16 +16,17 @@ export const INITIAL_SETTINGS: StoreSettings = {
   storeName: "Lyra's Nail-Lash",
   tagline: "Elegance in Every Detail • Premium Nail & Lash Studio",
   logoUrl: "https://images.unsplash.com/photo-1604654894610-df63bc536371?w=300&auto=format&fit=crop&q=80",
-  ownerEmail: "",
-  googleMapsUrl: "https://maps.app.goo.gl/T1xS1ZDyDZgAe7uU7?g_st=awb",
+  ownerEmail: "csimanjuntakgeofany@gmail.com",
+  ownerWhatsapp: "082253517860",
+  googleMapsUrl: "https://maps.google.com/?q=Lyras+Nail+Lash",
   instagramHandle: "@lyras_naillash.id",
-  instagramUrl: "https://www.instagram.com/lyras_naillash.id?dlrf=MTZkNGQzZ3Q3ZWRwaQ==",
+  instagramUrl: "https://instagram.com/lyras_naillash.id",
   tiktokHandle: "@lyrasnaillash",
-  tiktokUrl: "https://www.tiktok.com/@lyrasnaillash?_r=1&_t=ZS-9B1xfjpGu9q",
+  tiktokUrl: "https://tiktok.com/@lyrasnaillash",
   ownerPin: "560605",
-  coinRewardPercentage: 0.001,
-  storeAddress: "Mall Taman Palem Lt G Blok A 30B, Cengkareng Timur, Jakarta Barat",
-  storeCoordinate: { lat: -6.1435, lng: 106.7382 },
+  coinRewardPercentage: 2, // 2% of services bill
+  storeAddress: "Jl. Senopati Raya No. 42, Kebayoran Baru, Jakarta Selatan",
+  storeCoordinate: { lat: -6.2348, lng: 106.8122 },
   operationalSchedule: DEFAULT_OPERATIONAL_SCHEDULE
 };
 
@@ -70,12 +71,6 @@ export const INITIAL_TYPES: TypeItem[] = [
   { id: 'tp5', name: 'Curl Lash: D-Curl (Dramatic Doll)', description: 'Kelengkungan lentik maksimal efek mata boneka', imageUrl: 'https://images.unsplash.com/photo-1599940824399-b87987ceb72a?w=150&auto=format&fit=crop&q=80' },
 ];
 
-export const INITIAL_VOUCHERS: Voucher[] = [];
-export const INITIAL_STAFF: StaffAccount[] = [];
-export const INITIAL_MEMBERS: MemberAccount[] = [];
-export const INITIAL_RESERVATIONS: Reservation[] = [];
-export const INITIAL_ATTENDANCE: StaffAttendance[] = [];
-
 export const INITIAL_CATEGORIES: Category[] = [
   {
     id: 'cat-nail',
@@ -85,25 +80,24 @@ export const INITIAL_CATEGORIES: Category[] = [
       {
         id: 'sub-gel-polis',
         name: 'Gel Polis',
-        price: 0,
-        discountPercentage: 0,
+        price: 0, // Carried by sub-subcategories
         useColorManager: true,
         useCodeManager: false,
         useTypeManager: true,
         requireDesignUpload: true,
         description: 'Kutek gel tahan lama hingga 4 minggu dengan kilau maksimal.',
         subSubCategories: [
-          { id: 'ssc-gp-polos', name: 'Gel Polis Polos (Satu Warna)', price: 50000, discountPercentage: 0, estimatedMinutes: 45 },
-          { id: 'ssc-gp-mix', name: 'Gel Polis Mix 2-3 Warna', price: 65000, discountPercentage: 0, estimatedMinutes: 60 },
-          { id: 'ssc-gp-french', name: 'French Gel Polish Classic', price: 75000, discountPercentage: 0, estimatedMinutes: 60 },
-          { id: 'ssc-gp-glitter', name: 'Glitter Polish Gradation', price: 70000, discountPercentage: 0, estimatedMinutes: 60 }
+          { id: 'ssc-gp-polos', name: 'Gel Polis Polos (Satu Warna)', price: 50000, estimatedMinutes: 45 },
+          { id: 'ssc-gp-mix', name: 'Gel Polis Mix 2-3 Warna', price: 65000, estimatedMinutes: 60 },
+          { id: 'ssc-gp-french', name: 'French Gel Polish Classic', price: 75000, estimatedMinutes: 60 },
+          { id: 'ssc-gp-glitter', name: 'Glitter Polish Gradation', price: 70000, estimatedMinutes: 60 }
         ]
       },
       {
         id: 'sub-cat-eye',
         name: 'Cat Eye',
         price: 75000,
-        discountPercentage: 0,
+        discountPrice: 0,
         useColorManager: true,
         useCodeManager: false,
         useTypeManager: false,
@@ -114,26 +108,25 @@ export const INITIAL_CATEGORIES: Category[] = [
       {
         id: 'sub-fake-ext',
         name: 'Fake Extension',
-        price: 0,
-        discountPercentage: 0,
+        price: 0, // Mutually exclusive: carried by sub-subcategories
         useColorManager: true,
         useCodeManager: true,
         useTypeManager: true,
         requireDesignUpload: true,
         description: 'Penyambungan kuku instan yang kokoh dan presisi.',
         subSubCategories: [
-          { id: 'ssc-ext-polos', name: 'Extension Polos', price: 125000, discountPercentage: 0, estimatedMinutes: 90 },
-          { id: 'ssc-ext-mix', name: 'Extension Mix Warna', price: 125000, discountPercentage: 0, estimatedMinutes: 90 },
-          { id: 'ssc-ext-cateye', name: 'Cat Eye Extension', price: 150000, discountPercentage: 0, estimatedMinutes: 100 },
-          { id: 'ssc-ext-motif', name: 'Extension Motif Request', price: 160000, discountPercentage: 0, estimatedMinutes: 110 },
-          { id: 'ssc-ext-ombre', name: 'Ext Motif + Ombre', price: 180000, discountPercentage: 0, estimatedMinutes: 120 }
+          { id: 'ssc-ext-polos', name: 'Extension Polos', price: 125000, estimatedMinutes: 90 },
+          { id: 'ssc-ext-mix', name: 'Extension Mix Warna', price: 125000, estimatedMinutes: 90 },
+          { id: 'ssc-ext-cateye', name: 'Cat Eye Extension', price: 150000, estimatedMinutes: 100 },
+          { id: 'ssc-ext-motif', name: 'Extension Motif Request', price: 160000, estimatedMinutes: 110 },
+          { id: 'ssc-ext-ombre', name: 'Ext Motif + Ombre', price: 180000, estimatedMinutes: 120 }
         ]
       },
       {
         id: 'sub-nail-ext-3d',
         name: 'Nail Extension 3D',
         price: 180000,
-        discountPercentage: 0,
+        discountPrice: 0,
         useColorManager: true,
         useCodeManager: true,
         useTypeManager: true,
@@ -144,8 +137,8 @@ export const INITIAL_CATEGORIES: Category[] = [
       {
         id: 'sub-accessories',
         name: 'Accessories',
-        price: 20000,
-        discountPercentage: 0,
+        price: 20000, // Custom / starting
+        discountPrice: 0,
         useColorManager: false,
         useCodeManager: true,
         useTypeManager: false,
@@ -157,7 +150,7 @@ export const INITIAL_CATEGORIES: Category[] = [
         id: 'sub-embos-3d',
         name: 'Design Embos/3D',
         price: 35000,
-        discountPercentage: 0,
+        discountPrice: 0,
         useColorManager: true,
         useCodeManager: true,
         useTypeManager: true,
@@ -169,7 +162,7 @@ export const INITIAL_CATEGORIES: Category[] = [
         id: 'sub-remover-nail',
         name: 'Remover Nail',
         price: 25000,
-        discountPercentage: 0,
+        discountPrice: 0,
         useColorManager: false,
         useCodeManager: false,
         useTypeManager: false,
@@ -181,7 +174,7 @@ export const INITIAL_CATEGORIES: Category[] = [
         id: 'sub-manicures',
         name: 'Manicures',
         price: 35000,
-        discountPercentage: 0,
+        discountPrice: 0,
         useColorManager: false,
         useCodeManager: false,
         useTypeManager: false,
@@ -193,7 +186,7 @@ export const INITIAL_CATEGORIES: Category[] = [
         id: 'sub-pedicure',
         name: 'Pedi Cure',
         price: 100000,
-        discountPercentage: 0,
+        discountPrice: 0,
         useColorManager: false,
         useCodeManager: false,
         useTypeManager: false,
@@ -212,7 +205,6 @@ export const INITIAL_CATEGORIES: Category[] = [
         id: 'sub-eye-nat',
         name: 'Eyelash Natural',
         price: 130000,
-        discountPercentage: 0,
         useColorManager: false,
         useCodeManager: false,
         useTypeManager: true,
@@ -224,7 +216,6 @@ export const INITIAL_CATEGORIES: Category[] = [
         id: 'sub-double-std',
         name: 'Double Standar',
         price: 160000,
-        discountPercentage: 0,
         useColorManager: false,
         useCodeManager: false,
         useTypeManager: true,
@@ -236,7 +227,6 @@ export const INITIAL_CATEGORIES: Category[] = [
         id: 'sub-yy-lash',
         name: 'YY Lash',
         price: 135000,
-        discountPercentage: 0,
         useColorManager: false,
         useCodeManager: false,
         useTypeManager: true,
@@ -248,7 +238,6 @@ export const INITIAL_CATEGORIES: Category[] = [
         id: 'sub-ww-lash',
         name: 'WW Lash',
         price: 135000,
-        discountPercentage: 0,
         useColorManager: false,
         useCodeManager: false,
         useTypeManager: true,
@@ -260,7 +249,6 @@ export const INITIAL_CATEGORIES: Category[] = [
         id: 'sub-russian-lash',
         name: 'Russian Lash',
         price: 200000,
-        discountPercentage: 0,
         useColorManager: false,
         useCodeManager: false,
         useTypeManager: true,
@@ -272,7 +260,6 @@ export const INITIAL_CATEGORIES: Category[] = [
         id: 'sub-double-nat-11',
         name: 'Eyelash Double Natural Size 11',
         price: 150000,
-        discountPercentage: 0,
         useColorManager: false,
         useCodeManager: false,
         useTypeManager: true,
@@ -284,7 +271,6 @@ export const INITIAL_CATEGORIES: Category[] = [
         id: 'sub-retouch-lash',
         name: 'Retouch Lash',
         price: 70000,
-        discountPercentage: 0,
         useColorManager: false,
         useCodeManager: false,
         useTypeManager: false,
@@ -297,13 +283,373 @@ export const INITIAL_CATEGORIES: Category[] = [
   {
     id: 'cat-lash-lift',
     name: 'LASH LIFT',
-    price: 150000,
-    discountPercentage: 0,
-    useColorManager: false,
-    useCodeManager: false,
-    useTypeManager: false,
-    requireDesignUpload: false,
-    description: 'Pelentikan bulu mata asli menggunakan keratin alami tanpa bulu mata tambahan',
-    estimatedMinutes: 60
+    description: 'Pelentikan bulu mata asli menggunakan keratin alami tanpa bulu mata tambahan.',
+    subCategories: [
+      {
+        id: 'sub-lash-lift',
+        name: 'Lash Lift',
+        price: 100000,
+        useColorManager: false,
+        useCodeManager: false,
+        useTypeManager: false,
+        requireDesignUpload: false,
+        description: 'Melentikkan bulu mata asli agar tampak lebih panjang dan bervolume alami hingga 6-8 minggu.',
+        estimatedMinutes: 60
+      },
+      {
+        id: 'sub-lash-lift-tin',
+        name: 'Lash Lift Tin',
+        price: 125000,
+        useColorManager: false,
+        useCodeManager: false,
+        useTypeManager: false,
+        requireDesignUpload: false,
+        description: 'Lash lift dipadukan dengan pewarnaan tint hitam pekat untuk efek maskara semi-permanen.',
+        estimatedMinutes: 70
+      }
+    ]
+  }
+];
+
+export const INITIAL_VOUCHERS: Voucher[] = [
+  {
+    id: 'vouch-1',
+    title: 'Diskon Manja 20% All Services',
+    description: 'Potongan harga 20% untuk semua layanan Nail Art & Eyelash.',
+    discountType: 'PERCENT',
+    discountValue: 20,
+    coinsRequired: 300,
+    validFrom: '2026-01-01',
+    validUntil: '2026-12-31',
+    isActive: true,
+    totalClaimedCount: 14,
+    totalUsedCount: 9
+  },
+  {
+    id: 'vouch-2',
+    title: 'Free 3 Accessories Mewah',
+    description: 'Gratis 3 buah aksesoris kristal/charms kuku cantik.',
+    discountType: 'NOMINAL',
+    discountValue: 35000,
+    coinsRequired: 250,
+    validFrom: '2026-01-01',
+    validUntil: '2026-12-31',
+    isActive: true,
+    totalClaimedCount: 22,
+    totalUsedCount: 18
+  },
+  {
+    id: 'vouch-3',
+    title: 'Free 2 Desain Embos 3D',
+    description: 'Gratis 2 jari desain tekstur timbul/embos 3D kustom.',
+    discountType: 'NOMINAL',
+    discountValue: 50000,
+    coinsRequired: 450,
+    validFrom: '2026-01-01',
+    validUntil: '2026-12-31',
+    isActive: true,
+    totalClaimedCount: 8,
+    totalUsedCount: 5
+  },
+  {
+    id: 'vouch-4',
+    title: 'Cashback Rp 50.000 Spesial Member',
+    description: 'Potongan langsung Rp 50.000 untuk total transaksi di atas Rp 200.000.',
+    discountType: 'NOMINAL',
+    discountValue: 50000,
+    coinsRequired: 500,
+    validFrom: '2026-01-01',
+    validUntil: '2026-12-31',
+    isActive: true,
+    totalClaimedCount: 5,
+    totalUsedCount: 4
+  }
+];
+
+export const INITIAL_STAFF: StaffAccount[] = [
+  {
+    id: 'st-1',
+    name: 'Siti Rahmawati',
+    role: 'Senior Nail Artist & Extensionist',
+    phone: '081234567891',
+    pin: '112233',
+    isActive: true
+  },
+  {
+    id: 'st-2',
+    name: 'Dewi Lestari',
+    role: 'Lash Specialist & Keratin Lift',
+    phone: '081298765432',
+    pin: '445566',
+    isActive: true
+  },
+  {
+    id: 'st-3',
+    name: 'Anisa Melati',
+    role: 'Nail & Pedicure Artist',
+    phone: '081377889900',
+    pin: '778899',
+    isActive: true
+  }
+];
+
+export const INITIAL_MEMBERS: MemberAccount[] = [
+  {
+    id: 'mem-1',
+    fullName: 'Clara Simanjuntak',
+    whatsapp: '081288990011',
+    passwordHash: 'clara123',
+    coins: 480,
+    joinDate: '2026-02-14',
+    claimedVoucherIds: ['vouch-1'],
+    totalCompletedTreatments: 6,
+    hasRatedGoogleMaps: true
+  },
+  {
+    id: 'mem-2',
+    fullName: 'Natasha Wilona',
+    whatsapp: '081399887766',
+    passwordHash: 'natasha123',
+    coins: 320,
+    joinDate: '2026-04-10',
+    claimedVoucherIds: ['vouch-2'],
+    totalCompletedTreatments: 4,
+    hasRatedGoogleMaps: false
+  },
+  {
+    id: 'mem-3',
+    fullName: 'Amanda Zahra',
+    whatsapp: '082211445566',
+    passwordHash: 'amanda123',
+    coins: 650,
+    joinDate: '2026-01-20',
+    claimedVoucherIds: ['vouch-3'],
+    totalCompletedTreatments: 8,
+    hasRatedGoogleMaps: true
+  }
+];
+
+export const INITIAL_RESERVATIONS: Reservation[] = [
+  {
+    id: 'res-101',
+    bookingCode: 'LNL-20261031-01',
+    type: 'REGULER',
+    createdAt: '2026-10-31T08:30:00Z',
+    appointmentDate: '2026-10-31',
+    appointmentTime: '10:00',
+    fullName: 'Nadia Saphira',
+    whatsapp: '081233445566',
+    email: 'nadia.saphira@gmail.com',
+    services: [
+      {
+        serviceId: 'srv-1',
+        categoryId: 'cat-nail',
+        categoryName: 'NAIL ART',
+        subCategoryId: 'sub-fake-ext',
+        subCategoryName: 'Fake Extension',
+        subSubCategoryId: 'ssc-ext-cateye',
+        subSubCategoryName: 'Cat Eye Extension',
+        selectedColors: ['Soft Baby Pink', 'Rose Gold Shimmer'],
+        selectedCode: 'Foil Emas Premium',
+        selectedType: 'Shape: Almond Oval',
+        price: 150000,
+        finalPrice: 150000
+      }
+    ],
+    location: {
+      isHomeService: false,
+      province: 'DKI Jakarta',
+      regency: 'Jakarta Selatan',
+      district: 'Kebayoran Baru',
+      village: 'Senayan',
+      streetAddress: 'Studio Lyra’s Nail-Lash (Dine-in / Salon Visit)',
+      calculatedDistanceKm: 0,
+      baseDeliveryFee: 0,
+      additional5KmFee: 0,
+      coinDiscountAmount: 0,
+      totalDeliveryFee: 0
+    },
+    servicesSubtotal: 150000,
+    deliveryFee: 0,
+    voucherDiscount: 0,
+    coinDiscount: 0,
+    customAdjustment: 0,
+    totalPrice: 150000,
+    paymentStatus: 'LUNAS',
+    paymentMethod: 'QRIS',
+    status: 'APPROVED',
+    ownerNotes: 'Request bentuk almond panjang sedang, kuku sudah dibersihkan.',
+    randomCuteQuote: 'Investasi terbaik seorang wanita adalah senyuman cerah dan kuku yang terawat berkilau! 💖'
+  },
+  {
+    id: 'res-102',
+    bookingCode: 'LNL-20261031-02',
+    type: 'MEMBER',
+    createdAt: '2026-10-31T09:15:00Z',
+    appointmentDate: '2026-10-31',
+    appointmentTime: '13:30',
+    fullName: 'Clara Simanjuntak',
+    whatsapp: '081288990011',
+    email: 'clara.s@gmail.com',
+    services: [
+      {
+        serviceId: 'srv-2',
+        categoryId: 'cat-eyelash',
+        categoryName: 'EYELASH',
+        subCategoryId: 'sub-russian-lash',
+        subCategoryName: 'Russian Lash',
+        selectedType: 'Curl Lash: D-Curl (Dramatic Doll)',
+        price: 200000,
+        finalPrice: 200000
+      }
+    ],
+    location: {
+      isHomeService: true,
+      province: 'DKI Jakarta',
+      regency: 'Jakarta Selatan',
+      district: 'Cilandak',
+      village: 'Cipete Selatan',
+      streetAddress: 'Jl. Abdul Majid Dalam No. 18, RT 04/RW 02',
+      calculatedDistanceKm: 4.8,
+      baseDeliveryFee: 27370,
+      additional5KmFee: 0,
+      coinDiscountAmount: 100, // 400 coins spent for delivery discount
+      totalDeliveryFee: 27270
+    },
+    servicesSubtotal: 200000,
+    deliveryFee: 27270,
+    voucherDiscount: 40000, // 20% voucher used
+    coinDiscount: 100,
+    customAdjustment: 0,
+    totalPrice: 187170,
+    paymentStatus: 'DP',
+    paymentMethod: 'TRANSFER',
+    status: 'APPROVED',
+    ownerNotes: 'Home service area Cipete Selatan. Staf membawa portable bed & ring light.',
+    randomCuteQuote: 'Bulu mata lentik dan senyuman manis adalah kombinasi paling mematikan di dunia! 🌷'
+  },
+  {
+    id: 'res-103',
+    bookingCode: 'LNL-20261031-03',
+    type: 'GABUNGAN',
+    createdAt: '2026-10-31T10:00:00Z',
+    appointmentDate: '2026-11-01',
+    appointmentTime: '15:00',
+    fullName: 'Rombongan Bridal Cantik (Kak Vira)',
+    whatsapp: '081122334455',
+    email: 'vira.wedding@gmail.com',
+    groupMembers: [
+      {
+        id: 'gm-1',
+        fullName: 'Vira (Bride)',
+        whatsapp: '081122334455',
+        subtotalServices: 180000,
+        services: [
+          {
+            serviceId: 'srv-g1',
+            categoryId: 'cat-nail',
+            categoryName: 'NAIL ART',
+            subCategoryId: 'sub-nail-ext-3d',
+            subCategoryName: 'Nail Extension 3D',
+            selectedColors: ['Soft Baby Pink', 'Milky White Cream'],
+            price: 180000,
+            finalPrice: 180000
+          }
+        ]
+      },
+      {
+        id: 'gm-2',
+        fullName: 'Lia (Bridesmaid 1)',
+        whatsapp: '081122334456',
+        subtotalServices: 75000,
+        services: [
+          {
+            serviceId: 'srv-g2',
+            categoryId: 'cat-nail',
+            categoryName: 'NAIL ART',
+            subCategoryId: 'sub-cat-eye',
+            subCategoryName: 'Cat Eye',
+            selectedColors: ['Rose Gold Shimmer'],
+            price: 75000,
+            finalPrice: 75000
+          }
+        ]
+      },
+      {
+        id: 'gm-3',
+        fullName: 'Tiara (Bridesmaid 2)',
+        whatsapp: '081122334457',
+        subtotalServices: 130000,
+        services: [
+          {
+            serviceId: 'srv-g3',
+            categoryId: 'cat-eyelash',
+            categoryName: 'EYELASH',
+            subCategoryId: 'sub-eye-nat',
+            subCategoryName: 'Eyelash Natural',
+            price: 130000,
+            finalPrice: 130000
+          }
+        ]
+      }
+    ],
+    services: [],
+    location: {
+      isHomeService: true,
+      province: 'DKI Jakarta',
+      regency: 'Jakarta Selatan',
+      district: 'Setiabudi',
+      village: 'Kuningan Timur',
+      streetAddress: 'Apartemen Bellagio Mansion Tower B Unit 1402',
+      calculatedDistanceKm: 6.2,
+      baseDeliveryFee: 35352,
+      additional5KmFee: 800,
+      coinDiscountAmount: 0,
+      totalDeliveryFee: 36152
+    },
+    servicesSubtotal: 385000,
+    deliveryFee: 36152,
+    voucherDiscount: 0,
+    coinDiscount: 0,
+    customAdjustment: 0,
+    totalPrice: 421152,
+    paymentStatus: 'BELUM_BAYAR',
+    status: 'NEEDS_DISCUSSION',
+    ownerNotes: 'Acara prewedding rombongan 3 orang. Jadwal H-1 telah dikirim.',
+    randomCuteQuote: 'Tampil memukau setiap hari bukan pilihan, tapi keharusan seorang ratu! 👑✨'
+  }
+];
+
+export const INITIAL_ATTENDANCE: StaffAttendance[] = [
+  {
+    id: 'att-1',
+    staffId: 'st-1',
+    staffName: 'Siti Rahmawati',
+    date: '2026-10-31',
+    status: 'HADIR',
+    checkInTime: '08:50',
+    checkOutTime: '18:00',
+    workHours: 9,
+    notes: 'Tepat waktu, melayani customer pagi dengan ramah.'
+  },
+  {
+    id: 'att-2',
+    staffId: 'st-2',
+    staffName: 'Dewi Lestari',
+    date: '2026-10-31',
+    status: 'HADIR',
+    checkInTime: '09:05',
+    checkOutTime: '17:30',
+    workHours: 8.5,
+    notes: 'Pemasangan Russian lash reservasi siang.'
+  },
+  {
+    id: 'att-3',
+    staffId: 'st-3',
+    staffName: 'Anisa Melati',
+    date: '2026-10-31',
+    status: 'IZIN',
+    workHours: 0,
+    notes: 'Izin urusan keluarga mendesak (telah lapor owner).'
   }
 ];
