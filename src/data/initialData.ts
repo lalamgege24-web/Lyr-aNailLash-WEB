@@ -26,7 +26,7 @@ export const INITIAL_SETTINGS: StoreSettings = {
   ownerPin: "560605",
   coinRewardPercentage: 0.002, // 0.001% of services bill
   storeAddress: "Mall Taman Palem Lt G Blok A 30B Cengkareng Timur Jakarta Barat",
-  storeCoordinate: { lat: -6.2348, lng: 106.8122 },
+  storeCoordinate: { lat: -6.1422, lng: 107.1390 } // atau koordinat tepat Mall Taman Palem,
   operationalSchedule: DEFAULT_OPERATIONAL_SCHEDULE
 };
 
