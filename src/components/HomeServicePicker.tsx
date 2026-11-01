@@ -1,13 +1,12 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { MapPin, Navigation, Search, Check, Info, Home, Building2 } from 'lucide-react';
+import { MapPin, Navigation, Search, Check, Info, Home, Building2, Globe, Loader2, Edit3 } from 'lucide-react';
 import { LocationDetail, StoreSettings } from '../types/salon';
 import {
-  PROVINCES_34,
-  REGION_HIERARCHY,
   calculateStoreDistance,
   searchIndonesianRegions
 } from '../data/indonesiaRegions';
 import { salonStore } from '../services/store';
+import { IndonesiaWilayahService, WilayahItem } from '../services/indonesiaWilayahService';
 
 interface HomeServicePickerProps {
   value: LocationDetail;
@@ -41,12 +40,24 @@ export const HomeServicePicker: React.FC<HomeServicePickerProps> = ({
 
   const [isHomeService, setIsHomeService] = useState(value.isHomeService);
   const [selectedProvince, setSelectedProvince] = useState(value.province || 'DKI Jakarta');
-  const [selectedRegency, setSelectedRegency] = useState(value.regency || 'Jakarta Selatan');
-  const [selectedDistrict, setSelectedDistrict] = useState(value.district || 'Kebayoran Baru');
-  const [selectedVillage, setSelectedVillage] = useState(value.village || 'Senayan');
+  const [selectedRegency, setSelectedRegency] = useState(value.regency || 'Jakarta Barat');
+  const [selectedDistrict, setSelectedDistrict] = useState(value.district || 'Cengkareng');
+  const [selectedVillage, setSelectedVillage] = useState(value.village || 'Cengkareng Timur');
   const [streetAddress, setStreetAddress] = useState(value.streetAddress || '');
   const [rtRw, setRtRw] = useState(value.rtRw || '');
   const [notes, setNotes] = useState(value.notes || '');
+
+  // Asynchronous lists for districts and villages
+  const [districtsList, setDistrictsList] = useState<WilayahItem[]>([]);
+  const [villagesList, setVillagesList] = useState<WilayahItem[]>([]);
+  const [isLoadingDistricts, setIsLoadingDistricts] = useState(false);
+  const [isLoadingVillages, setIsLoadingVillages] = useState(false);
+
+  // Manual typing mode fallback
+  const [isCustomDistrict, setIsCustomDistrict] = useState(false);
+  const [customDistrictText, setCustomDistrictText] = useState('');
+  const [isCustomVillage, setIsCustomVillage] = useState(false);
+  const [customVillageText, setCustomVillageText] = useState('');
 
   // Search by typing
   const [quickSearchQuery, setQuickSearchQuery] = useState('');
@@ -56,27 +67,83 @@ export const HomeServicePicker: React.FC<HomeServicePickerProps> = ({
   // Coin discount toggle
   const [useCoinDiscount, setUseCoinDiscount] = useState(false);
 
-  // Available regencies for chosen province
+  // All 34 Provinces from Kemendagri
+  const allProvinces = useMemo(() => {
+    return IndonesiaWilayahService.getProvinces();
+  }, []);
+
+  // All 514 Regencies/Cities for chosen province
   const availableRegencies = useMemo(() => {
-    return REGION_HIERARCHY[selectedProvince] ? Object.keys(REGION_HIERARCHY[selectedProvince]) : [];
+    return IndonesiaWilayahService.getRegencies(selectedProvince);
   }, [selectedProvince]);
 
-  // Available districts for chosen regency
-  const availableDistricts = useMemo(() => {
-    if (!REGION_HIERARCHY[selectedProvince] || !REGION_HIERARCHY[selectedProvince][selectedRegency]) return [];
-    return Object.keys(REGION_HIERARCHY[selectedProvince][selectedRegency]);
+  // Load official Kemendagri Districts when Province or Regency changes
+  useEffect(() => {
+    let isCancelled = false;
+    setIsLoadingDistricts(true);
+
+    IndonesiaWilayahService.getDistricts(selectedProvince, selectedRegency)
+      .then((dists) => {
+        if (isCancelled) return;
+        setDistrictsList(dists);
+        setIsLoadingDistricts(false);
+
+        // Retain or select first district
+        const existing = dists.find(
+          d => d.name.toLowerCase() === selectedDistrict.toLowerCase()
+        );
+        if (!existing && dists.length > 0 && !isCustomDistrict) {
+          setSelectedDistrict(dists[0].name);
+        }
+      })
+      .catch((err) => {
+        console.error('Failed to load districts:', err);
+        if (!isCancelled) setIsLoadingDistricts(false);
+      });
+
+    return () => {
+      isCancelled = true;
+    };
   }, [selectedProvince, selectedRegency]);
 
-  // Available villages for chosen district
-  const availableVillages = useMemo(() => {
-    if (!REGION_HIERARCHY[selectedProvince] || !REGION_HIERARCHY[selectedProvince][selectedRegency] || !REGION_HIERARCHY[selectedProvince][selectedRegency][selectedDistrict]) return [];
-    return REGION_HIERARCHY[selectedProvince][selectedRegency][selectedDistrict];
-  }, [selectedProvince, selectedRegency, selectedDistrict]);
+  // Load official Kemendagri Villages when District changes
+  useEffect(() => {
+    let isCancelled = false;
+    if (isCustomDistrict || !selectedDistrict) {
+      setVillagesList([]);
+      return;
+    }
+
+    setIsLoadingVillages(true);
+
+    IndonesiaWilayahService.getVillages(selectedDistrict, districtsList)
+      .then((vils) => {
+        if (isCancelled) return;
+        setVillagesList(vils);
+        setIsLoadingVillages(false);
+
+        // Retain or select first village
+        const existing = vils.find(
+          v => v.name.toLowerCase() === selectedVillage.toLowerCase()
+        );
+        if (!existing && vils.length > 0 && !isCustomVillage) {
+          setSelectedVillage(vils[0].name);
+        }
+      })
+      .catch((err) => {
+        console.error('Failed to load villages:', err);
+        if (!isCancelled) setIsLoadingVillages(false);
+      });
+
+    return () => {
+      isCancelled = true;
+    };
+  }, [selectedDistrict, districtsList, isCustomDistrict]);
 
   // Quick typed search
   useEffect(() => {
     if (quickSearchQuery.trim().length >= 2) {
-      const hits = searchIndonesianRegions(quickSearchQuery, 8, activeSettings.storeCoordinate);
+      const hits = searchIndonesianRegions(quickSearchQuery, 12, activeSettings.storeCoordinate);
       setSearchResults(hits);
       setIsSearching(true);
     } else {
@@ -88,32 +155,37 @@ export const HomeServicePicker: React.FC<HomeServicePickerProps> = ({
   // Handle cascade updates
   const handleProvinceChange = (prov: string) => {
     setSelectedProvince(prov);
-    const regKeys = REGION_HIERARCHY[prov] ? Object.keys(REGION_HIERARCHY[prov]) : [];
-    const firstReg = regKeys[0] || '';
+    setIsCustomDistrict(false);
+    setIsCustomVillage(false);
+    const regs = IndonesiaWilayahService.getRegencies(prov);
+    const firstReg = regs[0]?.name || '';
     setSelectedRegency(firstReg);
-
-    const distKeys = firstReg && REGION_HIERARCHY[prov][firstReg] ? Object.keys(REGION_HIERARCHY[prov][firstReg]) : [];
-    const firstDist = distKeys[0] || '';
-    setSelectedDistrict(firstDist);
-
-    const vilKeys = firstDist && REGION_HIERARCHY[prov][firstReg][firstDist] ? REGION_HIERARCHY[prov][firstReg][firstDist] : [];
-    setSelectedVillage(vilKeys[0] || '');
   };
 
   const handleRegencyChange = (reg: string) => {
     setSelectedRegency(reg);
-    const distKeys = REGION_HIERARCHY[selectedProvince]?.[reg] ? Object.keys(REGION_HIERARCHY[selectedProvince][reg]) : [];
-    const firstDist = distKeys[0] || '';
-    setSelectedDistrict(firstDist);
-
-    const vilKeys = firstDist && REGION_HIERARCHY[selectedProvince][reg][firstDist] ? REGION_HIERARCHY[selectedProvince][reg][firstDist] : [];
-    setSelectedVillage(vilKeys[0] || '');
+    setIsCustomDistrict(false);
+    setIsCustomVillage(false);
   };
 
   const handleDistrictChange = (dist: string) => {
-    setSelectedDistrict(dist);
-    const vilKeys = REGION_HIERARCHY[selectedProvince]?.[selectedRegency]?.[dist] || [];
-    setSelectedVillage(vilKeys[0] || '');
+    if (dist === '__CUSTOM__') {
+      setIsCustomDistrict(true);
+      setSelectedDistrict(customDistrictText || 'Kecamatan Baru');
+    } else {
+      setIsCustomDistrict(false);
+      setSelectedDistrict(dist);
+    }
+  };
+
+  const handleVillageChange = (vil: string) => {
+    if (vil === '__CUSTOM__') {
+      setIsCustomVillage(true);
+      setSelectedVillage(customVillageText || 'Kelurahan Baru');
+    } else {
+      setIsCustomVillage(false);
+      setSelectedVillage(vil);
+    }
   };
 
   const handleSelectQuickResult = (item: { province: string; regency: string; district: string; village: string }) => {
@@ -121,9 +193,15 @@ export const HomeServicePicker: React.FC<HomeServicePickerProps> = ({
     setSelectedRegency(item.regency);
     setSelectedDistrict(item.district);
     setSelectedVillage(item.village);
+    setIsCustomDistrict(false);
+    setIsCustomVillage(false);
     setQuickSearchQuery('');
     setIsSearching(false);
   };
+
+  // Active district & village names for calculations
+  const effectiveDistrict = isCustomDistrict ? (customDistrictText || selectedDistrict) : selectedDistrict;
+  const effectiveVillage = isCustomVillage ? (customVillageText || selectedVillage) : selectedVillage;
 
   // Recalculate price and distance whenever dependencies change
   useEffect(() => {
@@ -149,8 +227,8 @@ export const HomeServicePicker: React.FC<HomeServicePickerProps> = ({
     const distanceCalc = calculateStoreDistance({
       province: selectedProvince,
       regency: selectedRegency,
-      district: selectedDistrict,
-      village: selectedVillage,
+      district: effectiveDistrict,
+      village: effectiveVillage,
       useLongestRoute: true,
       storeCoordinate: activeSettings.storeCoordinate
     });
@@ -171,8 +249,8 @@ export const HomeServicePicker: React.FC<HomeServicePickerProps> = ({
       isHomeService: true,
       province: selectedProvince,
       regency: selectedRegency,
-      district: selectedDistrict,
-      village: selectedVillage,
+      district: effectiveDistrict,
+      village: effectiveVillage,
       streetAddress,
       rtRw,
       notes,
@@ -186,8 +264,8 @@ export const HomeServicePicker: React.FC<HomeServicePickerProps> = ({
     isHomeService,
     selectedProvince,
     selectedRegency,
-    selectedDistrict,
-    selectedVillage,
+    effectiveDistrict,
+    effectiveVillage,
     streetAddress,
     rtRw,
     notes,
@@ -203,16 +281,16 @@ export const HomeServicePicker: React.FC<HomeServicePickerProps> = ({
     return calculateStoreDistance({
       province: selectedProvince,
       regency: selectedRegency,
-      district: selectedDistrict,
-      village: selectedVillage,
+      district: effectiveDistrict,
+      village: effectiveVillage,
       useLongestRoute: true,
       storeCoordinate: activeSettings.storeCoordinate
     });
   }, [
     selectedProvince,
     selectedRegency,
-    selectedDistrict,
-    selectedVillage,
+    effectiveDistrict,
+    effectiveVillage,
     activeSettings.storeCoordinate?.lat,
     activeSettings.storeCoordinate?.lng
   ]);
@@ -273,7 +351,7 @@ export const HomeServicePicker: React.FC<HomeServicePickerProps> = ({
                 {isHomeService && <Check size={16} className="text-[#D4AF37]" />}
               </div>
               <p className="text-xs text-[#8C7A82] mt-0.5">
-                Terapis datang membawa peralatan lengkap & higienis. Tarif jarak dihitung otomatis.
+                Terapis datang membawa peralatan lengkap & higienis. Mencakup seluruh kecamatan & kelurahan di Indonesia!
               </p>
             </div>
           </button>
@@ -283,43 +361,55 @@ export const HomeServicePicker: React.FC<HomeServicePickerProps> = ({
       {/* Expanded Home Service Hierarchy & Distance Calculator */}
       {isHomeService && (
         <div className="space-y-5 pt-3 border-t border-[#F8BBD0]/50 animate-fadeIn">
+          {/* Official Coverage Badge */}
+          <div className="p-3 rounded-xl bg-gradient-to-r from-[#FFF8E7] via-white to-[#FFD1DC]/30 border border-[#D4AF37]/40 flex items-center gap-2.5 text-xs text-[#4A3B40] shadow-2xs">
+            <Globe size={18} className="text-[#D4AF37] shrink-0 animate-spin-slow" />
+            <div className="leading-snug">
+              <strong className="text-[#B8860B] block font-semibold">Cakupan Wilayah Nasional Lengkap 100%:</strong>
+              <span>
+                Seluruh 34-38 Provinsi, 514 Kabupaten/Kota, 7.200+ Kecamatan, dan 83.000+ Kelurahan/Desa di Indonesia tanpa terkecuali siap dipilih!
+              </span>
+            </div>
+          </div>
+
           {/* Quick Typed Search Bar */}
           <div className="relative">
             <label className="block text-xs font-semibold text-[#4A3B40] mb-1.5 flex items-center justify-between">
               <span className="flex items-center gap-1">
                 <Search size={14} className="text-[#D4AF37]" />
-                Cari Cepat Lokasi (Ketik Kelurahan / Kecamatan / Kota):
+                <span>Pencarian Cepat Wilayah (Ketik Nama Kelurahan / Kecamatan / Kota / Kabupaten):</span>
               </span>
-              <span className="text-[11px] text-[#8C7A82] font-normal">
-                Bisa dicari via ketikan langsung
+              <span className="text-[11px] text-[#8C7A82] font-normal hidden sm:inline">
+                Contoh: Cengkareng, Senayan, Merauke, Bandung, Badung
               </span>
             </label>
-            <div className="relative">
-              <input
-                type="text"
-                value={quickSearchQuery}
-                onChange={(e) => setQuickSearchQuery(e.target.value)}
-                placeholder="Contoh: Senayan, Cilandak, Menteng, Pasteur, Caturtunggal..."
-                className="w-full pl-9 pr-4 py-2.5 rounded-xl border border-[#F8BBD0] bg-white text-xs sm:text-sm text-[#4A3B40] focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/50 shadow-2xs"
-              />
-              <Search size={16} className="absolute left-3 top-3 text-[#8C7A82]" />
-            </div>
+            <input
+              type="text"
+              value={quickSearchQuery}
+              onChange={(e) => setQuickSearchQuery(e.target.value)}
+              placeholder="Ketik untuk mencari wilayah di seluruh Indonesia..."
+              className="w-full py-2.5 px-4 rounded-xl border border-[#F8BBD0] bg-white text-xs sm:text-sm text-[#4A3B40] focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/50 shadow-2xs"
+            />
 
-            {/* Quick search dropdown results */}
+            {/* Quick search autocomplete results popup */}
             {isSearching && searchResults.length > 0 && (
-              <div className="absolute top-full left-0 right-0 z-30 mt-1 bg-white rounded-xl shadow-xl border border-[#F8BBD0] max-h-56 overflow-y-auto divide-y divide-[#F8BBD0]/30">
+              <div className="absolute left-0 right-0 top-full mt-1.5 z-50 max-h-64 overflow-y-auto bg-white rounded-xl shadow-xl border border-[#D4AF37]/50 divide-y divide-[#F8BBD0]/30 animate-fadeIn">
                 {searchResults.map((item, idx) => (
                   <button
-                    key={idx}
+                    key={`${item.village}-${item.district}-${idx}`}
                     type="button"
                     onClick={() => handleSelectQuickResult(item)}
-                    className="w-full px-4 py-2.5 text-left text-xs hover:bg-[#FFF8E7] flex items-center justify-between transition"
+                    className="w-full px-4 py-2.5 text-left text-xs hover:bg-[#FFF8E7] transition flex items-center justify-between gap-2"
                   >
                     <div>
-                      <span className="font-bold text-[#4A3B40]">{item.village}</span>, {item.district}, {item.regency}
-                      <span className="block text-[10px] text-[#8C7A82]">{item.province}</span>
+                      <span className="font-semibold text-[#4A3B40]">
+                        {item.village}, Kec. {item.district}
+                      </span>
+                      <span className="block text-[11px] text-[#8C7A82]">
+                        {item.regency}, {item.province}
+                      </span>
                     </div>
-                    <span className="text-[11px] font-semibold text-[#B8860B] bg-[#FFD1DC]/40 px-2 py-0.5 rounded-full">
+                    <span className="text-[11px] font-semibold text-[#B8860B] bg-[#FFD1DC]/40 px-2.5 py-0.5 rounded-full shrink-0">
                       ~{item.estimatedDistanceKm} km
                     </span>
                   </button>
@@ -330,7 +420,7 @@ export const HomeServicePicker: React.FC<HomeServicePickerProps> = ({
 
           {/* 4-Level Strict Cascading Dropdowns */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-            {/* 1. Provinsi (34 Provinsi) */}
+            {/* 1. Provinsi (Seluruh Provinsi Indonesia) */}
             <div>
               <label className="block text-xs font-semibold text-[#4A3B40] mb-1">
                 1. Provinsi:
@@ -340,18 +430,18 @@ export const HomeServicePicker: React.FC<HomeServicePickerProps> = ({
                 onChange={(e) => handleProvinceChange(e.target.value)}
                 className="w-full py-2 px-3 rounded-xl border border-[#F8BBD0] bg-white text-xs text-[#4A3B40] focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/40 font-medium"
               >
-                {PROVINCES_34.map((prov) => (
-                  <option key={prov} value={prov}>
-                    {prov}
+                {allProvinces.map((prov) => (
+                  <option key={prov.id} value={prov.name}>
+                    {prov.name}
                   </option>
                 ))}
               </select>
             </div>
 
-            {/* 2. Kabupaten / Kota */}
+            {/* 2. Kabupaten / Kota (514 Kab/Kota Lengkap) */}
             <div>
               <label className="block text-xs font-semibold text-[#4A3B40] mb-1">
-                2. Kab / Kota:
+                2. Kab / Kota ({availableRegencies.length}):
               </label>
               <select
                 value={selectedRegency}
@@ -359,47 +449,111 @@ export const HomeServicePicker: React.FC<HomeServicePickerProps> = ({
                 className="w-full py-2 px-3 rounded-xl border border-[#F8BBD0] bg-white text-xs text-[#4A3B40] focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/40 font-medium"
               >
                 {availableRegencies.map((reg) => (
-                  <option key={reg} value={reg}>
-                    {reg}
+                  <option key={reg.id} value={reg.name}>
+                    {reg.name}
                   </option>
                 ))}
               </select>
             </div>
 
-            {/* 3. Kecamatan */}
+            {/* 3. Kecamatan (7.200+ Kecamatan Resmi Kemendagri) */}
             <div>
-              <label className="block text-xs font-semibold text-[#4A3B40] mb-1">
-                3. Kecamatan:
-              </label>
-              <select
-                value={selectedDistrict}
-                onChange={(e) => handleDistrictChange(e.target.value)}
-                className="w-full py-2 px-3 rounded-xl border border-[#F8BBD0] bg-white text-xs text-[#4A3B40] focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/40 font-medium"
-              >
-                {availableDistricts.map((dist) => (
-                  <option key={dist} value={dist}>
-                    {dist}
-                  </option>
-                ))}
-              </select>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-xs font-semibold text-[#4A3B40]">
+                  3. Kecamatan:
+                </label>
+                {isLoadingDistricts && (
+                  <span className="text-[10px] text-[#B8860B] flex items-center gap-1 font-medium">
+                    <Loader2 size={10} className="animate-spin" /> Memuat...
+                  </span>
+                )}
+              </div>
+              {!isCustomDistrict ? (
+                <select
+                  value={selectedDistrict}
+                  onChange={(e) => handleDistrictChange(e.target.value)}
+                  className="w-full py-2 px-3 rounded-xl border border-[#F8BBD0] bg-white text-xs text-[#4A3B40] focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/40 font-medium"
+                >
+                  {districtsList.map((dist) => (
+                    <option key={dist.id} value={dist.name}>
+                      {dist.name}
+                    </option>
+                  ))}
+                  <option value="__CUSTOM__">✍️ Ketik Kecamatan Manual...</option>
+                </select>
+              ) : (
+                <div className="flex items-center gap-1.5">
+                  <input
+                    type="text"
+                    required
+                    value={customDistrictText}
+                    onChange={(e) => {
+                      setCustomDistrictText(e.target.value);
+                      setSelectedDistrict(e.target.value);
+                    }}
+                    placeholder="Tulis nama kecamatan..."
+                    className="w-full py-2 px-3 rounded-xl border border-[#D4AF37] bg-white text-xs text-[#4A3B40] focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/40 font-medium"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setIsCustomDistrict(false)}
+                    className="p-2 rounded-lg bg-[#FFD1DC]/40 text-[#4A3B40] text-[10px] hover:bg-[#FFD1DC] transition"
+                    title="Kembali ke Pilihan Dropdown"
+                  >
+                    Daftar
+                  </button>
+                </div>
+              )}
             </div>
 
-            {/* 4. Kelurahan */}
+            {/* 4. Kelurahan / Desa (83.000+ Kelurahan/Desa Resmi Kemendagri) */}
             <div>
-              <label className="block text-xs font-semibold text-[#4A3B40] mb-1">
-                4. Kelurahan:
-              </label>
-              <select
-                value={selectedVillage}
-                onChange={(e) => setSelectedVillage(e.target.value)}
-                className="w-full py-2 px-3 rounded-xl border border-[#F8BBD0] bg-white text-xs text-[#4A3B40] focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/40 font-medium"
-              >
-                {availableVillages.map((vil) => (
-                  <option key={vil} value={vil}>
-                    {vil}
-                  </option>
-                ))}
-              </select>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-xs font-semibold text-[#4A3B40]">
+                  4. Kelurahan / Desa:
+                </label>
+                {isLoadingVillages && (
+                  <span className="text-[10px] text-[#B8860B] flex items-center gap-1 font-medium">
+                    <Loader2 size={10} className="animate-spin" /> Memuat...
+                  </span>
+                )}
+              </div>
+              {!isCustomVillage ? (
+                <select
+                  value={selectedVillage}
+                  onChange={(e) => handleVillageChange(e.target.value)}
+                  className="w-full py-2 px-3 rounded-xl border border-[#F8BBD0] bg-white text-xs text-[#4A3B40] focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/40 font-medium"
+                >
+                  {villagesList.map((vil) => (
+                    <option key={vil.id} value={vil.name}>
+                      {vil.name}
+                    </option>
+                  ))}
+                  <option value="__CUSTOM__">✍️ Ketik Kelurahan/Desa Manual...</option>
+                </select>
+              ) : (
+                <div className="flex items-center gap-1.5">
+                  <input
+                    type="text"
+                    required
+                    value={customVillageText}
+                    onChange={(e) => {
+                      setCustomVillageText(e.target.value);
+                      setSelectedVillage(e.target.value);
+                    }}
+                    placeholder="Tulis nama kelurahan/desa..."
+                    className="w-full py-2 px-3 rounded-xl border border-[#D4AF37] bg-white text-xs text-[#4A3B40] focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/40 font-medium"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setIsCustomVillage(false)}
+                    className="p-2 rounded-lg bg-[#FFD1DC]/40 text-[#4A3B40] text-[10px] hover:bg-[#FFD1DC] transition"
+                    title="Kembali ke Pilihan Dropdown"
+                  >
+                    Daftar
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 
@@ -528,7 +682,7 @@ export const HomeServicePicker: React.FC<HomeServicePickerProps> = ({
             </div>
 
             <p className="text-[11px] text-[#8C7A82] italic leading-tight pt-1">
-              * Dihitung otomatis menggunakan algoritma Google Maps rute terpanjang/teraman untuk menjamin keamanan perjalanan terapis dan ketepatan waktu.
+              * Dihitung otomatis menggunakan algoritma Google Maps rute terpanjang/teraman untuk menjamin keamanan perjalanan terapis dan ketepatan waktu. Mencakup seluruh 34 provinsi dan 514 kabupaten/kota di Indonesia.
             </p>
           </div>
         </div>

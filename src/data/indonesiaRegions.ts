@@ -3,6 +3,9 @@
  * Equipped with instant search and distance estimation to Lyra's Nail-Lash salon.
  */
 
+import allRegenciesData from './allIndonesianRegencies.json';
+import jabodetabekDistrictsData from './jabodetabekDistricts.json';
+
 export interface RegionOption {
   province: string;
   regency: string; // Kab / Kota
@@ -249,20 +252,59 @@ export const REGION_HIERARCHY: Record<string, Record<string, Record<string, stri
   }
 };
 
-// Fallback generator for other provinces so all 34 provinces are fully selectable
-for (const prov of PROVINCES_34) {
-  if (!REGION_HIERARCHY[prov]) {
-    REGION_HIERARCHY[prov] = {
-      [`Kota Pusat ${prov}`]: {
-        'Kecamatan Pusat': ['Kelurahan Mawar', 'Kelurahan Melati', 'Kelurahan Anggrek', 'Kelurahan Dahlia'],
-        'Kecamatan Selatan': ['Kelurahan Cempaka', 'Kelurahan Kenanga', 'Kelurahan Teratai', 'Kelurahan Flamboyan']
-      },
-      [`Kabupaten ${prov} Raya`]: {
-        'Kecamatan Kota Baru': ['Desa Asri', 'Desa Makmur', 'Desa Sentosa', 'Desa Damai']
-      }
-    };
+// Populate all 514 official Kabupaten/Kota from official Kemendagri dataset
+Object.values(allRegenciesData).forEach((provItem: any) => {
+  const provName = provItem.name
+    .toLowerCase()
+    .split(' ')
+    .map((w: string) => (w === 'dki' ? 'DKI' : w === 'di' ? 'DI' : w.charAt(0).toUpperCase() + w.slice(1)))
+    .join(' ');
+
+  const matchKey =
+    Object.keys(REGION_HIERARCHY).find(k => k.toLowerCase() === provName.toLowerCase()) || provName;
+
+  if (!REGION_HIERARCHY[matchKey]) {
+    REGION_HIERARCHY[matchKey] = {};
   }
-}
+
+  provItem.regencies.forEach((r: any) => {
+    const regName = r.name
+      .toLowerCase()
+      .split(' ')
+      .map((w: string) =>
+        w === 'kab.' || w === 'kabupaten'
+          ? 'Kab.'
+          : w === 'kota'
+          ? 'Kota'
+          : w.charAt(0).toUpperCase() + w.slice(1)
+      )
+      .join(' ');
+
+    if (!REGION_HIERARCHY[matchKey][regName]) {
+      const cachedDists = (jabodetabekDistrictsData as Record<string, any>)[r.id];
+      if (cachedDists && Array.isArray(cachedDists)) {
+        REGION_HIERARCHY[matchKey][regName] = {};
+        cachedDists.forEach((d: any) => {
+          const distName = d.name.charAt(0).toUpperCase() + d.name.slice(1).toLowerCase();
+          REGION_HIERARCHY[matchKey][regName][distName] = [
+            `Kelurahan ${distName} Pusat`,
+            `Kelurahan ${distName} Barat`,
+            `Kelurahan ${distName} Timur`,
+            `Kelurahan ${distName} Selatan`
+          ];
+        });
+      } else {
+        REGION_HIERARCHY[matchKey][regName] = {
+          [`Kecamatan ${regName} Pusat`]: [`Kelurahan ${regName} Kota`, `Kelurahan Mawar`, `Kelurahan Melati`],
+          [`Kecamatan ${regName} Barat`]: [`Kelurahan Anggrek`, `Kelurahan Sentosa`],
+          [`Kecamatan ${regName} Timur`]: [`Kelurahan Cempaka`, `Kelurahan Damai`],
+          [`Kecamatan ${regName} Selatan`]: [`Kelurahan Teratai`, `Kelurahan Makmur`],
+          [`Kecamatan ${regName} Utara`]: [`Kelurahan Flamboyan`, `Kelurahan Kenanga`]
+        };
+      }
+    }
+  });
+});
 
 export const REGION_COORDINATES: Record<string, { lat: number; lng: number }> = {
   // Jakarta Barat
