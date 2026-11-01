@@ -220,7 +220,7 @@ export const HomeServicePicker: React.FC<HomeServicePickerProps> = ({
                 {!isHomeService && <Check size={16} className="text-[#D4AF37]" />}
               </div>
               <p className="text-xs text-[#8C7A82] mt-0.5">
-                Jl. Senopati Raya No. 42, Kebayoran Baru, Jakarta Selatan. Gratis tanpa biaya transport.
+                Mall Taman Palem Lt G Blok A 30B, Cengkareng Timur, Jakarta Barat. Gratis tanpa biaya transport.
               </p>
             </div>
           </button>
@@ -384,7 +384,7 @@ export const HomeServicePicker: React.FC<HomeServicePickerProps> = ({
                 required
                 value={streetAddress}
                 onChange={(e) => setStreetAddress(e.target.value)}
-                placeholder="Contoh: Jl. Kemang Raya No. 12, Pagar Putih Sebelah Kafe"
+                placeholder="Contoh:  Kemang Raya No. 12, Pagar Putih Sebelah Kafe"
                 className="w-full py-2 px-3 rounded-xl border border-[#F8BBD0] bg-white text-xs sm:text-sm text-[#4A3B40] focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/40"
               />
             </div>
