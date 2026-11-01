@@ -291,32 +291,4 @@ export const INITIAL_CATEGORIES: Category[] = [
   {
     id: 'cat-lash-lift',
     name: 'LASH LIFT',
-    description: 'Pelentikan bulu mata asli menggunakan keratin alami tanpa bulu mata tambahan.',
-    subCategories: [
-      {
-        id: 'sub-lash-lift',
-        name: 'Lash Lift',
-        price: 100000,
-        discountPercentage: 0,
-        useColorManager: false,
-        useCodeManager: false,
-        useTypeManager: false,
-        requireDesignUpload: false,
-        description: 'Melentikkan bulu mata asli agar tampak lebih panjang dan bervolume alami hingga 6-8 minggu.',
-        estimatedMinutes: 60
-      },
-      {
-        id: 'sub-lash-lift-tin',
-        name: 'Lash Lift Tin',
-        price: 125000,
-        discountPercentage: 0,
-        useColorManager: false,
-        useCodeManager: false,
-        useTypeManager: false,
-        requireDesignUpload: false,
-        description: 'Lash lift dipadukan dengan pewarnaan tint hitam pekat untuk efek maskara semi-permanen.',
-        estimatedMinutes: 70
-      }
-    ]
-  }
-];
+    description: 'Pelentikan bulu mata asli menggunakan keratin alami tanpa bulu mata tambahan
