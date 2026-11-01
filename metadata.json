@@ -1,0 +1,6 @@
+{
+  "name": "Lyra's Nail-Lash Ecosystem",
+  "description": "Sistem terpadu Lyra's Nail-Lash: Customer Dashboard Reservasi & Owner POS Management dengan estetika elegan baby pink & cream.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
