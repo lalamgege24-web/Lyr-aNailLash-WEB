@@ -289,8 +289,16 @@ export const INITIAL_CATEGORIES: Category[] = [
     ]
   },
   {
-    id: 'cat-lash-lift',
-    name: 'LASH LIFT',
-    description: 'Pelentikan bulu mata asli menggunakan keratin alami tanpa bulu mata tambahan',
-  },
-  
+  id: 'cat-lash-lift',
+  name: 'LASH LIFT',
+  price: 150000,
+  discountPercentage: 0,
+  useColorManager: false,
+  useCodeManager: false,
+  useTypeManager: false,
+  requireDesignUpload: false,
+  description: 'Pelentikan bulu mata asli menggunakan keratin alami tanpa bulu mata tambahan',
+  estimatedMinutes: 60
+}
+```
+  ]
