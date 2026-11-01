@@ -23,9 +23,9 @@ export const HomeServicePicker: React.FC<HomeServicePickerProps> = ({
 }) => {
   const [isHomeService, setIsHomeService] = useState(value.isHomeService);
   const [selectedProvince, setSelectedProvince] = useState(value.province || 'DKI Jakarta');
-  const [selectedRegency, setSelectedRegency] = useState(value.regency || 'Jakarta Selatan');
-  const [selectedDistrict, setSelectedDistrict] = useState(value.district || 'Kebayoran Baru');
-  const [selectedVillage, setSelectedVillage] = useState(value.village || 'Senayan');
+  const [selectedRegency, setSelectedRegency] = useState(value.regency || 'Jakarta Barat');
+  const [selectedDistrict, setSelectedDistrict] = useState(value.district || 'Cengkareng');
+  const [selectedVillage, setSelectedVillage] = useState(value.village || 'Cengkareng Timur');
   const [streetAddress, setStreetAddress] = useState(value.streetAddress || '');
   const [rtRw, setRtRw] = useState(value.rtRw || '');
   const [notes, setNotes] = useState(value.notes || '');
@@ -113,10 +113,10 @@ export const HomeServicePicker: React.FC<HomeServicePickerProps> = ({
       onChange({
         isHomeService: false,
         province: 'DKI Jakarta',
-        regency: 'Jakarta Selatan',
-        district: 'Kebayoran Baru',
-        village: 'Senayan',
-        streetAddress: 'Studio Lyra’s Nail-Lash (Kunjungan Salon)',
+        regency: 'Jakarta Barat',
+        district: 'Cengkareng',
+        village: 'Cengkareng Timur',
+        streetAddress: 'Mall Taman Palem Lt G Blok A 30B (Kunjungan Salon)',
         rtRw: '',
         notes: '',
         calculatedDistanceKm: 0,
@@ -384,7 +384,7 @@ export const HomeServicePicker: React.FC<HomeServicePickerProps> = ({
                 required
                 value={streetAddress}
                 onChange={(e) => setStreetAddress(e.target.value)}
-                placeholder="Contoh:  Kemang Raya No. 12, Pagar Putih Sebelah Kafe"
+                placeholder="Contoh: Kemang Raya No. 12, Pagar Putih Sebelah Kafe"
                 className="w-full py-2 px-3 rounded-xl border border-[#F8BBD0] bg-white text-xs sm:text-sm text-[#4A3B40] focus:outline-none focus:ring-2 focus:ring-[#D4AF37]/40"
               />
             </div>
