@@ -24,6 +24,8 @@ import {
   Reservation, 
   MemberAccount, 
   Voucher,
+  AccessoryItem,
+  ExtensionConfig,
   OperationalScheduleSettings,
   StoreSettings
 } from '../types/salon';
@@ -39,6 +41,8 @@ interface MemberBookingProps {
   availableColors: ColorItem[];
   availableCodes: CodeItem[];
   availableTypes: TypeItem[];
+  availableAccessories?: AccessoryItem[];
+  availableExtensions?: ExtensionConfig[];
   vouchers: Voucher[];
   operationalSchedule?: OperationalScheduleSettings;
   reservations: Reservation[];
@@ -52,6 +56,8 @@ export const MemberBooking: React.FC<MemberBookingProps> = ({
   availableColors,
   availableCodes,
   availableTypes,
+  availableAccessories = [],
+  availableExtensions = [],
   vouchers,
   operationalSchedule,
   reservations,
@@ -246,7 +252,7 @@ export const MemberBooking: React.FC<MemberBookingProps> = ({
     // Check slot availability and 30-min buffer rule
     const timeStatus = checkTimeSlotAvailability(appointmentDate, appointmentTime, reservations, operationalSchedule);
     if (!timeStatus.isValid) {
-      setValidationError(timeStatus.reason || 'Jam treatment yang dipilih tidak tersedia (mungkin penuh atau bertepatan dengan jam istirahat).');
+      setValidationError(timeStatus.reason || 'Jam treatment yang dipilih tidak tersedia atau slot penuh.');
       return;
     }
 
@@ -666,9 +672,10 @@ export const MemberBooking: React.FC<MemberBookingProps> = ({
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-          {vouchers.filter(v => v.isActive).map((voucher) => {
+          {vouchers.filter(v => salonStore.isVoucherVisibleToCustomer(v)).map((voucher) => {
             const alreadyClaimed = currentMember.claimedVoucherIds?.includes(voucher.id);
-            const canAfford = currentMember.coins >= voucher.coinsRequired;
+            const isQuotaFull = typeof voucher.maxClaimsQuota === 'number' && voucher.maxClaimsQuota > 0 && (voucher.totalClaimedCount || 0) >= voucher.maxClaimsQuota;
+            const canAfford = currentMember.coins >= voucher.coinsRequired && !isQuotaFull;
 
             return (
               <div 
@@ -676,6 +683,8 @@ export const MemberBooking: React.FC<MemberBookingProps> = ({
                 className={`p-4 rounded-xl border transition flex flex-col justify-between gap-3 ${
                   alreadyClaimed
                     ? 'border-emerald-300 bg-emerald-50/40'
+                    : isQuotaFull
+                    ? 'border-gray-200 bg-gray-50 opacity-60'
                     : 'border-[#F8BBD0]/50 bg-white hover:border-[#D4AF37]'
                 }`}
               >
@@ -691,9 +700,21 @@ export const MemberBooking: React.FC<MemberBookingProps> = ({
                   <p className="text-xs text-[#8C7A82] mt-1 leading-relaxed">
                     {voucher.description}
                   </p>
-                  <span className="block text-[10px] text-[#8C7A82] mt-2">
-                    Berlaku s/d: {voucher.validUntil} • Diklaim: {voucher.totalClaimedCount}x
-                  </span>
+                  <div className="flex flex-wrap items-center gap-2 mt-2 text-[10px] text-[#8C7A82]">
+                    <span>Berlaku s/d: {voucher.validUntil}</span>
+                    <span>•</span>
+                    <span>Diklaim: {voucher.totalClaimedCount}x</span>
+                    {voucher.maxClaimsQuota && (
+                      <>
+                        <span>•</span>
+                        <span className={`px-1.5 py-0.2 rounded font-semibold ${
+                          isQuotaFull ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-800'
+                        }`}>
+                          Kuota: {voucher.totalClaimedCount}/{voucher.maxClaimsQuota}
+                        </span>
+                      </>
+                    )}
+                  </div>
                 </div>
 
                 <div className="pt-2 border-t border-[#F8BBD0]/30 flex items-center justify-between">
@@ -722,7 +743,13 @@ export const MemberBooking: React.FC<MemberBookingProps> = ({
                       }`}
                     >
                       <Coins size={13} />
-                      <span>{canAfford ? 'Tukar Sekarang' : 'Koin Belum Cukup'}</span>
+                      <span>
+                        {isQuotaFull 
+                          ? 'Kuota Klaim Penuh' 
+                          : canAfford 
+                          ? 'Tukar Sekarang' 
+                          : 'Koin Belum Cukup'}
+                      </span>
                     </button>
                   )}
                 </div>
@@ -772,6 +799,8 @@ export const MemberBooking: React.FC<MemberBookingProps> = ({
           availableColors={availableColors}
           availableCodes={availableCodes}
           availableTypes={availableTypes}
+          availableAccessories={availableAccessories}
+          availableExtensions={availableExtensions}
           selectedServices={selectedServices}
           onToggleService={handleToggleService}
           onUpdateService={handleUpdateService}

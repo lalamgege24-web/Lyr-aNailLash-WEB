@@ -15,10 +15,16 @@ import {
   MapPin, 
   ChevronDown, 
   ChevronUp, 
-  DollarSign 
+  DollarSign,
+  Trash2,
+  Bell,
+  Volume2,
+  Radio
 } from 'lucide-react';
 import { Reservation, StoreSettings } from '../types/salon';
 import { salonStore } from '../services/store';
+import { PushNotificationService } from '../utils/pushNotification';
+import { audioManager } from '../utils/audioNotification';
 
 interface OwnerReservationsProps {
   reservations: Reservation[];
@@ -50,6 +56,28 @@ export const OwnerReservations: React.FC<OwnerReservationsProps> = ({
 
   // Modal / Drawer for editing reservation details (Owner Exclusive)
   const [editingRes, setEditingRes] = useState<Reservation | null>(null);
+  const [reservationToDelete, setReservationToDelete] = useState<Reservation | null>(null);
+  const [notifPermission, setNotifPermission] = useState<string>(() => PushNotificationService.getPermission());
+
+  // Delete reservation handler (Owner Feature)
+  const handleConfirmDelete = () => {
+    if (!reservationToDelete) return;
+    salonStore.deleteReservation(reservationToDelete.id);
+    if (editingRes?.id === reservationToDelete.id) {
+      setEditingRes(null);
+    }
+    setReservationToDelete(null);
+    onRefresh();
+  };
+
+  const handleRequestPermission = async () => {
+    const res = await PushNotificationService.requestPermission();
+    setNotifPermission(res);
+  };
+
+  const handleTestChime = () => {
+    audioManager.playNewReservationChime();
+  };
 
   // Status counts
   const pendingCount = reservations.filter(r => r.status === 'PENDING').length;
@@ -123,7 +151,55 @@ export const OwnerReservations: React.FC<OwnerReservationsProps> = ({
   };
 
   return (
-    <div className="space-y-10 animate-fadeIn">
+    <div className="space-y-8 animate-fadeIn">
+      {/* Real-time Multi-browser Sync & Sound Notification Controls */}
+      <div className="p-4 rounded-2xl bg-gradient-to-r from-[#FFF8E7] via-white to-[#FFD1DC]/30 border border-[#D4AF37]/50 shadow-xs flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-[#D4AF37]/20 text-[#B8860B] flex items-center justify-center font-bold shrink-0">
+            <Radio size={20} className="animate-pulse" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="font-bold text-xs sm:text-sm text-[#4A3B40]">
+                Sinkronisasi Multi-Browser & Notifikasi Reservasi Aktif
+              </span>
+              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" title="Terhubung ke server backend" />
+            </div>
+            <p className="text-[11px] text-[#8C7A82]">
+              Setiap reservasi dari browser pelanggan masuk otomatis secara real-time dengan bunyi bel & notifikasi background.
+            </p>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2">
+          {notifPermission !== 'granted' ? (
+            <button
+              type="button"
+              onClick={handleRequestPermission}
+              className="py-1.5 px-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold flex items-center gap-1.5 shadow-2xs transition hover:scale-102"
+            >
+              <Bell size={13} />
+              <span>Aktifkan Notifikasi Latar Belakang</span>
+            </button>
+          ) : (
+            <span className="py-1 px-2.5 rounded-lg bg-emerald-100 text-emerald-800 text-[11px] font-bold flex items-center gap-1">
+              <Bell size={12} />
+              <span>Notifikasi Background Aktif</span>
+            </span>
+          )}
+
+          <button
+            type="button"
+            onClick={handleTestChime}
+            className="py-1.5 px-3 rounded-xl bg-white border border-[#D4AF37] text-[#B8860B] hover:bg-[#FFF8E7] text-xs font-semibold flex items-center gap-1.5 shadow-2xs transition"
+            title="Tes suara bel reservasi baru"
+          >
+            <Volume2 size={14} />
+            <span>Tes Suara Bel</span>
+          </button>
+        </div>
+      </div>
+
       {/* SECTION 1: Status Widgets */}
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-3.5">
         <div className="luxury-card p-4 bg-white border-[#F8BBD0]/60 flex items-center justify-between">
@@ -187,52 +263,133 @@ export const OwnerReservations: React.FC<OwnerReservationsProps> = ({
         </div>
       </div>
 
-      {/* SECTION 2: Pengingat H-1 (Reminder H-1 Tindakan Besok) */}
-      {tomorrowReservations.length > 0 && (
-        <div className="luxury-card p-5 bg-gradient-to-r from-[#FFFDF9] via-[#FFF8E7] to-[#FFD1DC]/30 border-[#D4AF37]/40 space-y-3">
-          <div className="flex items-center justify-between">
+      {/* SECTION 2: JADWAL RESERVASI H-1 (Dapat Dilihat Staf & Owner • Staf Tidak Bisa Menghubungi Customer) */}
+      <div className="luxury-card p-5 bg-gradient-to-r from-[#FFFDF9] via-[#FFF8E7] to-[#FFD1DC]/30 border-[#D4AF37]/50 shadow-xs space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#D4AF37]/30 pb-3">
+          <div>
             <div className="flex items-center gap-2">
-              <Clock size={18} className="text-[#B8860B]" />
-              <h3 className="font-serif font-bold text-base text-[#4A3B40]">
-                Pengingat Janji Treatment H-1 (Besok: {tomorrowDateStr})
+              <Clock size={20} className="text-[#B8860B]" />
+              <h3 className="font-serif font-bold text-lg text-[#4A3B40]">
+                Jadwal Reservasi H-1 Hari (Besok: {tomorrowDateStr})
               </h3>
             </div>
-            <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-[#D4AF37] text-white">
-              {tomorrowReservations.length} Pelanggan Besok
-            </span>
+            <p className="text-xs text-[#8C7A82] mt-0.5">
+              Jadwal persiapan treatment esok hari untuk Owner dan Staf. {!isOwner && '🔒 Sesuai protokol, kontak pelanggan disembunyikan untuk staf.'}
+            </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div className="flex items-center gap-2">
+            <span className="text-xs font-bold px-3 py-1 rounded-full bg-[#D4AF37] text-white shadow-2xs">
+              {tomorrowReservations.length} Jadwal Besok
+            </span>
+            {!isOwner && (
+              <span className="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-rose-50 text-rose-700 border border-rose-200">
+                Staff Mode (No Contact)
+              </span>
+            )}
+          </div>
+        </div>
+
+        {tomorrowReservations.length === 0 ? (
+          <div className="py-6 text-center bg-white/70 rounded-2xl border border-dashed border-[#F8BBD0] p-4 text-xs text-[#8C7A82]">
+            🌸 Belum ada jadwal janji temu untuk besok (H-1: {tomorrowDateStr}).
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
             {tomorrowReservations.map((res) => (
               <div 
                 key={res.id} 
-                className="p-3.5 rounded-xl bg-white border border-[#F8BBD0]/60 flex items-center justify-between gap-3 shadow-2xs"
+                className="p-4 rounded-2xl bg-white border border-[#F8BBD0] flex flex-col justify-between gap-3 shadow-2xs hover:border-[#D4AF37] transition"
               >
-                <div>
-                  <span className="font-semibold text-xs text-[#4A3B40] block">
-                    {res.fullName} ({res.appointmentTime} WIB)
-                  </span>
-                  <span className="text-[11px] text-[#8C7A82]">
-                    {res.services[0]?.subCategoryName || 'Treatment Rombongan'} • {res.location.isHomeService ? 'Home Service' : 'Studio'}
-                  </span>
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="font-mono text-xs font-bold px-2 py-0.5 rounded-md bg-[#D4AF37] text-white">
+                      {res.appointmentTime} WIB
+                    </span>
+                    <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-[#FFD1DC] text-[#4A3B40]">
+                      {res.type}
+                    </span>
+                  </div>
+
+                  <div>
+                    <h4 className="font-serif font-bold text-sm text-[#4A3B40]">
+                      {res.fullName}
+                    </h4>
+
+                    {/* Contact Privacy Enforcer: Staff CANNOT see or contact customer */}
+                    {isOwner ? (
+                      <p className="text-xs text-[#8C7A82] flex items-center gap-1 mt-0.5 font-mono">
+                        <Phone size={12} className="text-[#D4AF37]" />
+                        <span>{res.whatsapp}</span>
+                      </p>
+                    ) : (
+                      <p className="text-[11px] text-gray-400 italic flex items-center gap-1 mt-0.5">
+                        <span>🔒 Nomor kontak dirahasiakan (Staff Mode)</span>
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Services & Treatment details for H-1 preparation */}
+                  <div className="p-2.5 rounded-xl bg-[#FFFDF9] border border-[#F8BBD0]/50 text-xs text-[#4A3B40] space-y-1">
+                    <div className="font-semibold text-[11px] text-[#B8860B] flex items-center gap-1">
+                      <span>💅 Tindakan & Detail Persiapan:</span>
+                    </div>
+
+                    {res.services && res.services.length > 0 ? (
+                      res.services.map((s, idx) => (
+                        <div key={idx} className="text-[11px]">
+                          • <strong className="text-[#4A3B40]">{s.subSubCategoryName || s.subCategoryName}</strong>
+                          {s.selectedColors && s.selectedColors.length > 0 && (
+                            <span className="text-[#8C7A82]"> (Warna: {s.selectedColors.join(', ')})</span>
+                          )}
+                          {s.selectedType && (
+                            <span className="text-[#8C7A82]"> [{s.selectedType}]</span>
+                          )}
+                          {s.selectedExtensionLengthMm && (
+                            <span className="text-emerald-700 font-semibold"> [Ext: {s.selectedExtensionLengthMm} mm]</span>
+                          )}
+                          {s.selectedAccessories && s.selectedAccessories.length > 0 && (
+                            <span className="text-purple-700"> [Aksesoris: {s.selectedAccessories.map(a => a.name).join(', ')}]</span>
+                          )}
+                        </div>
+                      ))
+                    ) : res.groupMembers && res.groupMembers.length > 0 ? (
+                      <div className="text-[11px] text-[#4A3B40]">
+                        • Rombongan {res.groupMembers.length} Orang: {res.groupMembers.map(m => m.fullName).filter(Boolean).join(', ')}
+                      </div>
+                    ) : (
+                      <div className="text-[11px] text-[#8C7A82]">Layanan Standar Studio</div>
+                    )}
+
+                    <div className="text-[10px] text-[#8C7A82] pt-1 border-t border-[#F8BBD0]/30">
+                      📍 Lokasi: {res.location.isHomeService ? `Home Service (${res.location.calculatedDistanceKm} km)` : 'Datang ke Studio Mall Taman Palem'}
+                    </div>
+                  </div>
                 </div>
 
-                {isOwner && (
-                  <a
-                    href={`https://wa.me/${res.whatsapp.replace(/\D/g, '')}?text=Halo%20Kak%20${encodeURIComponent(res.fullName)},%20kami%20dari%20Lyra's%20Nail-Lash%20mengingatkan%20jadwal%20perawatan%20cantik%20Kakak%20besok%20jam%20${encodeURIComponent(res.appointmentTime)}%20WIB.%20Sampai%20bertemu%20besok!%20✨`}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="py-1.5 px-3 rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 text-xs font-semibold flex items-center gap-1.5 shrink-0 transition"
-                  >
-                    <MessageCircle size={13} />
-                    <span>Kirim WA H-1</span>
-                  </a>
-                )}
+                {/* WhatsApp Action: Strictly ONLY rendered for Owner. Staff CANNOT contact customer */}
+                <div className="pt-2 border-t border-gray-100 flex items-center justify-between">
+                  {isOwner ? (
+                    <a
+                      href={`https://wa.me/${res.whatsapp.replace(/\D/g, '')}?text=Halo%20Kak%20${encodeURIComponent(res.fullName)},%20kami%20dari%20Lyra's%20Nail-Lash%20mengingatkan%20jadwal%20perawatan%20cantik%20Kakak%20besok%20jam%20${encodeURIComponent(res.appointmentTime)}%20WIB.%20Sampai%20bertemu%20besok!%20✨💅`}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="py-1.5 px-3 rounded-xl bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 text-xs font-semibold flex items-center gap-1.5 transition ml-auto shadow-2xs"
+                    >
+                      <MessageCircle size={13} />
+                      <span>Kirim WA Pengingat H-1</span>
+                    </a>
+                  ) : (
+                    <span className="text-[10px] text-gray-400 italic">
+                      Staff hanya dapat melihat jadwal dan detail persiapan treatment.
+                    </span>
+                  )}
+                </div>
               </div>
             ))}
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* SECTION 3: JADWAL TREATMENT HARI INI (Dipisah lokasinya, urutan kronologis pagi -> malam) */}
       <section className="luxury-card p-5 sm:p-6 space-y-5 bg-white border-[#D4AF37]/50 shadow-sm">
@@ -371,14 +528,24 @@ export const OwnerReservations: React.FC<OwnerReservationsProps> = ({
                     {/* Action buttons */}
                     <div className="flex items-center gap-2">
                       {isOwner && (
-                        <button
-                          type="button"
-                          onClick={() => setEditingRes(res)}
-                          className="p-2 rounded-xl border border-gray-200 hover:bg-gray-50 text-gray-600 transition"
-                          title="Edit Jadwal / Harga / Layanan"
-                        >
-                          <Edit3 size={15} />
-                        </button>
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => setEditingRes(res)}
+                            className="p-2 rounded-xl border border-gray-200 hover:bg-gray-50 text-gray-600 transition"
+                            title="Edit Jadwal / Harga / Layanan"
+                          >
+                            <Edit3 size={15} />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setReservationToDelete(res)}
+                            className="p-2 rounded-xl border border-rose-200 hover:bg-rose-50 text-rose-600 transition"
+                            title="Hapus Riwayat Reservasi Customer"
+                          >
+                            <Trash2 size={15} />
+                          </button>
+                        </>
                       )}
 
                       {!isFinished ? (
@@ -540,14 +707,24 @@ export const OwnerReservations: React.FC<OwnerReservationsProps> = ({
                   <td className="py-3 px-3 text-right">
                     <div className="flex items-center justify-end gap-1.5">
                       {isOwner && (
-                        <button
-                          type="button"
-                          onClick={() => setEditingRes(res)}
-                          className="p-1.5 rounded-lg border border-gray-200 hover:bg-gray-100 text-gray-600 transition"
-                          title="Edit Reservasi"
-                        >
-                          <Edit3 size={13} />
-                        </button>
+                        <>
+                          <button
+                            type="button"
+                            onClick={() => setEditingRes(res)}
+                            className="p-1.5 rounded-lg border border-gray-200 hover:bg-gray-100 text-gray-600 transition"
+                            title="Edit Reservasi"
+                          >
+                            <Edit3 size={13} />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setReservationToDelete(res)}
+                            className="p-1.5 rounded-lg border border-rose-200 hover:bg-rose-50 text-rose-600 transition"
+                            title="Hapus Riwayat Reservasi Customer"
+                          >
+                            <Trash2 size={13} />
+                          </button>
+                        </>
                       )}
 
                       {res.status === 'PENDING' && isOwner && (
@@ -693,22 +870,82 @@ export const OwnerReservations: React.FC<OwnerReservationsProps> = ({
                 />
               </div>
 
-              <div className="pt-2 flex gap-2">
+              <div className="pt-2 flex flex-col sm:flex-row gap-2">
                 <button
                   type="button"
-                  onClick={() => setEditingRes(null)}
-                  className="flex-1 py-2.5 rounded-xl border border-gray-200 text-gray-600 font-semibold"
+                  onClick={() => {
+                    const target = editingRes;
+                    setReservationToDelete(target);
+                  }}
+                  className="py-2.5 px-3 rounded-xl border border-rose-200 text-rose-600 hover:bg-rose-50 font-semibold text-xs flex items-center justify-center gap-1.5 transition"
                 >
-                  Batal
+                  <Trash2 size={14} />
+                  <span>Hapus Riwayat</span>
                 </button>
-                <button
-                  type="submit"
-                  className="flex-1 py-2.5 rounded-xl gold-button font-bold"
-                >
-                  Simpan Perubahan
-                </button>
+                <div className="flex-1 flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setEditingRes(null)}
+                    className="flex-1 py-2.5 rounded-xl border border-gray-200 text-gray-600 font-semibold"
+                  >
+                    Batal
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex-1 py-2.5 rounded-xl gold-button font-bold"
+                  >
+                    Simpan Perubahan
+                  </button>
+                </div>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Confirmation Modal for Deleting Customer Reservation History */}
+      {reservationToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fadeIn">
+          <div className="w-full max-w-md bg-white rounded-2xl p-6 shadow-2xl border border-rose-200 space-y-4">
+            <div className="w-12 h-12 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mx-auto shadow-xs">
+              <Trash2 size={24} />
+            </div>
+            <div className="text-center space-y-1.5">
+              <h4 className="font-serif font-bold text-lg text-[#4A3B40]">
+                Hapus Riwayat Reservasi?
+              </h4>
+              <p className="text-xs text-[#8C7A82] leading-relaxed">
+                Apakah Anda yakin ingin menghapus data riwayat reservasi{' '}
+                <strong className="text-[#4A3B40] font-mono">{reservationToDelete.bookingCode}</strong> atas nama{' '}
+                <strong className="text-[#4A3B40]">{reservationToDelete.fullName}</strong>?
+              </p>
+              <div className="p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-[11px] text-left space-y-1">
+                <p className="font-semibold flex items-center gap-1">
+                  <AlertCircle size={13} className="shrink-0" />
+                  <span>Perhatian:</span>
+                </p>
+                <p>
+                  Data reservasi ini akan dihapus secara permanen dari server dan riwayat di seluruh perangkat browser pelanggan/owner.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => setReservationToDelete(null)}
+                className="flex-1 py-2.5 rounded-xl border border-gray-200 text-gray-600 font-semibold text-xs hover:bg-gray-50 transition"
+              >
+                Batal
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmDelete}
+                className="flex-1 py-2.5 rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-xs transition"
+              >
+                Ya, Hapus Permanen
+              </button>
+            </div>
           </div>
         </div>
       )}

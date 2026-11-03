@@ -41,6 +41,9 @@ export const OwnerMemberManager: React.FC<OwnerMemberManagerProps> = ({
   const [vCoinsReq, setVCoinsReq] = useState(300);
   const [vValidFrom, setVValidFrom] = useState(new Date().toISOString().slice(0, 10));
   const [vValidUntil, setVValidUntil] = useState('2026-12-31');
+  const [vMaxClaimsQuota, setVMaxClaimsQuota] = useState<number>(50);
+  const [vDisplayStartDate, setVDisplayStartDate] = useState(new Date().toISOString().slice(0, 10));
+  const [vDisplayEndDate, setVDisplayEndDate] = useState('2026-12-31');
 
   // Editing Voucher Modal / Drawer
   const [editingVoucher, setEditingVoucher] = useState<Voucher | null>(null);
@@ -66,7 +69,10 @@ export const OwnerMemberManager: React.FC<OwnerMemberManagerProps> = ({
       coinsRequired: Number(vCoinsReq),
       validFrom: vValidFrom,
       validUntil: vValidUntil,
-      isActive: true
+      isActive: true,
+      maxClaimsQuota: Number(vMaxClaimsQuota) > 0 ? Number(vMaxClaimsQuota) : undefined,
+      displayStartDate: vDisplayStartDate || undefined,
+      displayEndDate: vDisplayEndDate || undefined
     });
 
     setIsAddingVoucher(false);
@@ -74,6 +80,7 @@ export const OwnerMemberManager: React.FC<OwnerMemberManagerProps> = ({
     setVDesc('');
     setVDiscountVal(20);
     setVCoinsReq(300);
+    setVMaxClaimsQuota(50);
     onRefresh();
   };
 
@@ -89,7 +96,10 @@ export const OwnerMemberManager: React.FC<OwnerMemberManagerProps> = ({
       discountValue: Number(editingVoucher.discountValue),
       validFrom: editingVoucher.validFrom,
       validUntil: editingVoucher.validUntil,
-      isActive: editingVoucher.isActive
+      isActive: editingVoucher.isActive,
+      maxClaimsQuota: editingVoucher.maxClaimsQuota !== undefined ? Number(editingVoucher.maxClaimsQuota) : undefined,
+      displayStartDate: editingVoucher.displayStartDate || undefined,
+      displayEndDate: editingVoucher.displayEndDate || undefined
     });
 
     setEditingVoucher(null);
@@ -373,6 +383,41 @@ export const OwnerMemberManager: React.FC<OwnerMemberManagerProps> = ({
               </div>
             </div>
 
+            {/* Quota Limit & Scheduled Display for Customer Dashboard */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 p-3 rounded-xl bg-[#FFF8E7]/40 border border-[#D4AF37]/30">
+              <div>
+                <label className="block font-semibold mb-1 text-[#4A3B40]">Limit Kuota Diklaim (0 = Tak Terbatas):</label>
+                <input
+                  type="number"
+                  min={0}
+                  value={vMaxClaimsQuota}
+                  onChange={(e) => setVMaxClaimsQuota(Number(e.target.value))}
+                  placeholder="Contoh: 50 kali klaim..."
+                  className="w-full py-1.5 px-2.5 rounded-lg border border-[#F8BBD0] bg-white font-mono"
+                />
+              </div>
+
+              <div>
+                <label className="block font-semibold mb-1 text-[#4A3B40]">Mulai Tampil di Customer Dashboard:</label>
+                <input
+                  type="date"
+                  value={vDisplayStartDate}
+                  onChange={(e) => setVDisplayStartDate(e.target.value)}
+                  className="w-full py-1.5 px-2.5 rounded-lg border border-[#F8BBD0] bg-white font-mono"
+                />
+              </div>
+
+              <div>
+                <label className="block font-semibold mb-1 text-[#4A3B40]">Berakhir Tampil di Customer Dashboard:</label>
+                <input
+                  type="date"
+                  value={vDisplayEndDate}
+                  onChange={(e) => setVDisplayEndDate(e.target.value)}
+                  className="w-full py-1.5 px-2.5 rounded-lg border border-[#F8BBD0] bg-white font-mono"
+                />
+              </div>
+            </div>
+
             <div className="pt-2 flex justify-end gap-2">
               <button
                 type="button"
@@ -397,7 +442,7 @@ export const OwnerMemberManager: React.FC<OwnerMemberManagerProps> = ({
             <div 
               key={voucher.id}
               className={`p-4 rounded-xl border transition flex flex-col justify-between gap-3 ${
-                voucher.isActive ? 'border-[#D4AF37]/40 bg-white' : 'border-gray-200 bg-gray-50 opacity-60'
+                voucher.isActive ? 'border-[#D4AF37]/40 bg-white shadow-2xs' : 'border-gray-200 bg-gray-50 opacity-60'
               }`}
             >
               <div>
@@ -416,14 +461,26 @@ export const OwnerMemberManager: React.FC<OwnerMemberManagerProps> = ({
                   {voucher.description}
                 </p>
 
-                <div className="mt-3 p-2 rounded-lg bg-[#FFF8E7]/50 border border-[#D4AF37]/20 space-y-1 text-[11px] text-[#4A3B40]">
+                <div className="mt-3 p-2.5 rounded-lg bg-[#FFF8E7]/50 border border-[#D4AF37]/20 space-y-1.5 text-[11px] text-[#4A3B40]">
                   <div className="flex justify-between">
                     <span>Koin untuk Klaim:</span>
                     <strong className="text-[#B8860B] font-mono">{voucher.coinsRequired} Koin</strong>
                   </div>
                   <div className="flex justify-between">
-                    <span>Masa Berlaku:</span>
+                    <span>Masa Berlaku Voucher:</span>
                     <span className="font-mono">{voucher.validFrom} s/d {voucher.validUntil}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Limit Kuota Klaim:</span>
+                    <span className="font-mono font-semibold text-purple-800">
+                      {voucher.maxClaimsQuota ? `${voucher.totalClaimedCount || 0} / ${voucher.maxClaimsQuota} kuota` : 'Tanpa Batas'}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Tampil di Customer:</span>
+                    <span className="font-mono text-[10px] text-[#8C7A82]">
+                      {voucher.displayStartDate || 'Langsung'} s/d {voucher.displayEndDate || 'Seterusnya'}
+                    </span>
                   </div>
                   <div className="flex justify-between pt-1 border-t border-[#F8BBD0]/30 font-semibold">
                     <span>Statistik Penggunaan:</span>
@@ -529,6 +586,38 @@ export const OwnerMemberManager: React.FC<OwnerMemberManagerProps> = ({
                     value={editingVoucher.validUntil}
                     onChange={(e) => setEditingVoucher({ ...editingVoucher, validUntil: e.target.value })}
                     className="w-full py-1.5 px-3 rounded-lg border border-[#F8BBD0] bg-white"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 p-2.5 rounded-xl bg-[#FFF8E7]/50 border border-[#D4AF37]/30">
+                <div>
+                  <label className="block font-semibold mb-1 text-[#4A3B40]">Limit Kuota Klaim:</label>
+                  <input
+                    type="number"
+                    min={0}
+                    value={editingVoucher.maxClaimsQuota ?? ''}
+                    onChange={(e) => setEditingVoucher({ ...editingVoucher, maxClaimsQuota: e.target.value ? Number(e.target.value) : undefined })}
+                    placeholder="0 = Tak terbatas"
+                    className="w-full py-1.5 px-2 rounded-lg border border-[#F8BBD0] bg-white font-mono"
+                  />
+                </div>
+                <div>
+                  <label className="block font-semibold mb-1 text-[#4A3B40]">Mulai Tampil di Customer:</label>
+                  <input
+                    type="date"
+                    value={editingVoucher.displayStartDate ?? ''}
+                    onChange={(e) => setEditingVoucher({ ...editingVoucher, displayStartDate: e.target.value || undefined })}
+                    className="w-full py-1.5 px-2 rounded-lg border border-[#F8BBD0] bg-white font-mono"
+                  />
+                </div>
+                <div>
+                  <label className="block font-semibold mb-1 text-[#4A3B40]">Berakhir Tampil di Customer:</label>
+                  <input
+                    type="date"
+                    value={editingVoucher.displayEndDate ?? ''}
+                    onChange={(e) => setEditingVoucher({ ...editingVoucher, displayEndDate: e.target.value || undefined })}
+                    className="w-full py-1.5 px-2 rounded-lg border border-[#F8BBD0] bg-white font-mono"
                   />
                 </div>
               </div>

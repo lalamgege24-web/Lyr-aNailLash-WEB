@@ -133,6 +133,7 @@ export default function OwnerApp() {
             colors={colors}
             codes={codes}
             types={types}
+            categories={categories}
             onRefresh={refreshState}
           />
         )}

@@ -10,10 +10,12 @@ import {
   ExternalLink, 
   Sparkles, 
   Receipt, 
-  Heart 
+  Heart,
+  Bell
 } from 'lucide-react';
 import { Reservation, StoreSettings } from '../types/salon';
 import { salonStore } from '../services/store';
+import { PushNotificationService } from '../utils/pushNotification';
 
 interface ReservationStatusModalProps {
   isOpen: boolean;
@@ -30,6 +32,7 @@ export const ReservationStatusModal: React.FC<ReservationStatusModalProps> = ({
 }) => {
   const [whatsappQuery, setWhatsappQuery] = useState(initialWhatsapp);
   const [hasSearched, setHasSearched] = useState(!!initialWhatsapp);
+  const [notifState, setNotifState] = useState<string>(() => PushNotificationService.getPermission());
   const [reservations, setReservations] = useState<Reservation[]>(() => {
     if (initialWhatsapp) {
       const clean = initialWhatsapp.replace(/\D/g, '');
@@ -183,6 +186,34 @@ export const ReservationStatusModal: React.FC<ReservationStatusModalProps> = ({
             </div>
           ) : (
             <div className="space-y-6">
+              {notifState !== 'granted' && (
+                <div className="p-3.5 rounded-xl bg-[#FFF8E7] border border-[#D4AF37]/50 flex items-center justify-between gap-3 text-xs">
+                  <div className="flex items-center gap-2.5">
+                    <div className="p-2 rounded-lg bg-[#D4AF37] text-white shrink-0">
+                      <Bell size={16} />
+                    </div>
+                    <div>
+                      <span className="font-bold text-[#4A3B40] block">
+                        Dapatkan Notifikasi Latar Belakang
+                      </span>
+                      <p className="text-[11px] text-[#8C7A82]">
+                        HP / laptop akan langsung memunculkan pop-up saat reservasi Anda disetujui owner.
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      const res = await PushNotificationService.requestPermission();
+                      setNotifState(res);
+                    }}
+                    className="py-1.5 px-3 rounded-lg bg-[#D4AF37] hover:bg-[#B8860B] text-white font-bold text-xs shrink-0 shadow-2xs transition"
+                  >
+                    Aktifkan
+                  </button>
+                </div>
+              )}
+
               {reservations.map((res) => {
                 const isFinished = res.status === 'FINISHED';
 

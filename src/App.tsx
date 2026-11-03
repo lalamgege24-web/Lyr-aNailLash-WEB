@@ -8,10 +8,12 @@ import {
   MapPin, 
   Heart, 
   Copy, 
-  Sparkles 
+  Sparkles,
+  Bell
 } from 'lucide-react';
 import { salonStore } from './services/store';
 import { Reservation, StoreSettings } from './types/salon';
+import { PushNotificationService } from './utils/pushNotification';
 import { SplashScreen } from './components/SplashScreen';
 import { CustomerHeader } from './components/CustomerHeader';
 import { CustomerTypeSelector } from './components/CustomerTypeSelector';
@@ -29,6 +31,8 @@ export default function App() {
   const [colors, setColors] = useState(() => salonStore.getColors());
   const [codes, setCodes] = useState(() => salonStore.getCodes());
   const [types, setTypes] = useState(() => salonStore.getTypes());
+  const [accessories, setAccessories] = useState(() => salonStore.getAccessories());
+  const [extensions, setExtensions] = useState(() => salonStore.getExtensions());
   const [vouchers, setVouchers] = useState(() => salonStore.getVouchers());
   const [reservations, setReservations] = useState<Reservation[]>(() => salonStore.getReservations());
 
@@ -48,18 +52,28 @@ export default function App() {
       setColors(salonStore.getColors());
       setCodes(salonStore.getCodes());
       setTypes(salonStore.getTypes());
+      setAccessories(salonStore.getAccessories());
+      setExtensions(salonStore.getExtensions());
       setVouchers(salonStore.getVouchers());
       setReservations(salonStore.getReservations());
     });
     return unsubscribe;
   }, []);
 
-  const handleReservationSubmitted = (
+  const [customerNotifState, setCustomerNotifState] = useState<string>(() => PushNotificationService.getPermission());
+
+  const handleReservationSubmitted = async (
     reservationData: Omit<Reservation, 'id' | 'bookingCode' | 'createdAt' | 'randomCuteQuote'>
   ) => {
     const newRes = salonStore.addReservation(reservationData);
     setLatestReservation(newRes);
     setCurrentView('SUCCESS_SUMMARY');
+
+    // Prompt for background notifications so customer gets alerted when owner approves
+    if (PushNotificationService.isSupported() && PushNotificationService.getPermission() === 'default') {
+      const res = await PushNotificationService.requestPermission();
+      setCustomerNotifState(res);
+    }
   };
 
   const handleCopyBookingCode = () => {
@@ -108,6 +122,8 @@ export default function App() {
                 availableColors={colors}
                 availableCodes={codes}
                 availableTypes={types}
+                availableAccessories={accessories}
+                availableExtensions={extensions}
                 operationalSchedule={settings.operationalSchedule}
                 reservations={reservations}
                 settings={settings}
@@ -122,6 +138,8 @@ export default function App() {
                 availableColors={colors}
                 availableCodes={codes}
                 availableTypes={types}
+                availableAccessories={accessories}
+                availableExtensions={extensions}
                 vouchers={vouchers}
                 operationalSchedule={settings.operationalSchedule}
                 reservations={reservations}
@@ -137,6 +155,8 @@ export default function App() {
                 availableColors={colors}
                 availableCodes={codes}
                 availableTypes={types}
+                availableAccessories={accessories}
+                availableExtensions={extensions}
                 operationalSchedule={settings.operationalSchedule}
                 reservations={reservations}
                 settings={settings}
@@ -222,6 +242,42 @@ export default function App() {
                       </p>
                     </div>
                   )}
+
+                  {/* Background Notification Status & Prompt for Customer */}
+                  <div className="p-3.5 rounded-xl bg-gradient-to-r from-[#FFF8E7] to-[#FFD1DC]/30 border border-[#D4AF37]/40 text-xs text-left flex items-start gap-3 shadow-2xs">
+                    <div className="p-2 rounded-lg bg-[#D4AF37] text-white shrink-0 mt-0.5">
+                      <Bell size={16} />
+                    </div>
+                    <div className="flex-1 space-y-1">
+                      <div className="flex items-center justify-between">
+                        <span className="font-bold text-[#4A3B40]">
+                          Notifikasi Latar Belakang (Persetujuan Owner)
+                        </span>
+                        {customerNotifState === 'granted' ? (
+                          <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100 px-2 py-0.5 rounded-full">
+                            ✓ Aktif
+                          </span>
+                        ) : null}
+                      </div>
+                      <p className="text-[11px] text-[#8C7A82] leading-relaxed">
+                        {customerNotifState === 'granted'
+                          ? 'Perangkat Anda siap menerima notifikasi pop-up & suara otomatis saat reservasi ini disetujui owner.'
+                          : 'Aktifkan izin notifikasi browser agar Anda langsung diberi tahu dengan suara bel dan pop-up saat reservasi ini disetujui oleh Owner.'}
+                      </p>
+                      {customerNotifState !== 'granted' && (
+                        <button
+                          type="button"
+                          onClick={async () => {
+                            const res = await PushNotificationService.requestPermission();
+                            setCustomerNotifState(res);
+                          }}
+                          className="mt-1 py-1 px-3 rounded-lg bg-[#D4AF37] hover:bg-[#B8860B] text-white text-[11px] font-bold shadow-2xs transition"
+                        >
+                          Aktifkan Notifikasi Sekarang
+                        </button>
+                      )}
+                    </div>
+                  </div>
 
                   {/* Action Buttons */}
                   <div className="flex flex-col sm:flex-row gap-3 pt-2">

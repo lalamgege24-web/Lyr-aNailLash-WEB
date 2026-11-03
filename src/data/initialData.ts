@@ -3,6 +3,8 @@ import {
   ColorItem,
   CodeItem,
   TypeItem,
+  AccessoryItem,
+  ExtensionConfig,
   Voucher,
   StaffAccount,
   StoreSettings,
@@ -69,6 +71,76 @@ export const INITIAL_TYPES: TypeItem[] = [
   { id: 'tp3', name: 'Shape: Square Natural', description: 'Bentuk kotak tegas rapi dan modern', imageUrl: 'https://images.unsplash.com/photo-1519014816548-bf5fe059798b?w=150&auto=format&fit=crop&q=80' },
   { id: 'tp4', name: 'Curl Lash: C-Curl (Natural Lift)', description: 'Kelengkungan natural cocok untuk mata asia', imageUrl: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?w=150&auto=format&fit=crop&q=80' },
   { id: 'tp5', name: 'Curl Lash: D-Curl (Dramatic Doll)', description: 'Kelengkungan lentik maksimal efek mata boneka', imageUrl: 'https://images.unsplash.com/photo-1599940824399-b87987ceb72a?w=150&auto=format&fit=crop&q=80' },
+];
+
+export const INITIAL_ACCESSORIES: AccessoryItem[] = [
+  {
+    id: 'acc-1',
+    name: 'Charm Pita Korean Satin',
+    code: 'ACC-RIBBON-01',
+    photoUrl: 'https://images.unsplash.com/photo-1604654894610-df63bc536371?w=200&auto=format&fit=crop&q=80',
+    price: 15000,
+    targetCategoryId: 'cat-nail',
+    targetSubCategoryId: 'sub-accessories',
+    description: 'Aksen pita 3D manis ala idol Korea'
+  },
+  {
+    id: 'acc-2',
+    name: 'Berlian Swarovski Teardrop',
+    code: 'ACC-SW-TEAR',
+    photoUrl: 'https://images.unsplash.com/photo-1599940824399-b87987ceb72a?w=200&auto=format&fit=crop&q=80',
+    price: 25000,
+    targetCategoryId: 'cat-nail',
+    targetSubCategoryId: 'sub-accessories',
+    description: 'Kristal Swarovski original kilau pantulan pelangi'
+  },
+  {
+    id: 'acc-3',
+    name: 'Kupu-Kupu Zircon 3D Gold',
+    code: 'ACC-BUTTER-GLD',
+    photoUrl: 'https://images.unsplash.com/photo-1632345031435-8727f6897d53?w=200&auto=format&fit=crop&q=80',
+    price: 30000,
+    targetCategoryId: 'cat-nail',
+    targetSubCategoryId: 'sub-accessories',
+    description: 'Hiasan kupu-kupu emas beraksen permata zircon'
+  },
+  {
+    id: 'acc-4',
+    name: 'Mutiara Princess Baroque',
+    code: 'ACC-PEARL-BAR',
+    photoUrl: 'https://images.unsplash.com/photo-1519014816548-bf5fe059798b?w=200&auto=format&fit=crop&q=80',
+    price: 18000,
+    targetCategoryId: 'cat-nail',
+    targetSubCategoryId: 'sub-accessories',
+    description: 'Mutiara anggun untuk kuku bernuansa vintage mewah'
+  }
+];
+
+export const INITIAL_EXTENSIONS: ExtensionConfig[] = [
+  {
+    id: 'ext-nail-mm',
+    name: 'Custom Panjang Kuku (Nail Extension)',
+    minMm: 6,
+    maxMm: 25,
+    stepMm: 1, // Kenaikan setiap 1 milimeter
+    pricePerMm: 3000,
+    basePrice: 50000,
+    targetCategoryId: 'cat-nail',
+    targetSubCategoryId: 'sub-fake-ext',
+    description: 'Pengaturan panjang kuku presisi dengan kenaikan setiap 1 milimeter (mm)'
+  },
+  {
+    id: 'ext-lash-mm',
+    name: 'Custom Panjang Bulu Mata (Lash Extension)',
+    minMm: 8,
+    maxMm: 16,
+    stepMm: 1, // Kenaikan setiap 1 milimeter
+    pricePerMm: 0,
+    basePrice: 0,
+    targetCategoryId: 'cat-eyelash',
+    targetSubCategoryId: 'sub-eye-nat',
+    description: 'Pilihan panjang helai bulu mata mulai 8 mm hingga 16 mm (kenaikan 1 mm)'
+  }
 ];
 
 export const INITIAL_CATEGORIES: Category[] = [

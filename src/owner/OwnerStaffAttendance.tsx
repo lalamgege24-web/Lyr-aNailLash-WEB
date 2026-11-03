@@ -6,7 +6,9 @@ import {
   Plus, 
   UserCheck, 
   CalendarDays, 
-  Briefcase 
+  Briefcase,
+  Trash2,
+  AlertTriangle
 } from 'lucide-react';
 import { StaffAccount, StaffAttendance } from '../types/salon';
 import { salonStore } from '../services/store';
@@ -33,6 +35,7 @@ export const OwnerStaffAttendance: React.FC<OwnerStaffAttendanceProps> = ({
   const [checkInTime, setCheckInTime] = useState('08:50');
   const [checkOutTime, setCheckOutTime] = useState('18:00');
   const [attNotes, setAttNotes] = useState('');
+  const [attToDelete, setAttToDelete] = useState<StaffAttendance | null>(null);
 
   // Calculate work hours from checkIn and checkOut
   const calculateHours = (inTime: string, outTime: string) => {
@@ -247,10 +250,11 @@ export const OwnerStaffAttendance: React.FC<OwnerStaffAttendanceProps> = ({
                 <th className="py-2.5 px-3">Jam Keluar</th>
                 <th className="py-2.5 px-3">Durasi</th>
                 <th className="py-2.5 px-3">Keterangan</th>
+                <th className="py-2.5 px-3 text-right">Aksi Owner</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
-              {attendanceList.slice(0, 15).map((att) => (
+              {attendanceList.slice(0, 25).map((att) => (
                 <tr key={att.id} className="hover:bg-[#FFFDF9] transition">
                   <td className="py-2.5 px-3 font-mono font-medium">
                     {att.date}
@@ -279,12 +283,64 @@ export const OwnerStaffAttendance: React.FC<OwnerStaffAttendanceProps> = ({
                   <td className="py-2.5 px-3 text-[#8C7A82]">
                     {att.notes || '-'}
                   </td>
+                  <td className="py-2.5 px-3 text-right">
+                    <button
+                      type="button"
+                      onClick={() => setAttToDelete(att)}
+                      className="p-1.5 text-rose-600 hover:text-rose-800 hover:bg-rose-50 rounded-lg transition inline-flex items-center gap-1 text-[11px] font-semibold"
+                      title="Hapus status kehadiran staf ini"
+                    >
+                      <Trash2 size={13} />
+                      <span>Hapus</span>
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
         </div>
       </div>
+
+      {/* Confirmation Modal to Delete Attendance */}
+      {attToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs animate-fadeIn">
+          <div className="bg-white rounded-3xl border border-[#F8BBD0] p-6 max-w-sm w-full shadow-xl space-y-4 text-center">
+            <div className="w-12 h-12 rounded-full bg-rose-50 border border-rose-200 text-rose-600 flex items-center justify-center mx-auto">
+              <AlertTriangle size={24} />
+            </div>
+
+            <div>
+              <h4 className="font-serif font-bold text-lg text-[#4A3B40]">
+                Hapus Status Kehadiran?
+              </h4>
+              <p className="text-xs text-[#8C7A82] mt-1 leading-relaxed">
+                Yakin ingin menghapus catatan absensi untuk <strong className="text-[#4A3B40]">{attToDelete.staffName}</strong> pada tanggal <strong className="font-mono text-[#4A3B40]">{attToDelete.date}</strong> (Status: {attToDelete.status})?
+              </p>
+            </div>
+
+            <div className="flex gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => setAttToDelete(null)}
+                className="flex-1 py-2.5 rounded-xl border border-gray-200 text-xs font-semibold text-[#4A3B40] hover:bg-gray-50 transition"
+              >
+                Batal
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  salonStore.deleteAttendance(attToDelete.id);
+                  setAttToDelete(null);
+                  onRefresh();
+                }}
+                className="flex-1 py-2.5 rounded-xl bg-rose-500 hover:bg-rose-600 text-white text-xs font-bold transition shadow-xs"
+              >
+                Ya, Hapus
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

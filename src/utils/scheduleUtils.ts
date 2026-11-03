@@ -373,7 +373,7 @@ export function checkTimeSlotAvailability(
       return {
         isValid: false,
         isFull: true,
-        reason: `Jam ${timeStr} WIB bertepatan dengan jam istirahat toko (${schedule.breakStartTime} - ${schedule.breakEndTime} WIB).`
+        reason: `Jam ${timeStr} WIB tidak tersedia (slot penuh/ditutup). Silakan pilih jam lainnya.`
       };
     }
   }

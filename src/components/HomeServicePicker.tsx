@@ -358,6 +358,75 @@ export const HomeServicePicker: React.FC<HomeServicePickerProps> = ({
         </div>
       </div>
 
+      {/* Immediate Google Maps Store Location View when customer clicks 'Datang ke Studio Lyra' */}
+      {!isHomeService && (
+        <div className="pt-3 border-t border-[#F8BBD0]/50 space-y-3.5 animate-fadeIn">
+          <div className="p-4 rounded-2xl bg-white border border-[#D4AF37]/50 shadow-sm space-y-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-2.5 border-b border-[#F8BBD0]/40">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-full bg-[#D4AF37]/20 text-[#B8860B] flex items-center justify-center font-bold shrink-0">
+                  <MapPin size={16} />
+                </div>
+                <div>
+                  <h4 className="font-serif font-bold text-sm text-[#4A3B40]">
+                    Peta Lokasi Studio Lyra&apos;s Nail-Lash
+                  </h4>
+                  <p className="text-[11px] text-[#8C7A82]">
+                    {activeSettings.storeAddress}
+                  </p>
+                </div>
+              </div>
+
+              <a
+                href={activeSettings.googleMapsUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="py-1.5 px-3.5 rounded-xl gold-button text-xs font-bold flex items-center justify-center gap-1.5 shadow-2xs hover:scale-102 transition shrink-0"
+              >
+                <span>Buka Rute di Google Maps</span>
+                <Navigation size={13} />
+              </a>
+            </div>
+
+            {/* Embedded Interactive Google Maps */}
+            <div className="relative w-full h-64 sm:h-72 rounded-xl overflow-hidden border border-[#F8BBD0] shadow-inner bg-stone-100">
+              <iframe
+                title="Peta Lokasi Studio Lyra"
+                width="100%"
+                height="100%"
+                style={{ border: 0 }}
+                loading="lazy"
+                allowFullScreen
+                referrerPolicy="no-referrer-when-downgrade"
+                src={`https://maps.google.com/maps?q=${activeSettings.storeCoordinate?.lat || -6.1438},${activeSettings.storeCoordinate?.lng || 106.7356}&hl=id&z=17&output=embed`}
+              />
+            </div>
+
+            {/* Studio Arrival Info Badges */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pt-1 text-[11px]">
+              <div className="p-2.5 rounded-xl bg-[#FFF8E7] border border-[#D4AF37]/30 text-[#4A3B40] flex items-center gap-2">
+                <span className="text-sm">📍</span>
+                <span>
+                  <strong>Koordinat:</strong> {activeSettings.storeCoordinate?.lat || -6.1438}, {activeSettings.storeCoordinate?.lng || 106.7356}
+                </span>
+              </div>
+              <div className="p-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 flex items-center gap-2">
+                <span className="text-sm">✨</span>
+                <span>
+                  <strong>Biaya Perjalanan:</strong> Gratis (Rp 0)
+                </span>
+              </div>
+              <div className="p-2.5 rounded-xl bg-pink-50 border border-pink-200 text-[#4A3B40] flex items-center gap-2">
+                <span className="text-sm">🏢</span>
+                <span>
+                  <strong>Lokasi:</strong> Lt. Ground Blok A 30B (Dekat Lift/Lobby)
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Expanded Home Service Hierarchy & Distance Calculator */}
       {isHomeService && (
         <div className="space-y-5 pt-3 border-t border-[#F8BBD0]/50 animate-fadeIn">

@@ -3,6 +3,7 @@ import {
   Plus, 
   Trash2, 
   Edit2, 
+  Edit3,
   Check, 
   Sliders, 
   Palette, 
@@ -12,10 +13,13 @@ import {
   ChevronUp, 
   DollarSign, 
   Info,
-  Percent
+  Percent,
+  FileText,
+  Ruler
 } from 'lucide-react';
 import { Category, SubCategory, SubSubCategory } from '../types/salon';
 import { salonStore } from '../services/store';
+import { countWords, validateDescriptionWordCount } from '../utils/salonRules';
 
 interface OwnerCatalogManagerProps {
   categories: Category[];
@@ -39,6 +43,8 @@ export const OwnerCatalogManager: React.FC<OwnerCatalogManagerProps> = ({
   const [subUseColor, setSubUseColor] = useState(false);
   const [subUseCode, setSubUseCode] = useState(false);
   const [subUseType, setSubUseType] = useState(false);
+  const [subUseAccessory, setSubUseAccessory] = useState(false);
+  const [subUseExtension, setSubUseExtension] = useState(false);
   const [subRequireUpload, setSubRequireUpload] = useState(false);
 
   // Sub-subbab creation state
@@ -46,12 +52,91 @@ export const OwnerCatalogManager: React.FC<OwnerCatalogManagerProps> = ({
   const [subSubName, setSubSubName] = useState('');
   const [subSubPrice, setSubSubPrice] = useState(50000);
   const [subSubDiscount, setSubSubDiscount] = useState(0);
+  const [subSubDesc, setSubSubDesc] = useState('');
+
+  // Description Edit Modal State (Max 50 Words enforced)
+  const [descModal, setDescModal] = useState<{
+    level: 'CATEGORY' | 'SUBCATEGORY' | 'SUBSUBCATEGORY';
+    catId: string;
+    subId?: string;
+    sscId?: string;
+    title: string;
+    currentText: string;
+  } | null>(null);
+  const [tempDescText, setTempDescText] = useState('');
 
   // Collapse toggle
   const [collapsedCategories, setCollapsedCategories] = useState<Record<string, boolean>>({});
 
   const toggleCategoryCollapse = (catId: string) => {
     setCollapsedCategories(prev => ({ ...prev, [catId]: !prev[catId] }));
+  };
+
+  const handleOpenDescModal = (
+    level: 'CATEGORY' | 'SUBCATEGORY' | 'SUBSUBCATEGORY',
+    catId: string,
+    title: string,
+    currentText: string = '',
+    subId?: string,
+    sscId?: string
+  ) => {
+    setDescModal({
+      level,
+      catId,
+      subId,
+      sscId,
+      title,
+      currentText
+    });
+    setTempDescText(currentText);
+  };
+
+  const handleSaveDescModal = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!descModal) return;
+
+    const check = validateDescriptionWordCount(tempDescText);
+    if (!check.valid) return;
+
+    const trimmed = tempDescText.trim();
+    const updated = categories.map(cat => {
+      if (descModal.level === 'CATEGORY') {
+        if (cat.id === descModal.catId) {
+          return { ...cat, description: trimmed || undefined };
+        }
+        return cat;
+      }
+
+      if (cat.id !== descModal.catId) return cat;
+
+      return {
+        ...cat,
+        subCategories: cat.subCategories.map(sub => {
+          if (descModal.level === 'SUBCATEGORY') {
+            if (sub.id === descModal.subId) {
+              return { ...sub, description: trimmed || undefined };
+            }
+            return sub;
+          }
+
+          if (sub.id !== descModal.subId) return sub;
+
+          return {
+            ...sub,
+            subSubCategories: (sub.subSubCategories || []).map(ssc => {
+              if (ssc.id === descModal.sscId) {
+                return { ...ssc, description: trimmed || undefined };
+              }
+              return ssc;
+            })
+          };
+        })
+      };
+    });
+
+    salonStore.setCategories(updated);
+    setDescModal(null);
+    onRefresh();
   };
 
   // Add Bab (Category Utama)
@@ -101,6 +186,8 @@ export const OwnerCatalogManager: React.FC<OwnerCatalogManagerProps> = ({
         useColorManager: subUseColor,
         useCodeManager: subUseCode,
         useTypeManager: subUseType,
+        useAccessoryManager: subUseAccessory,
+        useExtensionManager: subUseExtension,
         requireDesignUpload: subRequireUpload,
         subSubCategories: []
       };
@@ -117,6 +204,8 @@ export const OwnerCatalogManager: React.FC<OwnerCatalogManagerProps> = ({
     setSubUseColor(false);
     setSubUseCode(false);
     setSubUseType(false);
+    setSubUseAccessory(false);
+    setSubUseExtension(false);
     setSubRequireUpload(false);
     onRefresh();
   };
@@ -374,6 +463,15 @@ export const OwnerCatalogManager: React.FC<OwnerCatalogManagerProps> = ({
                 <div className="flex items-center gap-2">
                   <button
                     type="button"
+                    onClick={() => handleOpenDescModal('CATEGORY', category.id, `Bab: ${category.name}`, category.description)}
+                    className="py-1.5 px-3 rounded-xl border border-[#F8BBD0] bg-white text-xs font-semibold text-[#8C7A82] hover:text-[#4A3B40] flex items-center gap-1 hover:border-[#D4AF37]"
+                    title="Edit keterangan Bab (Maksimal 50 kata)"
+                  >
+                    <FileText size={13} className="text-[#D4AF37]" />
+                    <span>{category.description ? 'Ubah Deskripsi' : '+ Deskripsi'}</span>
+                  </button>
+                  <button
+                    type="button"
                     onClick={() => setTargetCatIdForSub(category.id)}
                     className="py-1.5 px-3 rounded-xl soft-button text-xs font-bold border border-[#F8BBD0] flex items-center gap-1"
                   >
@@ -509,25 +607,39 @@ export const OwnerCatalogManager: React.FC<OwnerCatalogManagerProps> = ({
                       >
                         {/* Subbab Header */}
                         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#F8BBD0]/30 pb-2">
-                          <div className="flex items-center gap-2">
-                            <span className="font-serif font-bold text-base text-[#4A3B40]">
-                              {sub.name}
-                            </span>
-                            {/* Price display or Mutually Exclusive Indicator */}
-                            {hasSubSub ? (
-                              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200 flex items-center gap-1">
-                                <Info size={11} /> Harga Dibebankan ke Sub-subbab ({sub.subSubCategories!.length} Variasi)
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <span className="font-serif font-bold text-base text-[#4A3B40]">
+                                {sub.name}
                               </span>
-                            ) : (
-                              <div className="flex items-center gap-1">
-                                <span className="font-mono text-xs font-bold text-[#B8860B]">
-                                  Rp {sub.price.toLocaleString('id-ID')}
+                              {/* Price display or Mutually Exclusive Indicator */}
+                              {hasSubSub ? (
+                                <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200 flex items-center gap-1">
+                                  <Info size={11} /> Harga Dibebankan ke Sub-subbab ({sub.subSubCategories!.length} Variasi)
                                 </span>
-                              </div>
+                              ) : (
+                                <div className="flex items-center gap-1">
+                                  <span className="font-mono text-xs font-bold text-[#B8860B]">
+                                    Rp {sub.price.toLocaleString('id-ID')}
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                            {sub.description && (
+                              <p className="text-[11px] text-[#8C7A82] italic mt-0.5">{sub.description}</p>
                             )}
                           </div>
 
                           <div className="flex items-center gap-2 self-end sm:self-center">
+                            <button
+                              type="button"
+                              onClick={() => handleOpenDescModal('SUBCATEGORY', category.id, `Subbab: ${sub.name}`, sub.description, sub.id)}
+                              className="py-1 px-2.5 rounded-lg border border-[#F8BBD0] bg-white text-[11px] font-semibold text-[#8C7A82] hover:text-[#4A3B40] flex items-center gap-1 hover:border-[#D4AF37]"
+                              title="Edit deskripsi Subbab (Maks 50 kata)"
+                            >
+                              <FileText size={11} className="text-[#D4AF37]" />
+                              <span>{sub.description ? 'Ubah Deskripsi' : '+ Deskripsi'}</span>
+                            </button>
                             <button
                               type="button"
                               onClick={() => setTargetSubIdForSubSub(sub.id)}
@@ -547,7 +659,7 @@ export const OwnerCatalogManager: React.FC<OwnerCatalogManagerProps> = ({
                           </div>
                         </div>
 
-                        {/* SUBBAB FEATURE FLAGS (Warna, Kode, Tipe, Wajib Upload Desain) */}
+                        {/* SUBBAB FEATURE FLAGS (Warna, Kode, Tipe, Aksesoris, Ekstensi 1mm, Wajib Upload Desain) */}
                         <div className="flex flex-wrap items-center gap-3 text-xs bg-white p-2.5 rounded-xl border border-[#F8BBD0]/40">
                           <span className="text-[11px] font-bold text-[#8C7A82] uppercase tracking-wider">
                             Pengaturan Subbab:
@@ -581,6 +693,32 @@ export const OwnerCatalogManager: React.FC<OwnerCatalogManagerProps> = ({
                               className="rounded text-[#D4AF37] focus:ring-[#D4AF37] h-3.5 w-3.5"
                             />
                             <span>Manager Tipe</span>
+                          </label>
+
+                          <label className="flex items-center gap-1.5 cursor-pointer text-[#4A3B40]">
+                            <input
+                              type="checkbox"
+                              checked={!!sub.useAccessoryManager}
+                              onChange={(e) => handleUpdateSubCategoryFlag(category.id, sub.id, 'useAccessoryManager', e.target.checked)}
+                              className="rounded text-[#D4AF37] focus:ring-[#D4AF37] h-3.5 w-3.5"
+                            />
+                            <span className="font-semibold text-[#B8860B] flex items-center gap-1">
+                              <Sparkles size={11} />
+                              Manager Aksesoris
+                            </span>
+                          </label>
+
+                          <label className="flex items-center gap-1.5 cursor-pointer text-[#4A3B40]">
+                            <input
+                              type="checkbox"
+                              checked={!!sub.useExtensionManager}
+                              onChange={(e) => handleUpdateSubCategoryFlag(category.id, sub.id, 'useExtensionManager', e.target.checked)}
+                              className="rounded text-[#D4AF37] focus:ring-[#D4AF37] h-3.5 w-3.5"
+                            />
+                            <span className="font-semibold text-emerald-800 flex items-center gap-1">
+                              <Ruler size={11} />
+                              Ekstensi 1mm
+                            </span>
                           </label>
 
                           <label className="flex items-center gap-1.5 cursor-pointer text-[#4A3B40]">
@@ -809,17 +947,32 @@ export const OwnerCatalogManager: React.FC<OwnerCatalogManagerProps> = ({
                                     className="p-3 rounded-xl bg-white border border-[#F8BBD0]/60 space-y-2.5 shadow-2xs hover:border-[#D4AF37]/60 transition"
                                   >
                                     <div className="flex items-center justify-between gap-2 border-b border-[#F8BBD0]/30 pb-1.5">
-                                      <span className="font-semibold text-xs text-[#4A3B40]">
-                                        {ssc.name}
-                                      </span>
-                                      <button
-                                        type="button"
-                                        onClick={() => handleDeleteSubSubCategory(category.id, sub.id, ssc.id)}
-                                        className="p-1 text-red-400 hover:text-red-600 rounded transition"
-                                        title="Hapus Variasi"
-                                      >
-                                        <Trash2 size={13} />
-                                      </button>
+                                      <div>
+                                        <span className="font-semibold text-xs text-[#4A3B40]">
+                                          {ssc.name}
+                                        </span>
+                                        {ssc.description && (
+                                          <p className="text-[10px] text-[#A08892] italic mt-0.5">{ssc.description}</p>
+                                        )}
+                                      </div>
+                                      <div className="flex items-center gap-1">
+                                        <button
+                                          type="button"
+                                          onClick={() => handleOpenDescModal('SUBSUBCATEGORY', category.id, `Variasi: ${ssc.name}`, ssc.description, sub.id, ssc.id)}
+                                          className="p-1 text-[#8C7A82] hover:text-[#4A3B40] rounded hover:bg-gray-100"
+                                          title="Edit deskripsi Variasi (Maks 50 kata)"
+                                        >
+                                          <FileText size={12} className="text-[#D4AF37]" />
+                                        </button>
+                                        <button
+                                          type="button"
+                                          onClick={() => handleDeleteSubSubCategory(category.id, sub.id, ssc.id)}
+                                          className="p-1 text-red-400 hover:text-red-600 rounded transition"
+                                          title="Hapus Variasi"
+                                        >
+                                          <Trash2 size={13} />
+                                        </button>
+                                      </div>
                                     </div>
 
                                     {/* Price controls */}
@@ -936,6 +1089,88 @@ export const OwnerCatalogManager: React.FC<OwnerCatalogManagerProps> = ({
           );
         })}
       </div>
+
+      {/* Description Edit Modal with Real-time 50-Word Limit Validation */}
+      {descModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-xs animate-fadeIn">
+          <div className="bg-white rounded-3xl border border-[#F8BBD0] p-6 max-w-md w-full shadow-xl space-y-4">
+            <div className="flex items-center justify-between border-b border-[#F8BBD0]/40 pb-3">
+              <h4 className="font-serif font-bold text-base text-[#4A3B40] flex items-center gap-2">
+                <FileText size={18} className="text-[#D4AF37]" />
+                <span>Edit Deskripsi ({descModal.title})</span>
+              </h4>
+              <button
+                type="button"
+                onClick={() => setDescModal(null)}
+                className="text-gray-400 hover:text-gray-600 font-bold"
+              >
+                ✕
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveDescModal} className="space-y-3">
+              <div>
+                <label className="block text-xs font-semibold text-[#4A3B40] mb-1">
+                  Keterangan (Maksimal 50 Kata • Ditampilkan di Bawah Nama):
+                </label>
+                <textarea
+                  rows={4}
+                  value={tempDescText}
+                  onChange={(e) => setTempDescText(e.target.value)}
+                  placeholder="Tuliskan keterangan singkat, menarik, dan informatif..."
+                  className={`w-full p-3 rounded-xl border text-xs text-[#4A3B40] focus:outline-none focus:ring-1 ${
+                    countWords(tempDescText) > 50
+                      ? 'border-rose-400 bg-rose-50/30 focus:ring-rose-400'
+                      : 'border-[#F8BBD0] bg-white focus:ring-[#D4AF37]'
+                  }`}
+                />
+              </div>
+
+              {/* Live word count indicator */}
+              <div className="flex items-center justify-between text-xs">
+                <span className={`font-semibold flex items-center gap-1 ${
+                  countWords(tempDescText) > 50 ? 'text-rose-600' : 'text-[#8C7A82]'
+                }`}>
+                  <span>Jumlah kata:</span>
+                  <strong className="font-mono text-sm">{countWords(tempDescText)}</strong>
+                  <span>/ 50 kata</span>
+                </span>
+
+                {countWords(tempDescText) > 50 ? (
+                  <span className="text-[11px] font-bold text-rose-600">
+                    Kelebihan {countWords(tempDescText) - 50} kata!
+                  </span>
+                ) : (
+                  <span className="text-[11px] text-emerald-600 font-semibold">
+                    ✓ Sesuai batas kata
+                  </span>
+                )}
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2 border-t border-gray-100">
+                <button
+                  type="button"
+                  onClick={() => setDescModal(null)}
+                  className="py-2 px-4 rounded-xl border border-gray-200 text-xs font-semibold text-[#4A3B40] hover:bg-gray-50 transition"
+                >
+                  Batal
+                </button>
+                <button
+                  type="submit"
+                  disabled={countWords(tempDescText) > 50}
+                  className={`py-2 px-5 rounded-xl text-xs font-bold transition shadow-xs ${
+                    countWords(tempDescText) > 50
+                      ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                      : 'gold-button'
+                  }`}
+                >
+                  Simpan Keterangan
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

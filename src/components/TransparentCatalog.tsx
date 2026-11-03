@@ -5,9 +5,12 @@ import {
   Upload, 
   Image as ImageIcon, 
   Plus, 
+  Minus,
   Trash2, 
   Palette, 
-  SlidersHorizontal 
+  SlidersHorizontal,
+  Gem,
+  Ruler
 } from 'lucide-react';
 import { 
   Category, 
@@ -16,14 +19,19 @@ import {
   ColorItem, 
   CodeItem, 
   TypeItem, 
+  AccessoryItem,
+  ExtensionConfig,
   SelectedServiceItem 
 } from '../types/salon';
+import { calculateExtensionPrice } from '../utils/salonRules';
 
 interface TransparentCatalogProps {
   categories: Category[];
   availableColors: ColorItem[];
   availableCodes: CodeItem[];
   availableTypes: TypeItem[];
+  availableAccessories?: AccessoryItem[];
+  availableExtensions?: ExtensionConfig[];
   selectedServices: SelectedServiceItem[];
   onToggleService: (item: SelectedServiceItem) => void;
   onUpdateService: (serviceId: string, partial: Partial<SelectedServiceItem>) => void;
@@ -35,6 +43,8 @@ export const TransparentCatalog: React.FC<TransparentCatalogProps> = ({
   availableColors,
   availableCodes,
   availableTypes,
+  availableAccessories = [],
+  availableExtensions = [],
   selectedServices,
   onToggleService,
   onUpdateService,
@@ -259,6 +269,11 @@ export const TransparentCatalog: React.FC<TransparentCatalogProps> = ({
                                 <span className="font-semibold text-[#4A3B40] block">
                                   {subSub.name}
                                 </span>
+                                {subSub.description && (
+                                  <p className="text-[10px] text-[#8C7A82] line-clamp-2 mt-0.5 leading-snug">
+                                    {subSub.description}
+                                  </p>
+                                )}
                                 <div className="flex items-center gap-1.5 mt-0.5">
                                   {hasSubSubDiscount && (
                                     <>
@@ -434,6 +449,193 @@ export const TransparentCatalog: React.FC<TransparentCatalogProps> = ({
                             </div>
                           </div>
                         )}
+
+                        {/* Accessory Manager (Charms, Gem, Ribbon, etc.) */}
+                        {subCategory.useAccessoryManager && (() => {
+                          const relevantAccessories = availableAccessories.filter(acc => 
+                            (!acc.targetSubCategoryId || acc.targetSubCategoryId === subCategory.id) &&
+                            (!acc.targetSubSubCategoryId || acc.targetSubSubCategoryId === activeService.subSubCategoryId)
+                          );
+                          if (relevantAccessories.length === 0) return null;
+
+                          return (
+                            <div className="space-y-2 pt-2 border-t border-[#F8BBD0]/30">
+                              <label className="text-xs font-semibold text-[#4A3B40] flex items-center justify-between">
+                                <span className="flex items-center gap-1.5">
+                                  <Gem size={14} className="text-[#D4AF37]" />
+                                  <span>Pilih Aksesoris / Charms (Bisa Pilih Lebih dari 1):</span>
+                                </span>
+                                <span className="text-[10px] text-[#B8860B] font-semibold bg-[#FFF8E7] px-2 py-0.5 rounded-full border border-[#D4AF37]/30">
+                                  {relevantAccessories.length} Aksesoris Tersedia
+                                </span>
+                              </label>
+
+                              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                                {relevantAccessories.map((acc) => {
+                                  const isPicked = (activeService.selectedAccessories || []).some(a => a.accessoryId === acc.id);
+                                  return (
+                                    <button
+                                      key={acc.id}
+                                      type="button"
+                                      onClick={() => {
+                                        const currentAcc = activeService.selectedAccessories || [];
+                                        const nextAcc = isPicked
+                                          ? currentAcc.filter(a => a.accessoryId !== acc.id)
+                                          : [...currentAcc, { 
+                                              accessoryId: acc.id, 
+                                              name: acc.name, 
+                                              code: acc.code, 
+                                              price: acc.price, 
+                                              photoUrl: acc.photoUrl || acc.imageUrl 
+                                            }];
+                                        
+                                        const basePrice = activeService.discountPrice ?? activeService.price;
+                                        const accTotal = nextAcc.reduce((sum, item) => sum + item.price, 0);
+                                        const extExtra = activeService.selectedExtensionLengthMm 
+                                          ? calculateExtensionPrice(0, activeService.selectedExtensionLengthMm, 8, 2000) 
+                                          : 0;
+                                        
+                                        onUpdateService(activeService.serviceId, {
+                                          selectedAccessories: nextAcc,
+                                          finalPrice: basePrice + accTotal + extExtra
+                                        });
+                                      }}
+                                      className={`p-2.5 rounded-xl border text-left text-xs transition flex items-center gap-2.5 ${
+                                        isPicked
+                                          ? 'gold-border-active bg-[#FFF8E7] shadow-xs'
+                                          : 'border-[#F8BBD0]/50 bg-white hover:bg-[#FFFDF9]'
+                                      }`}
+                                    >
+                                      {(acc.photoUrl || acc.imageUrl) ? (
+                                        <img 
+                                          src={acc.photoUrl || acc.imageUrl} 
+                                          alt={acc.name} 
+                                          className="w-10 h-10 rounded-lg object-cover border border-[#F8BBD0]/50 shrink-0" 
+                                        />
+                                      ) : (
+                                        <div className="w-10 h-10 rounded-lg bg-[#FFD1DC]/40 flex items-center justify-center shrink-0 text-[#B8860B]">
+                                          <Gem size={16} />
+                                        </div>
+                                      )}
+                                      <div className="min-w-0 flex-1">
+                                        <div className="flex items-center justify-between">
+                                          <span className="font-bold text-[#4A3B40] truncate block text-[11px]">{acc.name}</span>
+                                          {isPicked && <Check size={12} className="text-[#D4AF37] shrink-0" />}
+                                        </div>
+                                        <span className="text-[10px] text-[#8C7A82] font-mono block">Kode: {acc.code}</span>
+                                        <span className="text-[11px] font-bold text-[#B8860B] font-mono block mt-0.5">
+                                          +Rp {acc.price.toLocaleString('id-ID')}
+                                        </span>
+                                      </div>
+                                    </button>
+                                  );
+                                })}
+                              </div>
+
+                              {activeService.selectedAccessories && activeService.selectedAccessories.length > 0 && (
+                                <p className="text-[11px] text-[#B8860B] font-medium pt-1">
+                                  Aksesoris terpilih: {activeService.selectedAccessories.map(a => `${a.name} (${a.code})`).join(', ')}
+                                </p>
+                              )}
+                            </div>
+                          );
+                        })()}
+
+                        {/* 1mm Extension Manager */}
+                        {subCategory.useExtensionManager && (() => {
+                          const matchingExt = availableExtensions.find(ext => 
+                            (!ext.targetSubCategoryId || ext.targetSubCategoryId === subCategory.id) &&
+                            (!ext.targetSubSubCategoryId || ext.targetSubSubCategoryId === activeService.subSubCategoryId)
+                          ) || availableExtensions[0];
+
+                          if (!matchingExt) return null;
+
+                          const defaultLength = matchingExt.defaultMm ?? matchingExt.minMm;
+                          const currentMm = activeService.selectedExtensionLengthMm ?? defaultLength;
+                          const pricePerMm = matchingExt.pricePerMm ?? 0;
+                          const extExtra = calculateExtensionPrice(0, currentMm, matchingExt.minMm, pricePerMm);
+
+                          const handleSetLength = (newMm: number) => {
+                            const clamped = Math.min(matchingExt.maxMm, Math.max(matchingExt.minMm, newMm));
+                            const basePrice = activeService.discountPrice ?? activeService.price;
+                            const accTotal = (activeService.selectedAccessories || []).reduce((sum, item) => sum + item.price, 0);
+                            const newExtExtra = calculateExtensionPrice(0, clamped, matchingExt.minMm, pricePerMm);
+                            onUpdateService(activeService.serviceId, {
+                              selectedExtensionLengthMm: clamped,
+                              finalPrice: basePrice + accTotal + newExtExtra
+                            });
+                          };
+
+                          return (
+                            <div className="space-y-3 pt-2.5 border-t border-[#F8BBD0]/30 bg-[#FFFDF9] p-3.5 rounded-xl border border-[#D4AF37]/30">
+                              <div className="flex items-center justify-between">
+                                <label className="text-xs font-semibold text-[#4A3B40] flex items-center gap-1.5">
+                                  <Ruler size={14} className="text-[#D4AF37]" />
+                                  <span>Kustomisasi Panjang Ekstensi (Kenaikan per 1 milimeter):</span>
+                                </label>
+                                <span className="text-[10px] text-[#B8860B] font-semibold bg-[#FFF8E7] px-2 py-0.5 rounded-full border border-[#D4AF37]/30">
+                                  {matchingExt.name}
+                                </span>
+                              </div>
+
+                              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                                <div className="flex items-center gap-2">
+                                  <button
+                                    type="button"
+                                    disabled={currentMm <= matchingExt.minMm}
+                                    onClick={() => handleSetLength(currentMm - 1)}
+                                    className="w-8 h-8 rounded-lg border border-[#F8BBD0] bg-white hover:bg-[#FFD1DC]/40 text-[#4A3B40] flex items-center justify-center font-bold text-sm disabled:opacity-40 disabled:cursor-not-allowed transition"
+                                    title="Kurang 1 mm"
+                                  >
+                                    <Minus size={14} />
+                                  </button>
+                                  <div className="px-3.5 py-1.5 rounded-xl bg-white border border-[#D4AF37] text-center min-w-[75px] shadow-2xs">
+                                    <span className="font-mono text-base font-bold text-[#B8860B]">{currentMm}</span>
+                                    <span className="text-[10px] text-[#8C7A82] ml-1">mm</span>
+                                  </div>
+                                  <button
+                                    type="button"
+                                    disabled={currentMm >= matchingExt.maxMm}
+                                    onClick={() => handleSetLength(currentMm + 1)}
+                                    className="w-8 h-8 rounded-lg border border-[#F8BBD0] bg-white hover:bg-[#FFD1DC]/40 text-[#4A3B40] flex items-center justify-center font-bold text-sm disabled:opacity-40 disabled:cursor-not-allowed transition"
+                                    title="Tambah 1 mm"
+                                  >
+                                    <Plus size={14} />
+                                  </button>
+                                </div>
+
+                                <div className="flex-1 sm:max-w-xs space-y-1">
+                                  <input
+                                    type="range"
+                                    min={matchingExt.minMm}
+                                    max={matchingExt.maxMm}
+                                    step={1}
+                                    value={currentMm}
+                                    onChange={(e) => handleSetLength(parseInt(e.target.value, 10))}
+                                    className="w-full accent-[#D4AF37] cursor-pointer"
+                                  />
+                                  <div className="flex justify-between text-[10px] text-[#8C7A82]">
+                                    <span>Min {matchingExt.minMm} mm</span>
+                                    <span>Default {defaultLength} mm</span>
+                                    <span>Max {matchingExt.maxMm} mm</span>
+                                  </div>
+                                </div>
+
+                                <div className="text-right shrink-0">
+                                  <span className="text-[10px] text-[#8C7A82] block">Biaya Ekstensi:</span>
+                                  <span className="font-mono text-xs font-bold text-[#B8860B]">
+                                    {extExtra > 0 ? `+Rp ${extExtra.toLocaleString('id-ID')}` : 'Termasuk Standar'}
+                                  </span>
+                                  {pricePerMm > 0 && (
+                                    <span className="text-[9px] text-[#8C7A82] block">
+                                      (+Rp {pricePerMm.toLocaleString('id-ID')} / 1 mm)
+                                    </span>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })()}
 
                         {/* 4. Mandatory Reference Photo Upload (Only when subCategory requires it) */}
                         {subCategory.requireDesignUpload && (

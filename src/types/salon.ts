@@ -27,14 +27,44 @@ export interface TypeItem {
   category?: string;
 }
 
+export interface AccessoryItem {
+  id: string;
+  name: string;
+  code: string;
+  photoUrl?: string;
+  imageUrl?: string;
+  price: number;
+  targetCategoryId?: string;
+  targetSubCategoryId?: string;
+  targetSubSubCategoryId?: string;
+  description?: string;
+}
+
+export interface ExtensionConfig {
+  id: string;
+  name: string;
+  minMm: number; // e.g. 6
+  maxMm: number; // e.g. 25
+  stepMm: number; // 1 mm increment
+  defaultMm?: number; // e.g. 10
+  pricePerMm?: number;
+  basePrice?: number;
+  targetCategoryId?: string;
+  targetSubCategoryId?: string;
+  targetSubSubCategoryId?: string;
+  description?: string;
+}
+
 export interface SubSubCategory {
   id: string;
   name: string;
   price: number;
   discountPercent?: number; // Persentase diskon (0 - 100%)
   discountPrice?: number;
-  description?: string;
+  description?: string; // Max 50 kata
   estimatedMinutes?: number;
+  useAccessoryManager?: boolean;
+  useExtensionManager?: boolean;
 }
 
 export interface SubCategory {
@@ -43,12 +73,14 @@ export interface SubCategory {
   price: number; // If subSubCategories exist, this is 0 and subSubCategories carry the price
   discountPercent?: number; // Persentase diskon (0 - 100%)
   discountPrice?: number;
-  description?: string;
+  description?: string; // Max 50 kata
   estimatedMinutes?: number;
   // Subbab feature flags
   useColorManager: boolean;
   useCodeManager: boolean;
   useTypeManager: boolean;
+  useAccessoryManager?: boolean;
+  useExtensionManager?: boolean;
   requireDesignUpload: boolean;
   subSubCategories?: SubSubCategory[];
 }
@@ -56,7 +88,7 @@ export interface SubCategory {
 export interface Category {
   id: string;
   name: string; // e.g. NAIL ART, EYELASH, LASH LIFT
-  description?: string;
+  description?: string; // Max 50 kata
   icon?: string;
   subCategories: SubCategory[];
 }
@@ -88,6 +120,14 @@ export interface SelectedServiceItem {
   selectedColors?: string[]; // IDs or names
   selectedCode?: string;
   selectedType?: string;
+  selectedAccessories?: {
+    accessoryId: string;
+    name: string;
+    code: string;
+    price: number;
+    photoUrl?: string;
+  }[];
+  selectedExtensionLengthMm?: number; // e.g. 10 mm
   referencePhotoUrl?: string;
   customerNotes?: string;
   price: number;
@@ -99,8 +139,43 @@ export interface GroupCustomerItem {
   id: string;
   fullName: string;
   whatsapp: string;
+  isRegisteredMember?: boolean;
+  memberId?: string;
+  coinsEarned?: number;
+  isEditing?: boolean;
   services: SelectedServiceItem[];
   subtotalServices: number;
+}
+
+export interface GroupMemberSession {
+  id: string;
+  fullName: string;
+  whatsapp: string;
+  isLeader?: boolean;
+  isRegisteredMember?: boolean;
+  memberId?: string;
+  coinsEarned?: number;
+  services: SelectedServiceItem[];
+  subtotalServices: number;
+  isEditing: boolean; // True while member is modifying selections
+  lastUpdated: number;
+}
+
+export interface GroupRoom {
+  roomCode: string; // e.g. LYRA-9B21
+  groupName: string;
+  leaderId: string;
+  leaderName: string;
+  leaderWhatsapp: string;
+  appointmentDate: string;
+  appointmentTime: string;
+  location: LocationDetail;
+  customerNotes?: string;
+  members: GroupMemberSession[];
+  status: 'OPEN' | 'SUBMITTED';
+  submittedReservationId?: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export type ReservationStatus = 
@@ -178,6 +253,9 @@ export interface Voucher {
   isActive: boolean;
   totalClaimedCount: number;
   totalUsedCount: number;
+  maxClaimsQuota?: number; // Batas limit maksimal klaim voucher
+  displayStartDate?: string; // Kapan voucher mulai muncul di customer dashboard
+  displayEndDate?: string; // Kapan voucher berhenti muncul di customer dashboard
 }
 
 export interface StaffAccount {
@@ -206,7 +284,7 @@ export interface AuditLog {
   timestamp: string;
   userType: 'OWNER' | 'STAFF';
   userName: string;
-  action: 'LOGIN' | 'LOGOUT' | 'STATUS_CHANGE' | 'PRICE_EDIT' | 'SETTINGS_UPDATE';
+  action: 'LOGIN' | 'LOGOUT' | 'STATUS_CHANGE' | 'PRICE_EDIT' | 'SETTINGS_UPDATE' | 'RESERVATION_DELETE' | 'ATTENDANCE_DELETE';
   details?: string;
 }
 

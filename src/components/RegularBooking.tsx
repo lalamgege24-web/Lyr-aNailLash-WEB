@@ -18,7 +18,9 @@ import {
   LocationDetail, 
   Reservation,
   OperationalScheduleSettings,
-  StoreSettings
+  StoreSettings,
+  AccessoryItem,
+  ExtensionConfig
 } from '../types/salon';
 import { TransparentCatalog } from './TransparentCatalog';
 import { HomeServicePicker } from './HomeServicePicker';
@@ -30,6 +32,8 @@ interface RegularBookingProps {
   availableColors: ColorItem[];
   availableCodes: CodeItem[];
   availableTypes: TypeItem[];
+  availableAccessories?: AccessoryItem[];
+  availableExtensions?: ExtensionConfig[];
   operationalSchedule?: OperationalScheduleSettings;
   reservations: Reservation[];
   settings?: StoreSettings;
@@ -42,6 +46,8 @@ export const RegularBooking: React.FC<RegularBookingProps> = ({
   availableColors,
   availableCodes,
   availableTypes,
+  availableAccessories = [],
+  availableExtensions = [],
   operationalSchedule,
   reservations,
   settings,
@@ -129,7 +135,7 @@ export const RegularBooking: React.FC<RegularBookingProps> = ({
     // Check slot availability and 30-min buffer rule
     const slotCheck = checkTimeSlotAvailability(appointmentDate, appointmentTime, reservations, operationalSchedule);
     if (!slotCheck.isValid) {
-      setValidationError(slotCheck.reason || 'Jam treatment yang dipilih tidak tersedia (mungkin penuh atau bertepatan dengan jam istirahat).');
+      setValidationError(slotCheck.reason || 'Jam treatment yang dipilih tidak tersedia atau slot penuh.');
       return;
     }
 
@@ -294,6 +300,8 @@ export const RegularBooking: React.FC<RegularBookingProps> = ({
           availableColors={availableColors}
           availableCodes={availableCodes}
           availableTypes={availableTypes}
+          availableAccessories={availableAccessories}
+          availableExtensions={availableExtensions}
           selectedServices={selectedServices}
           onToggleService={handleToggleService}
           onUpdateService={handleUpdateService}

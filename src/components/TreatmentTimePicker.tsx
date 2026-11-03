@@ -224,7 +224,7 @@ export const TreatmentTimePicker: React.FC<TreatmentTimePickerProps> = ({
           <div className="flex items-center gap-2">
             <CheckCircle2 size={15} className="text-emerald-600 shrink-0" />
             <span>
-              <strong>Jam {value} WIB Tersedia!</strong> (Di luar jam istirahat & berjarak aman &ge;30 menit dari pelanggan lain).
+              <strong>Jam {value} WIB Tersedia!</strong> (Slot siap direservasi & berjarak aman &ge;30 menit dari jadwal lain).
             </span>
           </div>
           <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-900 shrink-0">
@@ -259,16 +259,6 @@ export const TreatmentTimePicker: React.FC<TreatmentTimePickerProps> = ({
               </span>
             ))}
           </div>
-        </div>
-      )}
-
-      {/* Break Time info reminder */}
-      {schedule.isOpen && schedule.hasBreak && (
-        <div className="p-2 rounded-xl bg-[#FFF8E7] border border-[#D4AF37]/30 text-[11px] text-[#4A3B40] flex items-center gap-1.5">
-          <Coffee size={13} className="text-[#B8860B] shrink-0" />
-          <span>
-            <strong>Jam Istirahat Toko:</strong> {schedule.breakStartTime} - {schedule.breakEndTime} WIB (Slot istirahat otomatis ditolak).
-          </span>
         </div>
       )}
     </div>
