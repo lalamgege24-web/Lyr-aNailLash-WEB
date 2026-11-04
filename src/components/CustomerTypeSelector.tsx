@@ -1,5 +1,5 @@
 import React from 'react';
-import { User, Crown, Users, Sparkles, CheckCircle2, ArrowRight } from 'lucide-react';
+import { User, Crown, Users, Sparkles, CheckCircle2, ArrowRight, Heart } from 'lucide-react';
 
 interface CustomerTypeSelectorProps {
   onSelectType: (type: 'REGULER' | 'MEMBER' | 'GABUNGAN') => void;
@@ -16,171 +16,181 @@ export const CustomerTypeSelector: React.FC<CustomerTypeSelectorProps> = ({
       <div className="flex justify-start">
         <button
           onClick={onBackToSplash}
-          className="text-xs font-semibold text-[#B8860B] hover:text-[#4A3B40] transition inline-flex items-center gap-1.5 py-1 px-2.5 rounded-lg hover:bg-[#FFD1DC]/30 border border-transparent hover:border-[#F8BBD0]"
+          className="text-xs font-bold text-[#B8860B] hover:text-[#4A3B40] transition inline-flex items-center gap-1.5 py-1.5 px-3 rounded-xl bg-white/70 hover:bg-[#FFD1DC]/40 border border-[#F8BBD0]/60 shadow-2xs"
         >
-          ← Kembali ke Halaman Pembuka
+          <span>←</span>
+          <span>Kembali ke Halaman Pembuka</span>
         </button>
       </div>
 
-      {/* Title & subtitle without 'Langkah 1 : Pilih tipe kunjungan' */}
+      {/* Title & subtitle with refined header styling */}
       <div className="text-center max-w-2xl mx-auto space-y-2 mb-8">
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#FFF0F4] border border-[#FFCCD8]/70 text-xs font-semibold text-[#B83260]">
+          <Sparkles size={13} className="text-[#D4AF37]" />
+          <span>Tipe Layanan Reservasi</span>
+        </div>
         <h2 className="font-serif text-3xl sm:text-4xl font-bold text-[#4A3B40]">
           Selamat Datang di Lyra&apos;s Nail-Lash
         </h2>
-        <p className="text-sm sm:text-base text-[#8C7A82] leading-relaxed">
-          Silakan tentukan jenis reservasi Anda. Nikmati pelayanan personal eksklusif oleh nail artist dan lash stylist berpengalaman kami.
+        <p className="text-xs sm:text-sm text-[#8C7A82] leading-relaxed max-w-lg mx-auto">
+          Silakan tentukan jenis reservasi sesuai kenyamanan Anda. Nikmati pelayanan personal eksklusif oleh terapis terampil kami.
         </p>
       </div>
 
-      {/* 3 Modular Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
+      {/* 3 Neat, Balanced & Elegant Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Card 1: REGULER */}
         <div 
           onClick={() => onSelectType('REGULER')}
-          className="luxury-card p-6 sm:p-7 flex flex-col justify-between cursor-pointer group hover:-translate-y-1 transition duration-300 relative overflow-hidden"
+          className="cute-card p-6 flex flex-col justify-between cursor-pointer group hover:border-[#D4AF37] transition duration-200"
         >
-          <div className="absolute top-0 right-0 w-28 h-28 bg-[#FFD1DC]/30 rounded-bl-full pointer-events-none group-hover:bg-[#FFD1DC]/50 transition" />
-          
           <div className="space-y-4">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#FFF8E7] to-[#FFD1DC] flex items-center justify-center text-[#4A3B40] shadow-xs group-hover:scale-105 transition">
-              <User size={28} className="text-[#B8860B]" />
+            <div className="flex items-center justify-between">
+              <div className="w-12 h-12 rounded-xl bg-[#FFF5F7] border border-[#F8BBD0]/50 flex items-center justify-center text-[#B83260] shadow-2xs group-hover:scale-105 transition">
+                <User size={22} />
+              </div>
+              <span className="text-[10px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#FFF8E7] border border-[#D4AF37]/30 text-[#B8860B]">
+                Cepat &amp; Praktis
+              </span>
             </div>
 
             <div>
-              <span className="text-[11px] font-bold uppercase tracking-wider text-[#B8860B]">
+              <span className="text-[11px] font-semibold text-[#8C7A82] uppercase tracking-wider block">
                 Pemesanan Perorangan
               </span>
-              <h3 className="font-serif text-2xl font-bold text-[#4A3B40] mt-0.5">
+              <h3 className="font-serif text-2xl font-bold text-[#4A3B40] mt-0.5 group-hover:text-[#B8860B] transition-colors">
                 Customer Reguler
               </h3>
             </div>
 
-            <p className="text-xs sm:text-sm text-[#8C7A82] leading-relaxed">
-              Reservasi cepat dan fleksibel tanpa perlu login akun. Akses langsung seluruh katalog resmi transparan, kustomisasi warna, dan layanan Home Service.
+            <p className="text-xs text-[#8C7A82] leading-relaxed min-h-[40px]">
+              Reservasi langsung tanpa login akun. Pilih dari katalog transparan, kustomisasi kuku &amp; bulu mata, serta opsi Home Service.
             </p>
 
-            <ul className="space-y-2 text-xs text-[#4A3B40] pt-2 border-t border-[#F8BBD0]/40">
+            <ul className="space-y-2 text-xs text-[#4A3B40] pt-3 border-t border-[#F8BBD0]/30">
               <li className="flex items-center gap-2">
                 <CheckCircle2 size={14} className="text-emerald-500 shrink-0" />
-                <span>Katalog transparan terlihat utuh</span>
+                <span>Katalog harga resmi transparan</span>
               </li>
               <li className="flex items-center gap-2">
                 <CheckCircle2 size={14} className="text-emerald-500 shrink-0" />
-                <span>Pilihan warna & unggah foto desain</span>
+                <span>Pilih warna, tipe &amp; upload foto desain</span>
               </li>
               <li className="flex items-center gap-2">
                 <CheckCircle2 size={14} className="text-emerald-500 shrink-0" />
-                <span>Tersedia Salon Visit & Home Service</span>
+                <span>Kunjungan Studio atau Home Service</span>
               </li>
             </ul>
           </div>
 
           <div className="pt-6">
-            <div className="w-full py-2.5 px-4 rounded-xl soft-button text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 group-hover:shadow-md transition">
+            <div className="w-full py-2.5 px-4 rounded-xl soft-button text-xs font-bold flex items-center justify-center gap-2 shadow-2xs group-hover:shadow-sm transition">
               <span>Pilih Reguler</span>
-              <ArrowRight size={15} />
+              <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
             </div>
           </div>
         </div>
 
-        {/* Card 2: MEMBER (Highlighted) */}
+        {/* Card 2: MEMBER (Highlighted Loyalty) */}
         <div 
           onClick={() => onSelectType('MEMBER')}
-          className="luxury-card p-6 sm:p-7 flex flex-col justify-between cursor-pointer group hover:-translate-y-1 transition duration-300 relative overflow-hidden border-[#D4AF37]/50 shadow-md bg-gradient-to-b from-[#FFFDF9] via-[#FFF8E7]/40 to-[#FFD1DC]/30"
+          className="cute-card p-6 flex flex-col justify-between cursor-pointer group border-2 border-[#D4AF37]/60 shadow-md bg-gradient-to-b from-[#FFFDF9] to-[#FFF8E7]/30 hover:border-[#D4AF37] transition duration-200"
         >
-          <div className="absolute top-3 right-3">
-            <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-[#D4AF37] text-white uppercase tracking-wider flex items-center gap-1 shadow-xs">
-              <Sparkles size={11} /> Favorit VIP
-            </span>
-          </div>
-
           <div className="space-y-4">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#F8BBD0] to-[#D4AF37]/40 flex items-center justify-center text-[#B8860B] shadow-xs group-hover:scale-105 transition">
-              <Crown size={28} className="text-[#B8860B]" />
+            <div className="flex items-center justify-between">
+              <div className="w-12 h-12 rounded-xl bg-[#FFF8E7] border border-[#D4AF37]/50 flex items-center justify-center text-[#B8860B] shadow-2xs group-hover:scale-105 transition">
+                <Crown size={22} />
+              </div>
+              <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#D4AF37] text-white shadow-2xs">
+                Favorit VIP
+              </span>
             </div>
 
             <div>
-              <span className="text-[11px] font-bold uppercase tracking-wider text-[#B8860B]">
-                Loyalty & Hadiah Koin
+              <span className="text-[11px] font-semibold text-[#B8860B] uppercase tracking-wider block">
+                Loyalti &amp; Hadiah Koin
               </span>
-              <h3 className="font-serif text-2xl font-bold text-[#4A3B40] mt-0.5">
+              <h3 className="font-serif text-2xl font-bold text-[#4A3B40] mt-0.5 group-hover:text-[#B8860B] transition-colors">
                 Member Eksklusif
               </h3>
             </div>
 
-            <p className="text-xs sm:text-sm text-[#8C7A82] leading-relaxed">
-              Login aman nomor WA & kata sandi. Dapatkan koin di setiap perawatan selesai, tukar voucher diskon, dan nikmati potongan ongkir Home Service.
+            <p className="text-xs text-[#8C7A82] leading-relaxed min-h-[40px]">
+              Login nomor WhatsApp. Dapatkan koin reward tiap treatment selesai, tukar voucher diskon spesial, dan potongan ongkir Home Service.
             </p>
 
-            <ul className="space-y-2 text-xs text-[#4A3B40] pt-2 border-t border-[#F8BBD0]/40">
+            <ul className="space-y-2 text-xs text-[#4A3B40] pt-3 border-t border-[#F8BBD0]/30">
               <li className="flex items-center gap-2">
                 <CheckCircle2 size={14} className="text-[#D4AF37] shrink-0" />
-                <span>Koin reward otomatis setiap transaksi selesai</span>
+                <span>Reward koin di setiap transaksi selesai</span>
               </li>
               <li className="flex items-center gap-2">
                 <CheckCircle2 size={14} className="text-[#D4AF37] shrink-0" />
-                <span>Klaim voucher diskon & hadiah koin</span>
+                <span>Klaim voucher diskon &amp; potongan harga</span>
               </li>
               <li className="flex items-center gap-2">
                 <CheckCircle2 size={14} className="text-[#D4AF37] shrink-0" />
-                <span>Diskon Home Service (tiap 200 koin = -Rp 50)</span>
+                <span>Diskon ongkir Home Service (200 koin = -Rp 50)</span>
               </li>
             </ul>
           </div>
 
           <div className="pt-6">
-            <div className="w-full py-2.5 px-4 rounded-xl gold-button text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 group-hover:shadow-md transition">
+            <div className="w-full py-2.5 px-4 rounded-xl gold-button text-xs font-bold flex items-center justify-center gap-2 shadow-sm group-hover:shadow-md transition">
               <span>Masuk / Daftar Member</span>
-              <ArrowRight size={15} />
+              <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
             </div>
           </div>
         </div>
 
-        {/* Card 3: GABUNGAN */}
+        {/* Card 3: GABUNGAN (Bestie Party) */}
         <div 
           onClick={() => onSelectType('GABUNGAN')}
-          className="luxury-card p-6 sm:p-7 flex flex-col justify-between cursor-pointer group hover:-translate-y-1 transition duration-300 relative overflow-hidden"
+          className="cute-card p-6 flex flex-col justify-between cursor-pointer group hover:border-[#D4AF37] transition duration-200"
         >
-          <div className="absolute top-0 right-0 w-28 h-28 bg-[#FFF8E7] rounded-bl-full pointer-events-none group-hover:bg-[#FFD1DC]/40 transition" />
-
           <div className="space-y-4">
-            <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#FFF8E7] to-[#F8BBD0] flex items-center justify-center text-[#4A3B40] shadow-xs group-hover:scale-105 transition">
-              <Users size={28} className="text-[#B8860B]" />
+            <div className="flex items-center justify-between">
+              <div className="w-12 h-12 rounded-xl bg-[#FFF5F7] border border-[#F8BBD0]/50 flex items-center justify-center text-[#C2416C] shadow-2xs group-hover:scale-105 transition">
+                <Users size={22} />
+              </div>
+              <span className="text-[10px] font-semibold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#FFE4EC] text-[#9A254D]">
+                Min. 3 Orang
+              </span>
             </div>
 
             <div>
-              <span className="text-[11px] font-bold uppercase tracking-wider text-[#B8860B]">
-                Rombongan Minimal 3 Orang
+              <span className="text-[11px] font-semibold text-[#8C7A82] uppercase tracking-wider block">
+                Pesta Cantik Sahabat
               </span>
-              <h3 className="font-serif text-2xl font-bold text-[#4A3B40] mt-0.5">
+              <h3 className="font-serif text-2xl font-bold text-[#4A3B40] mt-0.5 group-hover:text-[#B8860B] transition-colors">
                 Paket Gabungan
               </h3>
             </div>
 
-            <p className="text-xs sm:text-sm text-[#8C7A82] leading-relaxed">
-              Ideal untuk acara wisuda, bridal shower, arisan, atau perawatan bersama sahabat. Jadwal kalender terpadu dengan pilihan layanan mandiri per orang.
+            <p className="text-xs text-[#8C7A82] leading-relaxed min-h-[40px]">
+              Cocok untuk bridal shower, wisuda, atau arisan. Ketua tentukan jadwal &amp; lokasi, tiap anggota memilih treatment dari HP masing-masing!
             </p>
 
-            <ul className="space-y-2 text-xs text-[#4A3B40] pt-2 border-t border-[#F8BBD0]/40">
+            <ul className="space-y-2 text-xs text-[#4A3B40] pt-3 border-t border-[#F8BBD0]/30">
               <li className="flex items-center gap-2">
                 <CheckCircle2 size={14} className="text-emerald-500 shrink-0" />
-                <span>Kalender jadwal khusus rombongan</span>
+                <span>Multi-browser: pilih layanan dari HP masing-masing</span>
               </li>
               <li className="flex items-center gap-2">
                 <CheckCircle2 size={14} className="text-emerald-500 shrink-0" />
-                <span>Pilih layanan & upload desain terpisah</span>
+                <span>Rincian tagihan per individu tetap transparan</span>
               </li>
               <li className="flex items-center gap-2">
                 <CheckCircle2 size={14} className="text-emerald-500 shrink-0" />
-                <span>Koin individu tetap didapat anggota member</span>
+                <span>Anggota berstatus member tetap memperoleh koin</span>
               </li>
             </ul>
           </div>
 
           <div className="pt-6">
-            <div className="w-full py-2.5 px-4 rounded-xl soft-button text-xs sm:text-sm font-semibold flex items-center justify-center gap-2 group-hover:shadow-md transition">
-              <span>Pilih Gabungan (Min 3 Org)</span>
-              <ArrowRight size={15} />
+            <div className="w-full py-2.5 px-4 rounded-xl soft-button text-xs font-bold flex items-center justify-center gap-2 shadow-2xs group-hover:shadow-sm transition">
+              <span>Buat / Gabung Kelompok</span>
+              <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
             </div>
           </div>
         </div>

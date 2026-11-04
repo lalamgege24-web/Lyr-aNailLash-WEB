@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { 
   Users, 
+  User,
+  Crown,
   Calendar, 
   Clock, 
   UserPlus, 
@@ -717,38 +719,49 @@ export const GroupBooking: React.FC<GroupBookingProps> = ({
     return (
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-10 space-y-8 animate-fadeIn">
         {/* Top Room Banner */}
-        <div className="luxury-card p-5 sm:p-6 bg-gradient-to-br from-[#FFFDF9] via-[#FFF8E7] to-[#FFD1DC]/30 border-2 border-[#D4AF37]/50 shadow-md space-y-4">
+        <div className="cute-card p-5 sm:p-6 bg-gradient-to-br from-[#FFFDF9] via-white to-[#FFF8E7] border border-[#D4AF37]/50 shadow-sm space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <div className="flex items-center gap-2 flex-wrap">
-                <span className="text-xs font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#D4AF37] text-white">
-                  {isLeader ? '👑 Anda: Ketua Kelompok' : '🎀 Anda: Anggota Kelompok'}
+                <span className="text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full bg-gradient-to-r from-[#D4AF37] to-[#B8860B] text-white flex items-center gap-1.5 shadow-2xs">
+                  {isLeader ? (
+                    <>
+                      <Crown size={12} />
+                      <span>Ketua Rombongan</span>
+                    </>
+                  ) : (
+                    <>
+                      <User size={12} />
+                      <span>Anggota Rombongan</span>
+                    </>
+                  )}
                 </span>
-                <span className="text-xs px-2.5 py-0.5 rounded-full bg-white border border-[#D4AF37]/40 text-[#4A3B40] font-semibold">
-                  {activeRoom.members.length} Orang Bergabung (Min 3)
+                <span className="text-xs px-3 py-1 rounded-full bg-white border border-[#D4AF37]/30 text-[#4A3B40] font-semibold flex items-center gap-1.5">
+                  <Users size={12} className="text-[#B8860B]" />
+                  <span>{activeRoom.members.length} Orang Bergabung (Min 3)</span>
                 </span>
               </div>
-              <h2 className="font-serif text-2xl sm:text-3xl font-bold text-[#4A3B40] mt-1">
+              <h2 className="font-serif text-2xl sm:text-3xl font-bold text-[#4A3B40] mt-2">
                 {activeRoom.groupName}
               </h2>
               <p className="text-xs text-[#8C7A82] mt-0.5">
-                Ketua: <strong>{activeRoom.leaderName}</strong> ({activeRoom.leaderWhatsapp})
+                Ketua: <strong className="text-[#4A3B40]">{activeRoom.leaderName}</strong> ({activeRoom.leaderWhatsapp})
               </p>
             </div>
 
             {/* Room Code Share Widget */}
-            <div className="flex flex-col items-end gap-2 shrink-0">
-              <span className="text-[10px] text-[#8C7A82] font-semibold uppercase tracking-wider">
-                Kode Gabung Teman:
+            <div className="flex flex-col items-start sm:items-end gap-1.5 shrink-0 bg-[#FFFDF9] p-3 rounded-xl border border-[#D4AF37]/30">
+              <span className="text-[10px] text-[#8C7A82] font-bold uppercase tracking-wider">
+                Kode Undangan Gabung:
               </span>
-              <div className="flex items-center gap-1.5">
-                <span className="font-mono text-xl sm:text-2xl font-bold text-[#B8860B] bg-white px-3 py-1 rounded-xl border border-[#D4AF37]/40 shadow-2xs">
+              <div className="flex items-center gap-2">
+                <span className="font-mono text-xl sm:text-2xl font-bold text-[#B8860B] bg-white px-3.5 py-1 rounded-lg border border-[#D4AF37]/40 tracking-wider">
                   {activeRoom.roomCode}
                 </span>
                 <button
                   type="button"
                   onClick={handleCopyCode}
-                  className="p-2 rounded-xl bg-white border border-[#D4AF37]/40 hover:bg-[#FFD1DC]/30 text-[#4A3B40] transition"
+                  className="p-2 rounded-lg bg-white border border-[#F8BBD0] hover:bg-[#FFD1DC]/30 text-[#4A3B40] transition"
                   title="Salin Kode"
                 >
                   {copiedLink ? <Check size={16} className="text-emerald-600" /> : <Copy size={16} />}
@@ -756,29 +769,29 @@ export const GroupBooking: React.FC<GroupBookingProps> = ({
                 <button
                   type="button"
                   onClick={handleShareWhatsApp}
-                  className="p-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white transition shadow-2xs"
+                  className="p-2 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white transition"
                   title="Bagikan ke WhatsApp"
                 >
                   <Share2 size={16} />
                 </button>
               </div>
               {copiedLink && (
-                <span className="text-[10px] text-emerald-600 font-semibold animate-pulse">
-                  Kode berhasil disalin!
+                <span className="text-[10px] text-emerald-600 font-semibold">
+                  Kode kamar disalin ke clipboard!
                 </span>
               )}
             </div>
           </div>
 
           {/* Schedule & Location Summary (Chosen by Leader) */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-3 border-t border-[#D4AF37]/30 text-xs text-[#4A3B40]">
-            <div className="flex items-center gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-3.5 border-t border-[#D4AF37]/20 text-xs text-[#4A3B40]">
+            <div className="flex items-center gap-2 bg-white/70 p-2.5 rounded-xl border border-[#F8BBD0]/40">
               <Calendar size={15} className="text-[#B8860B] shrink-0" />
               <span>
                 Jadwal: <strong>{activeRoom.appointmentDate}</strong> • Jam <strong>{activeRoom.appointmentTime} WIB</strong>
               </span>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 bg-white/70 p-2.5 rounded-xl border border-[#F8BBD0]/40">
               <MapPin size={15} className="text-[#B8860B] shrink-0" />
               <span className="truncate">
                 Lokasi: <strong>{activeRoom.location.isHomeService ? `Home Service (${activeRoom.location.village})` : 'Studio Mall Taman Palem'}</strong>
@@ -792,53 +805,54 @@ export const GroupBooking: React.FC<GroupBookingProps> = ({
           <div className="flex items-center justify-between border-b border-[#F8BBD0]/40 pb-2.5">
             <div>
               <h3 className="font-serif text-lg font-bold text-[#4A3B40] flex items-center gap-2">
-                <Users size={18} className="text-[#D4AF37]" />
+                <Users size={18} className="text-[#B8860B]" />
                 <span>Status & Rincian Anggota Kelompok</span>
               </h3>
               <p className="text-xs text-[#8C7A82]">
-                Tiap anggota memilih dari HP masing-masing. Rincian tagihan per individu terlihat jelas.
+                Tiap anggota memilih dari HP masing-masing. Rincian tagihan per individu terlihat transparan.
               </p>
             </div>
             <button
               type="button"
               onClick={() => fetchRoom(activeRoom.roomCode)}
-              className="text-xs text-[#B8860B] flex items-center gap-1 hover:underline"
+              className="text-xs text-[#B8860B] flex items-center gap-1 hover:underline font-semibold"
             >
               <RefreshCw size={13} className={isRefreshing ? 'animate-spin' : ''} />
-              <span>Sync</span>
+              <span>Sinkronisasi</span>
             </button>
           </div>
 
           {/* Members List Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-            {activeRoom.members.map((m, idx) => {
+            {activeRoom.members.map((m) => {
               const isSelf = m.id === self.id;
               const mCoins = calculateMemberCoins(m.subtotalServices, rewardPercentage);
+              const initialLetter = m.fullName.trim().charAt(0).toUpperCase() || 'M';
 
               return (
                 <div
                   key={m.id}
-                  className={`p-4 rounded-2xl border transition relative space-y-3 ${
+                  className={`p-4 rounded-xl border transition-all relative space-y-3 ${
                     isSelf
-                      ? 'border-[#D4AF37] bg-white shadow-xs'
-                      : 'border-[#F8BBD0]/50 bg-white/70'
+                      ? 'border-[#D4AF37] bg-gradient-to-br from-[#FFFDF9] to-[#FFF8E7]/40 shadow-xs ring-1 ring-[#D4AF37]/30'
+                      : 'border-[#F8BBD0]/60 bg-white shadow-2xs'
                   }`}
                 >
                   <div className="flex items-start justify-between gap-2">
-                    <div className="flex items-center gap-2">
-                      <div className="w-8 h-8 rounded-full bg-[#FFD1DC] text-[#4A3B40] flex items-center justify-center font-bold text-xs shrink-0">
-                        {idx + 1}
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-[#FFD1DC] to-[#FFF8E7] text-sm flex items-center justify-center font-bold text-[#4A3B40] shrink-0 border border-[#F8BBD0]">
+                        {m.isLeader ? <Crown size={15} className="text-[#B8860B]" /> : initialLetter}
                       </div>
                       <div>
-                        <div className="flex items-center gap-1.5">
+                        <div className="flex items-center gap-1.5 flex-wrap">
                           <span className="font-bold text-sm text-[#4A3B40]">{m.fullName}</span>
                           {m.isLeader && (
-                            <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-amber-100 text-amber-800 border border-amber-300">
-                              Ketua
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-200 flex items-center gap-1">
+                              <Crown size={10} /> Ketua
                             </span>
                           )}
                           {isSelf && (
-                            <span className="text-[10px] font-bold px-1.5 py-0.2 rounded-full bg-[#FFD1DC] text-[#4A3B40]">
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#FFD1DC] text-[#4A3B40]">
                               Anda
                             </span>
                           )}
@@ -850,15 +864,17 @@ export const GroupBooking: React.FC<GroupBookingProps> = ({
                     {/* Status Badge */}
                     <div>
                       {m.isEditing ? (
-                        <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-300 animate-pulse">
-                          <span>🟡</span> Sedang Memilih...
+                        <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2.5 py-0.5 rounded-full bg-amber-50 text-amber-800 border border-amber-200">
+                          <Clock size={11} className="text-amber-600" />
+                          <span>Sedang Memilih</span>
                         </span>
                       ) : m.services.length > 0 ? (
-                        <span className="inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-300">
-                          <Check size={11} /> Siap ✓
+                        <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2.5 py-0.5 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200">
+                          <Check size={11} strokeWidth={2.5} className="text-emerald-600" />
+                          <span>Selesai Memilih</span>
                         </span>
                       ) : (
-                        <span className="inline-flex items-center gap-1 text-[10px] font-semibold px-2 py-0.5 rounded-full bg-gray-100 text-gray-500">
+                        <span className="inline-flex items-center gap-1 text-[10px] font-medium px-2 py-0.5 rounded-full bg-gray-100 text-gray-500">
                           Belum Memilih
                         </span>
                       )}
@@ -907,15 +923,14 @@ export const GroupBooking: React.FC<GroupBookingProps> = ({
         </div>
 
         {/* Member Treatment Customization Area (My Personal Treatment) */}
-        <div className="luxury-card p-5 sm:p-6 space-y-4 border-2 border-[#D4AF37]/40 bg-white">
+        <div className="luxury-card p-5 sm:p-6 space-y-4 border border-[#D4AF37]/40 bg-white">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#F8BBD0]/40 pb-3">
             <div>
               <span className="text-[10px] font-bold uppercase tracking-wider text-[#B8860B] block">
-                Pilihan Perlakuan Saya ({self.fullName})
+                Pilihan Layanan Saya ({self.fullName})
               </span>
-              <h3 className="font-serif text-xl font-bold text-[#4A3B40] flex items-center gap-2">
-                <span>Pilih Layanan Kuku / Lash Anda</span>
-                <span>💅</span>
+              <h3 className="font-serif text-xl font-bold text-[#4A3B40]">
+                Katalog Treatment Pribadi
               </h3>
             </div>
 
@@ -923,7 +938,7 @@ export const GroupBooking: React.FC<GroupBookingProps> = ({
             <button
               type="button"
               onClick={() => handleUpdateSelfSession(self.services, !self.isEditing)}
-              className={`py-2 px-4 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow-2xs ${
+              className={`py-2 px-3.5 rounded-xl text-xs font-semibold transition flex items-center gap-1.5 ${
                 self.isEditing
                   ? 'bg-amber-100 text-amber-900 border border-amber-300 hover:bg-amber-200'
                   : 'bg-emerald-600 text-white hover:bg-emerald-700'
@@ -932,12 +947,12 @@ export const GroupBooking: React.FC<GroupBookingProps> = ({
               {self.isEditing ? (
                 <>
                   <Edit3 size={14} />
-                  <span>Status: Sedang Memilih (Klik Jika Sudah Siap ✓)</span>
+                  <span>Status: Sedang Memilih (Klik Jika Selesai)</span>
                 </>
               ) : (
                 <>
                   <Check size={14} />
-                  <span>Status: Siap ✓ (Klik untuk Mengubah)</span>
+                  <span>Status: Selesai (Klik untuk Edit)</span>
                 </>
               )}
             </button>
@@ -1040,22 +1055,22 @@ export const GroupBooking: React.FC<GroupBookingProps> = ({
               type="button"
               disabled={!leaderCanSubmit}
               onClick={handleLeaderSubmit}
-              className={`w-full py-4 rounded-2xl text-sm font-bold shadow-md transition flex items-center justify-center gap-2 ${
+              className={`w-full py-3.5 rounded-xl text-sm font-bold shadow-md transition flex items-center justify-center gap-2 ${
                 leaderCanSubmit
-                  ? 'gold-button hover:shadow-xl'
+                  ? 'gold-button hover:shadow-lg'
                   : 'bg-gray-100 text-gray-400 border border-gray-200 cursor-not-allowed'
               }`}
             >
               <Send size={18} />
               <span>
                 {leaderCanSubmit
-                  ? 'Kirim Reservasi Rombongan ke Salon ✨'
+                  ? 'Kirim Reservasi Rombongan'
                   : 'Menunggu Semua Anggota Selesai Memilih...'}
               </span>
             </button>
           ) : (
             <div className="text-center p-3 rounded-xl bg-[#FFF8E7]/60 text-xs text-[#8C7A82]">
-              🌸 Pengiriman formulir akhir reservasi rombongan akan dilakukan oleh Ketua Kelompok (<strong>{activeRoom.leaderName}</strong>).
+              Pengiriman formulir akhir reservasi rombongan akan dilakukan oleh Ketua Kelompok (<strong>{activeRoom.leaderName}</strong>).
             </div>
           )}
         </div>

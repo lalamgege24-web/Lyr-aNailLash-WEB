@@ -16,28 +16,37 @@ export const CustomerHeader: React.FC<CustomerHeaderProps> = ({
   onGoHome
 }) => {
   return (
-    <header className="sticky top-0 z-40 bg-[#FFFDF9]/90 backdrop-blur-md border-b border-[#F8BBD0]/50 shadow-xs">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
+    <header className="sticky top-0 z-40 bg-[#FFFDF9]/95 backdrop-blur-md border-b border-[#F8BBD0]/60 shadow-xs">
+      {/* Elegant Studio Notice Bar */}
+      <div className="bg-gradient-to-r from-[#FFF5F7] via-[#FFF8E7] to-[#FFF5F7] py-1 px-4 text-center border-b border-[#F8BBD0]/35">
+        <p className="text-[11px] font-medium text-[#4A3B40] tracking-wide flex items-center justify-center gap-1.5 flex-wrap">
+          <span className="font-semibold text-[#B8860B]">Studio Mall Taman Palem Lt G Blok A 30B</span>
+          <span className="text-[#D4AF37]">•</span>
+          <span>Tersedia Kunjungan Studio &amp; Home Service Terapis ke Rumah</span>
+        </p>
+      </div>
+
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-2.5 sm:py-3 flex items-center justify-between gap-3">
         {/* Brand / Logo */}
         <div 
           onClick={onGoHome}
-          className="flex items-center gap-3 cursor-pointer group"
+          className="flex items-center gap-3 cursor-pointer group select-none"
         >
-          <div className="w-11 h-11 rounded-full p-0.5 bg-gradient-to-tr from-[#FFD1DC] via-[#D4AF37] to-[#F8BBD0] shadow-sm">
+          <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-full p-0.5 bg-gradient-to-tr from-[#FFD1DC] via-[#D4AF37] to-[#F8BBD0] shadow-sm group-hover:scale-105 transition-transform duration-300">
             <img
               src={settings.logoUrl}
               alt="Lyra's Nail-Lash Logo"
-              className="w-full h-full object-cover rounded-full group-hover:scale-105 transition duration-300"
+              className="w-full h-full object-cover rounded-full"
             />
           </div>
           <div>
             <div className="flex items-center gap-1.5">
-              <span className="font-serif text-lg sm:text-xl font-bold tracking-tight text-[#4A3B40]">
+              <span className="font-serif text-lg sm:text-xl font-bold tracking-tight text-[#4A3B40] group-hover:text-[#B8860B] transition-colors">
                 {settings.storeName}
               </span>
               <Sparkles size={14} className="text-[#D4AF37] animate-pulse" />
             </div>
-            <p className="text-[11px] text-[#8C7A82] hidden sm:block font-light">
+            <p className="text-[11px] text-[#8C7A82] hidden sm:block font-medium">
               {settings.tagline}
             </p>
           </div>
@@ -46,49 +55,49 @@ export const CustomerHeader: React.FC<CustomerHeaderProps> = ({
         {/* Right Action Icons & Buttons */}
         <div className="flex items-center gap-2 sm:gap-3">
           {/* Social Links */}
-          <div className="flex items-center gap-1.5 border-r border-[#F8BBD0]/60 pr-2 sm:pr-3">
+          <div className="flex items-center gap-1 sm:gap-1.5 border-r border-[#F8BBD0]/60 pr-2 sm:pr-3">
             <a
               href={settings.googleMapsUrl}
               target="_blank"
               rel="noreferrer"
               title="Google Maps Lyra's Nail-Lash"
-              className="p-2 rounded-full hover:bg-[#FFD1DC]/30 text-[#4A3B40] hover:text-[#B8860B] transition"
+              className="p-2 rounded-full hover:bg-[#FFD1DC]/40 text-[#4A3B40] hover:text-[#B8860B] transition hover:scale-105"
             >
-              <MapPin size={18} />
+              <MapPin size={17} />
             </a>
             <a
               href={settings.instagramUrl}
               target="_blank"
               rel="noreferrer"
               title="Instagram @lyras_naillash.id"
-              className="p-2 rounded-full hover:bg-[#FFD1DC]/30 text-[#4A3B40] hover:text-[#B8860B] transition"
+              className="p-2 rounded-full hover:bg-[#FFD1DC]/40 text-[#4A3B40] hover:text-[#B8860B] transition hover:scale-105"
             >
-              <Instagram size={18} />
+              <Instagram size={17} />
             </a>
             <a
               href={settings.tiktokUrl}
               target="_blank"
               rel="noreferrer"
               title="TikTok @lyrasnaillash"
-              className="p-2 rounded-full hover:bg-[#FFD1DC]/30 text-[#4A3B40] hover:text-[#B8860B] transition"
+              className="p-2 rounded-full hover:bg-[#FFD1DC]/40 text-[#4A3B40] hover:text-[#B8860B] transition font-bold text-xs hover:scale-105"
             >
-              <span className="text-sm font-bold leading-none font-mono">TT</span>
+              <span className="font-mono">TT</span>
             </a>
             <a
               href={`https://wa.me/${settings.ownerWhatsapp.replace(/\D/g, '')}?text=Halo%20Lyra's%20Nail-Lash,%20saya%20ingin%20bertanya`}
               target="_blank"
               rel="noreferrer"
               title="WhatsApp Official"
-              className="p-2 rounded-full hover:bg-[#FFD1DC]/30 text-emerald-600 transition"
+              className="p-2 rounded-full hover:bg-emerald-50 text-emerald-600 transition hover:scale-105"
             >
-              <MessageCircle size={18} />
+              <MessageCircle size={17} />
             </a>
           </div>
 
           {/* Cek Status Reservasi Button */}
           <button
             onClick={onOpenStatusCheck}
-            className="flex items-center gap-1.5 py-1.5 px-3 sm:px-4 rounded-full soft-button text-xs sm:text-sm font-semibold border border-[#F8BBD0] shadow-xs hover:scale-102 transition"
+            className="flex items-center gap-1.5 py-1.5 px-3 sm:px-4 rounded-full soft-button text-xs sm:text-sm font-bold shadow-xs hover:scale-102 transition"
           >
             <Search size={14} className="text-[#B8860B]" />
             <span>Cek Status</span>
@@ -101,7 +110,7 @@ export const CustomerHeader: React.FC<CustomerHeaderProps> = ({
             className="p-2 rounded-full text-[#8C7A82] hover:text-[#4A3B40] hover:bg-[#FFF8E7] border border-transparent hover:border-[#D4AF37]/40 transition flex items-center gap-1 text-xs"
           >
             <Shield size={16} className="text-[#D4AF37]" />
-            <span className="hidden md:inline font-medium text-[11px]">Owner / POS</span>
+            <span className="hidden md:inline font-semibold text-[11px]">Owner / POS</span>
           </a>
         </div>
       </div>

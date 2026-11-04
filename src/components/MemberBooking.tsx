@@ -599,79 +599,84 @@ export const MemberBooking: React.FC<MemberBookingProps> = ({
       {/* Member Balance & Loyalty Widget */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         {/* Coins Card */}
-        <div className="luxury-card p-5 bg-gradient-to-br from-[#FFFDF9] via-[#FFF8E7] to-[#FFD1DC]/40 border-[#D4AF37]/50 shadow-xs flex items-center justify-between">
+        <div className="cute-card p-5 bg-gradient-to-br from-[#FFFDF9] via-white to-[#FFF8E7] border border-[#D4AF37]/40 shadow-xs flex items-center justify-between">
           <div className="space-y-1">
             <span className="text-[11px] font-bold uppercase tracking-wider text-[#B8860B]">
-              Saldo Koin Saya
+              Saldo Koin Loyalti
             </span>
             <div className="text-3xl font-serif font-bold text-[#4A3B40] flex items-center gap-2">
-              <span>{currentMember.coins}</span>
-              <span className="text-xs font-sans font-normal text-[#8C7A82]">Koin</span>
+              <span className="text-[#B8860B]">{currentMember.coins}</span>
+              <span className="text-[11px] font-sans font-medium text-[#8C7A82] bg-white px-2 py-0.5 rounded-full border border-[#D4AF37]/30">
+                Poin Reward
+              </span>
             </div>
             <p className="text-[11px] text-[#8C7A82]">
-              Tiap selesai treatment bertambah koin loyalty!
+              Dapat ditukar kupon diskon & potongan ongkos kirim
             </p>
           </div>
-          <div className="w-12 h-12 rounded-2xl bg-[#D4AF37] text-white flex items-center justify-center shadow-md">
-            <Coins size={24} />
+          <div className="w-12 h-12 rounded-xl bg-[#FFF8E7] border border-[#D4AF37]/30 text-[#B8860B] flex items-center justify-center shrink-0">
+            <Coins size={22} />
           </div>
         </div>
 
         {/* Total Treatments */}
-        <div className="luxury-card p-5 flex items-center justify-between">
+        <div className="cute-card p-5 bg-white border border-[#F8BBD0] shadow-xs flex items-center justify-between">
           <div className="space-y-1">
             <span className="text-[11px] font-bold uppercase tracking-wider text-[#8C7A82]">
-              Total Treatment Selesai
+              Total Kunjungan
             </span>
             <div className="text-3xl font-serif font-bold text-[#4A3B40]">
-              {currentMember.totalCompletedTreatments || 0}x
+              {currentMember.totalCompletedTreatments || 0}
+              <span className="text-xs font-normal text-[#8C7A82] ml-1.5 font-sans">Treatment</span>
             </div>
             <p className="text-[11px] text-[#8C7A82]">
-              Bergabung sejak {currentMember.joinDate}
+              Member terdaftar sejak {currentMember.joinDate}
             </p>
           </div>
-          <div className="w-12 h-12 rounded-2xl bg-[#FFD1DC] text-[#4A3B40] flex items-center justify-center shadow-xs">
-            <Sparkles size={24} className="text-[#B8860B]" />
+          <div className="w-12 h-12 rounded-xl bg-[#FFD1DC]/40 border border-[#F8BBD0] text-[#B8860B] flex items-center justify-center shrink-0">
+            <Sparkles size={20} />
           </div>
         </div>
 
         {/* Voucher Status */}
-        <div className="luxury-card p-5 flex items-center justify-between">
+        <div className="cute-card p-5 bg-white border border-[#F8BBD0] shadow-xs flex items-center justify-between">
           <div className="space-y-1">
             <span className="text-[11px] font-bold uppercase tracking-wider text-[#8C7A82]">
               Voucher Dimiliki
             </span>
             <div className="text-3xl font-serif font-bold text-[#4A3B40]">
               {currentMember.claimedVoucherIds?.length || 0}
+              <span className="text-xs font-normal text-[#8C7A82] ml-1.5 font-sans">Kupon</span>
             </div>
             <p className="text-[11px] text-[#8C7A82]">
-              Siap digunakan pada reservasi hari ini
+              Siap diaplikasikan pada reservasi ini
             </p>
           </div>
-          <div className="w-12 h-12 rounded-2xl bg-[#FFF8E7] border border-[#D4AF37]/30 text-[#B8860B] flex items-center justify-center shadow-xs">
-            <Ticket size={24} />
+          <div className="w-12 h-12 rounded-xl bg-[#FFF8E7] border border-[#D4AF37]/30 text-[#B8860B] flex items-center justify-center shrink-0">
+            <Ticket size={20} />
           </div>
         </div>
       </div>
 
       {/* Voucher Exchange Center (Provided by Owner) */}
-      <div className="luxury-card p-5 sm:p-6 space-y-4">
-        <div className="flex items-center justify-between border-b border-[#F8BBD0]/40 pb-3">
+      <div className="cute-card p-5 sm:p-6 space-y-4 bg-white border border-[#F8BBD0]">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#F8BBD0]/50 pb-3">
           <div>
             <h3 className="font-serif text-lg font-bold text-[#4A3B40] flex items-center gap-2">
-              <Ticket size={18} className="text-[#D4AF37]" />
-              <span>Tukar Koin dengan Voucher Eksklusif</span>
+              <Ticket size={18} className="text-[#B8860B]" />
+              <span>Penukaran Voucher Diskon Treatment</span>
             </h3>
             <p className="text-xs text-[#8C7A82]">
-              Pilih voucher diskon yang sudah disediakan oleh Owner Lyra&apos;s Nail-Lash.
+              Tukarkan koin loyalty Anda dengan voucher potongan harga spesial dari Lyra&apos;s Nail-Lash
             </p>
           </div>
-          <span className="text-xs px-2.5 py-1 rounded-full bg-[#FFF8E7] text-[#B8860B] font-bold border border-[#D4AF37]/30">
-            Koin Anda: {currentMember.coins}
+          <span className="text-xs px-3 py-1.5 rounded-full bg-[#FFF8E7] text-[#B8860B] font-bold border border-[#D4AF37]/30 self-start sm:self-auto flex items-center gap-1.5">
+            <Coins size={14} />
+            <span>Saldo: {currentMember.coins} Koin</span>
           </span>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {vouchers.filter(v => salonStore.isVoucherVisibleToCustomer(v)).map((voucher) => {
             const alreadyClaimed = currentMember.claimedVoucherIds?.includes(voucher.id);
             const isQuotaFull = typeof voucher.maxClaimsQuota === 'number' && voucher.maxClaimsQuota > 0 && (voucher.totalClaimedCount || 0) >= voucher.maxClaimsQuota;
@@ -680,74 +685,77 @@ export const MemberBooking: React.FC<MemberBookingProps> = ({
             return (
               <div 
                 key={voucher.id}
-                className={`p-4 rounded-xl border transition flex flex-col justify-between gap-3 ${
+                className={`p-4 rounded-xl border transition-all duration-200 flex flex-col justify-between gap-3 relative overflow-hidden ${
                   alreadyClaimed
                     ? 'border-emerald-300 bg-emerald-50/40'
                     : isQuotaFull
                     ? 'border-gray-200 bg-gray-50 opacity-60'
-                    : 'border-[#F8BBD0]/50 bg-white hover:border-[#D4AF37]'
+                    : 'border-[#F8BBD0] bg-white hover:border-[#D4AF37]'
                 }`}
               >
                 <div>
                   <div className="flex items-start justify-between gap-2">
-                    <h4 className="font-serif font-bold text-sm text-[#4A3B40]">
-                      {voucher.title}
+                    <h4 className="font-serif font-bold text-sm text-[#4A3B40] flex items-center gap-1.5">
+                      <Ticket size={15} className="text-[#B8860B] shrink-0" />
+                      <span>{voucher.title}</span>
                     </h4>
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#FFD1DC] text-[#4A3B40] shrink-0">
+                    <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-[#FFF8E7] text-[#B8860B] border border-[#D4AF37]/30 shrink-0">
                       {voucher.coinsRequired} Koin
                     </span>
                   </div>
-                  <p className="text-xs text-[#8C7A82] mt-1 leading-relaxed">
+                  <p className="text-xs text-[#8C7A82] mt-1.5 leading-relaxed">
                     {voucher.description}
                   </p>
-                  <div className="flex flex-wrap items-center gap-2 mt-2 text-[10px] text-[#8C7A82]">
-                    <span>Berlaku s/d: {voucher.validUntil}</span>
+                  <div className="flex flex-wrap items-center gap-2 mt-2.5 text-[10px] text-[#8C7A82]">
+                    <span className="bg-[#FFF8E7] px-2 py-0.5 rounded-md border border-[#D4AF37]/20">
+                      Berlaku s/d: {voucher.validUntil}
+                    </span>
                     <span>•</span>
                     <span>Diklaim: {voucher.totalClaimedCount}x</span>
                     {voucher.maxClaimsQuota && (
                       <>
                         <span>•</span>
-                        <span className={`px-1.5 py-0.2 rounded font-semibold ${
-                          isQuotaFull ? 'bg-red-100 text-red-700' : 'bg-amber-100 text-amber-800'
+                        <span className={`px-2 py-0.5 rounded-md font-semibold border ${
+                          isQuotaFull ? 'bg-rose-100 text-rose-700 border-rose-200' : 'bg-amber-100 text-amber-800 border-amber-200'
                         }`}>
-                          Kuota: {voucher.totalClaimedCount}/{voucher.maxClaimsQuota}
+                          Sisa Kuota: {voucher.totalClaimedCount}/{voucher.maxClaimsQuota}
                         </span>
                       </>
                     )}
                   </div>
                 </div>
 
-                <div className="pt-2 border-t border-[#F8BBD0]/30 flex items-center justify-between">
+                <div className="pt-2.5 border-t border-[#F8BBD0]/40 flex items-center justify-between">
                   {alreadyClaimed ? (
                     <button
                       type="button"
                       onClick={() => setAppliedVoucherId(appliedVoucherId === voucher.id ? null : voucher.id)}
-                      className={`w-full py-1.5 px-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition ${
+                      className={`w-full py-2 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all ${
                         appliedVoucherId === voucher.id
                           ? 'bg-emerald-600 text-white'
                           : 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200'
                       }`}
                     >
-                      <Check size={13} />
-                      <span>{appliedVoucherId === voucher.id ? 'Voucher Terpasang' : 'Gunakan Voucher Ini'}</span>
+                      <Check size={14} />
+                      <span>{appliedVoucherId === voucher.id ? 'Voucher Terpasang (Aktif)' : 'Gunakan Voucher Ini'}</span>
                     </button>
                   ) : (
                     <button
                       type="button"
                       disabled={!canAfford}
                       onClick={() => handleClaimVoucher(voucher.id)}
-                      className={`w-full py-1.5 px-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition ${
+                      className={`w-full py-2 px-3 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all ${
                         canAfford
-                          ? 'gold-button shadow-xs'
+                          ? 'gold-button'
                           : 'bg-gray-100 text-gray-400 cursor-not-allowed'
                       }`}
                     >
-                      <Coins size={13} />
+                      <Coins size={14} />
                       <span>
                         {isQuotaFull 
-                          ? 'Kuota Klaim Penuh' 
+                          ? 'Kuota Klaim Habis' 
                           : canAfford 
-                          ? 'Tukar Sekarang' 
+                          ? 'Tukar Voucher Sekarang' 
                           : 'Koin Belum Cukup'}
                       </span>
                     </button>

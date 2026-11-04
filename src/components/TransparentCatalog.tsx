@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { 
   Check, 
+  CheckCircle2,
   Sparkles, 
   Upload, 
   Image as ImageIcon, 
@@ -37,6 +38,14 @@ interface TransparentCatalogProps {
   onUpdateService: (serviceId: string, partial: Partial<SelectedServiceItem>) => void;
   onRemoveService: (serviceId: string) => void;
 }
+
+const getCategoryEmoji = (name: string) => {
+  const lower = name.toLowerCase();
+  if (lower.includes('nail')) return '💅';
+  if (lower.includes('eye') || lower.includes('lash')) return '👁️✨';
+  if (lower.includes('lift')) return '🌸';
+  return '✨';
+};
 
 export const TransparentCatalog: React.FC<TransparentCatalogProps> = ({
   categories,
@@ -84,16 +93,17 @@ export const TransparentCatalog: React.FC<TransparentCatalogProps> = ({
     <div className="space-y-8 animate-fadeIn">
       <div className="flex items-center justify-between border-b border-[#F8BBD0] pb-3">
         <div>
-          <h3 className="font-serif text-2xl font-bold text-[#4A3B40] flex items-center gap-2">
-            <Sparkles size={22} className="text-[#D4AF37]" />
-            <span>Katalog Resmi & Pilihan Treatment</span>
+          <h3 className="font-serif text-xl sm:text-2xl font-bold text-[#4A3B40] flex items-center gap-2">
+            <Sparkles size={20} className="text-[#D4AF37]" />
+            <span>Katalog Resmi &amp; Pilihan Treatment</span>
           </h3>
           <p className="text-xs sm:text-sm text-[#8C7A82] mt-0.5">
             Seluruh layanan terbuka transparan. Pilih satu atau beberapa perlakuan sesuai kebutuhan Anda.
           </p>
         </div>
-        <div className="text-xs font-semibold px-3 py-1 rounded-full bg-[#FFF8E7] border border-[#D4AF37]/40 text-[#B8860B]">
-          {selectedServices.length} Layanan Terpilih
+        <div className="text-xs font-semibold px-3 py-1.5 rounded-full bg-[#FFF8E7] border border-[#D4AF37]/40 text-[#B8860B] flex items-center gap-1.5">
+          <CheckCircle2 size={13} className="text-[#B8860B]" />
+          <span>{selectedServices.length} Layanan Terpilih</span>
         </div>
       </div>
 
@@ -101,19 +111,19 @@ export const TransparentCatalog: React.FC<TransparentCatalogProps> = ({
       {categories.map((category) => (
         <section 
           key={category.id} 
-          className="space-y-4 bg-white/70 rounded-2xl p-5 sm:p-6 border border-[#F8BBD0]/60 shadow-xs"
+          className="space-y-4 cute-card p-5 sm:p-6 shadow-sm hover:shadow-md"
         >
           {/* Bab (Kategori Utama: NAIL ART, EYELASH, LASH LIFT) */}
-          <div className="flex items-center justify-between border-b border-[#F8BBD0]/40 pb-2.5">
+          <div className="flex items-center justify-between border-b border-[#F8BBD0]/50 pb-3">
             <div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2.5">
                 <span className="w-2.5 h-2.5 rounded-full bg-[#D4AF37]" />
                 <h4 className="font-serif text-xl sm:text-2xl font-bold tracking-wide text-[#4A3B40]">
                   {category.name}
                 </h4>
               </div>
               {category.description && (
-                <p className="text-xs text-[#8C7A82] mt-0.5 ml-4.5">
+                <p className="text-[11px] sm:text-xs text-[#8C7A82] mt-1 ml-5 leading-snug">
                   {category.description}
                 </p>
               )}
@@ -121,7 +131,7 @@ export const TransparentCatalog: React.FC<TransparentCatalogProps> = ({
           </div>
 
           {/* Subbab (Jenis Pelayanan) */}
-          <div className="grid grid-cols-1 gap-5 pt-2">
+          <div className="grid grid-cols-1 gap-4 pt-1">
             {category.subCategories.map((subCategory) => {
               const hasSubSub = subCategory.subSubCategories && subCategory.subSubCategories.length > 0;
               const directSelected = !hasSubSub && isSelected(subCategory.id);
@@ -130,27 +140,27 @@ export const TransparentCatalog: React.FC<TransparentCatalogProps> = ({
               return (
                 <div 
                   key={subCategory.id}
-                  className={`rounded-xl p-4 sm:p-5 border transition ${
+                  className={`rounded-2xl p-4 sm:p-5 border transition-all ${
                     directSelected || (hasSubSub && subCategory.subSubCategories?.some(ssc => isSelected(subCategory.id, ssc.id)))
-                      ? 'border-[#D4AF37] bg-[#FFF8E7]/30 shadow-xs'
-                      : 'border-[#F8BBD0]/40 bg-white hover:border-[#F8BBD0]'
+                      ? 'border-[#D4AF37] bg-gradient-to-br from-[#FFFDF9] to-[#FFF8E7]/40 shadow-xs'
+                      : 'border-[#F8BBD0]/45 bg-white hover:border-[#D4AF37]/50 hover:shadow-2xs'
                   }`}
                 >
                   {/* Subbab Header & Direct Action */}
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div className="space-y-1">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
                         <h5 className="font-serif font-bold text-base sm:text-lg text-[#4A3B40]">
                           {subCategory.name}
                         </h5>
                         {subCategory.requireDesignUpload && (
-                          <span className="text-[10px] bg-[#FFD1DC] text-[#4A3B40] font-semibold px-2 py-0.5 rounded-full">
-                            Wajib Foto Desain
+                          <span className="text-[10px] bg-[#FFF0F4] text-[#B83260] font-semibold px-2.5 py-0.5 rounded-full border border-[#FFCCD8]/70 flex items-center gap-1">
+                            <span>Foto Desain Diperlukan</span>
                           </span>
                         )}
                       </div>
                       {subCategory.description && (
-                        <p className="text-xs text-[#8C7A82]">
+                        <p className="text-[11px] sm:text-xs text-[#8C7A82] leading-snug">
                           {subCategory.description}
                         </p>
                       )}
@@ -171,12 +181,12 @@ export const TransparentCatalog: React.FC<TransparentCatalogProps> = ({
                                 <span className="line-through text-[11px] text-[#8C7A82] font-mono">
                                   Rp {subCategory.price.toLocaleString('id-ID')}
                                 </span>
-                                <span className="text-[10px] font-bold bg-rose-100 text-rose-700 px-1.5 py-0.2 rounded-full border border-rose-200">
+                                <span className="text-[10px] font-bold bg-[#FFE4EC] text-[#9A254D] px-2 py-0.5 rounded-full border border-[#F8BBD0]">
                                   Diskon {subCategory.discountPercent}%
                                 </span>
                               </div>
                             )}
-                            <span className="font-mono text-base font-bold text-[#B8860B]">
+                            <span className="font-mono text-base sm:text-lg font-bold text-[#B8860B]">
                               {effectivePrice > 0 ? `Rp ${effectivePrice.toLocaleString('id-ID')}` : 'Harga Custom'}
                             </span>
                           </div>
@@ -199,10 +209,10 @@ export const TransparentCatalog: React.FC<TransparentCatalogProps> = ({
                                 });
                               }
                             }}
-                            className={`py-1.5 px-4 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition ${
+                            className={`py-2 px-4 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all shadow-2xs ${
                               directSelected
-                                ? 'bg-red-50 text-red-600 border border-red-200 hover:bg-red-100'
-                                : 'soft-button border border-[#F8BBD0] hover:scale-102'
+                                ? 'bg-rose-50 text-rose-700 border border-rose-300 hover:bg-rose-100'
+                                : 'gold-button hover:scale-102'
                             }`}
                           >
                             {directSelected ? (
@@ -212,7 +222,7 @@ export const TransparentCatalog: React.FC<TransparentCatalogProps> = ({
                               </>
                             ) : (
                               <>
-                                <Plus size={13} />
+                                <Plus size={14} />
                                 <span>Pilih Layanan</span>
                               </>
                             )}
@@ -224,10 +234,15 @@ export const TransparentCatalog: React.FC<TransparentCatalogProps> = ({
 
                   {/* If SubCategory has Sub-subcategories (Variations) */}
                   {hasSubSub && (
-                    <div className="mt-4 pt-3 border-t border-[#F8BBD0]/40 space-y-3">
-                      <span className="text-[11px] font-semibold text-[#8C7A82] uppercase tracking-wider block">
-                        Pilihan Variasi (Sub-subbab):
-                      </span>
+                    <div className="mt-4 pt-3 border-t border-[#F8BBD0]/35 space-y-2.5">
+                      <div className="flex items-center justify-between">
+                        <span className="text-[11px] font-semibold text-[#8C7A82] uppercase tracking-wider">
+                          Pilihan Variasi Model / Gaya:
+                        </span>
+                        <span className="text-[10px] text-[#B8860B] bg-[#FFF8E7] px-2 py-0.5 rounded-full border border-[#D4AF37]/30">
+                          {subCategory.subSubCategories!.length} Pilihan
+                        </span>
+                      </div>
                       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
                         {subCategory.subSubCategories!.map((subSub) => {
                           const variantSelected = isSelected(subCategory.id, subSub.id);
@@ -259,14 +274,14 @@ export const TransparentCatalog: React.FC<TransparentCatalogProps> = ({
                                   });
                                 }
                               }}
-                              className={`p-3 rounded-xl border cursor-pointer transition flex items-center justify-between gap-2 ${
+                              className={`p-3 rounded-xl border cursor-pointer transition-all flex items-center justify-between gap-2 ${
                                 variantSelected
-                                  ? 'gold-border-active bg-[#FFF8E7]'
-                                  : 'border-[#F8BBD0]/40 bg-white hover:bg-[#FFFDF9]'
+                                  ? 'border-[#D4AF37] bg-[#FFFDF9] shadow-xs'
+                                  : 'border-[#F8BBD0]/45 bg-white hover:border-[#D4AF37]/60 hover:bg-[#FFFDF9]'
                               }`}
                             >
-                              <div className="text-xs">
-                                <span className="font-semibold text-[#4A3B40] block">
+                              <div className="text-xs min-w-0 flex-1">
+                                <span className="font-semibold text-[#4A3B40] block truncate">
                                   {subSub.name}
                                 </span>
                                 {subSub.description && (
@@ -274,13 +289,13 @@ export const TransparentCatalog: React.FC<TransparentCatalogProps> = ({
                                     {subSub.description}
                                   </p>
                                 )}
-                                <div className="flex items-center gap-1.5 mt-0.5">
+                                <div className="flex items-center gap-1.5 mt-1">
                                   {hasSubSubDiscount && (
                                     <>
                                       <span className="line-through text-[10px] text-gray-400 font-mono">
                                         Rp {subSub.price.toLocaleString('id-ID')}
                                       </span>
-                                      <span className="text-[9px] font-bold bg-rose-100 text-rose-700 px-1 rounded-full border border-rose-200">
+                                      <span className="text-[9px] font-bold bg-[#FFE4EC] text-[#9A254D] px-1.5 py-0.2 rounded-full border border-[#F8BBD0]">
                                         -{subSub.discountPercent}%
                                       </span>
                                     </>
@@ -290,10 +305,10 @@ export const TransparentCatalog: React.FC<TransparentCatalogProps> = ({
                                   </span>
                                 </div>
                               </div>
-                              <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 ${
-                                variantSelected ? 'bg-[#D4AF37] text-white' : 'border border-gray-300'
+                              <div className={`w-5 h-5 rounded-full flex items-center justify-center shrink-0 transition-transform ${
+                                variantSelected ? 'bg-[#D4AF37] text-white shadow-xs' : 'border border-[#F8BBD0] bg-white'
                               }`}>
-                                {variantSelected && <Check size={12} />}
+                                {variantSelected ? <Check size={12} strokeWidth={2.5} /> : <Plus size={11} className="text-[#8C7A82]" />}
                               </div>
                             </div>
                           );
@@ -470,7 +485,7 @@ export const TransparentCatalog: React.FC<TransparentCatalogProps> = ({
                                 </span>
                               </label>
 
-                              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
                                 {relevantAccessories.map((acc) => {
                                   const isPicked = (activeService.selectedAccessories || []).some(a => a.accessoryId === acc.id);
                                   return (
@@ -500,27 +515,27 @@ export const TransparentCatalog: React.FC<TransparentCatalogProps> = ({
                                           finalPrice: basePrice + accTotal + extExtra
                                         });
                                       }}
-                                      className={`p-2.5 rounded-xl border text-left text-xs transition flex items-center gap-2.5 ${
+                                      className={`p-2.5 rounded-2xl border text-left text-xs transition-all duration-200 flex items-center gap-2.5 ${
                                         isPicked
-                                          ? 'gold-border-active bg-[#FFF8E7] shadow-xs'
-                                          : 'border-[#F8BBD0]/50 bg-white hover:bg-[#FFFDF9]'
+                                          ? 'border-[#D4AF37] bg-gradient-to-br from-[#FFFDF9] to-[#FFF8E7] shadow-sm ring-2 ring-[#D4AF37]/30 scale-101'
+                                          : 'border-[#F8BBD0]/60 bg-white hover:bg-[#FFFDF9] hover:border-[#F8BBD0] shadow-2xs'
                                       }`}
                                     >
                                       {(acc.photoUrl || acc.imageUrl) ? (
                                         <img 
                                           src={acc.photoUrl || acc.imageUrl} 
                                           alt={acc.name} 
-                                          className="w-10 h-10 rounded-lg object-cover border border-[#F8BBD0]/50 shrink-0" 
+                                          className="w-11 h-11 rounded-xl object-cover border border-[#F8BBD0]/60 shrink-0 shadow-2xs" 
                                         />
                                       ) : (
-                                        <div className="w-10 h-10 rounded-lg bg-[#FFD1DC]/40 flex items-center justify-center shrink-0 text-[#B8860B]">
-                                          <Gem size={16} />
+                                        <div className="w-11 h-11 rounded-xl bg-gradient-to-br from-[#FFD1DC] to-[#FFF8E7] flex items-center justify-center shrink-0 text-[#B8860B] shadow-2xs">
+                                          <Gem size={18} />
                                         </div>
                                       )}
                                       <div className="min-w-0 flex-1">
-                                        <div className="flex items-center justify-between">
-                                          <span className="font-bold text-[#4A3B40] truncate block text-[11px]">{acc.name}</span>
-                                          {isPicked && <Check size={12} className="text-[#D4AF37] shrink-0" />}
+                                        <div className="flex items-center justify-between gap-1">
+                                          <span className="font-semibold text-[#4A3B40] truncate block text-[11px]">{acc.name}</span>
+                                          {isPicked && <Check size={13} className="text-[#D4AF37] shrink-0" />}
                                         </div>
                                         <span className="text-[10px] text-[#8C7A82] font-mono block">Kode: {acc.code}</span>
                                         <span className="text-[11px] font-bold text-[#B8860B] font-mono block mt-0.5">
@@ -567,7 +582,7 @@ export const TransparentCatalog: React.FC<TransparentCatalogProps> = ({
                           };
 
                           return (
-                            <div className="space-y-3 pt-2.5 border-t border-[#F8BBD0]/30 bg-[#FFFDF9] p-3.5 rounded-xl border border-[#D4AF37]/30">
+                            <div className="space-y-3 pt-3 border-t border-[#F8BBD0]/30 bg-[#FFFDF9] p-3.5 rounded-xl border border-[#D4AF37]/30">
                               <div className="flex items-center justify-between">
                                 <label className="text-xs font-semibold text-[#4A3B40] flex items-center gap-1.5">
                                   <Ruler size={14} className="text-[#D4AF37]" />
@@ -584,20 +599,20 @@ export const TransparentCatalog: React.FC<TransparentCatalogProps> = ({
                                     type="button"
                                     disabled={currentMm <= matchingExt.minMm}
                                     onClick={() => handleSetLength(currentMm - 1)}
-                                    className="w-8 h-8 rounded-lg border border-[#F8BBD0] bg-white hover:bg-[#FFD1DC]/40 text-[#4A3B40] flex items-center justify-center font-bold text-sm disabled:opacity-40 disabled:cursor-not-allowed transition"
+                                    className="w-9 h-9 rounded-xl border border-[#F8BBD0] bg-white hover:bg-rose-50 text-[#4A3B40] flex items-center justify-center font-bold text-sm disabled:opacity-30 disabled:cursor-not-allowed transition shadow-2xs hover:scale-105"
                                     title="Kurang 1 mm"
                                   >
                                     <Minus size={14} />
                                   </button>
-                                  <div className="px-3.5 py-1.5 rounded-xl bg-white border border-[#D4AF37] text-center min-w-[75px] shadow-2xs">
-                                    <span className="font-mono text-base font-bold text-[#B8860B]">{currentMm}</span>
-                                    <span className="text-[10px] text-[#8C7A82] ml-1">mm</span>
+                                  <div className="px-4 py-2 rounded-2xl bg-white border-2 border-[#D4AF37] text-center min-w-[85px] shadow-xs">
+                                    <span className="font-mono text-lg font-bold text-[#B8860B]">{currentMm}</span>
+                                    <span className="text-[11px] text-[#8C7A82] ml-1 font-semibold">mm</span>
                                   </div>
                                   <button
                                     type="button"
                                     disabled={currentMm >= matchingExt.maxMm}
                                     onClick={() => handleSetLength(currentMm + 1)}
-                                    className="w-8 h-8 rounded-lg border border-[#F8BBD0] bg-white hover:bg-[#FFD1DC]/40 text-[#4A3B40] flex items-center justify-center font-bold text-sm disabled:opacity-40 disabled:cursor-not-allowed transition"
+                                    className="w-9 h-9 rounded-xl border border-[#F8BBD0] bg-white hover:bg-rose-50 text-[#4A3B40] flex items-center justify-center font-bold text-sm disabled:opacity-30 disabled:cursor-not-allowed transition shadow-2xs hover:scale-105"
                                     title="Tambah 1 mm"
                                   >
                                     <Plus size={14} />
@@ -614,16 +629,16 @@ export const TransparentCatalog: React.FC<TransparentCatalogProps> = ({
                                     onChange={(e) => handleSetLength(parseInt(e.target.value, 10))}
                                     className="w-full accent-[#D4AF37] cursor-pointer"
                                   />
-                                  <div className="flex justify-between text-[10px] text-[#8C7A82]">
-                                    <span>Min {matchingExt.minMm} mm</span>
-                                    <span>Default {defaultLength} mm</span>
-                                    <span>Max {matchingExt.maxMm} mm</span>
+                                  <div className="flex justify-between text-[10px] text-[#8C7A82] font-mono">
+                                    <span>Min {matchingExt.minMm}mm</span>
+                                    <span className="text-[#B8860B] font-semibold">Default {defaultLength}mm</span>
+                                    <span>Max {matchingExt.maxMm}mm</span>
                                   </div>
                                 </div>
 
                                 <div className="text-right shrink-0">
-                                  <span className="text-[10px] text-[#8C7A82] block">Biaya Ekstensi:</span>
-                                  <span className="font-mono text-xs font-bold text-[#B8860B]">
+                                  <span className="text-[10px] text-[#8C7A82] block font-medium">Biaya Ekstensi:</span>
+                                  <span className="font-mono text-xs sm:text-sm font-bold text-[#B8860B]">
                                     {extExtra > 0 ? `+Rp ${extExtra.toLocaleString('id-ID')}` : 'Termasuk Standar'}
                                   </span>
                                   {pricePerMm > 0 && (

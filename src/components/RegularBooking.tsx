@@ -7,7 +7,8 @@ import {
   Clock, 
   CheckCircle2, 
   Send, 
-  AlertCircle 
+  AlertCircle,
+  Sparkles
 } from 'lucide-react';
 import { 
   Category, 
@@ -197,21 +198,21 @@ export const RegularBooking: React.FC<RegularBookingProps> = ({
       </div>
 
       {/* Top Header */}
-      <div className="border-b border-[#F8BBD0] pb-4">
+      <div className="border-b border-[#F8BBD0]/40 pb-4">
         <h2 className="font-serif text-2xl sm:text-3xl font-bold text-[#4A3B40]">
-          Formulir Reservasi Customer Reguler
+          Formulir Reservasi Treatment
         </h2>
         <p className="text-xs sm:text-sm text-[#8C7A82] mt-0.5">
-          Isi data diri Anda dan tentukan layanan perawatan favorit Anda secara transparan.
+          Isi data diri dan tentukan jadwal serta perawatan favorit Anda secara transparan.
         </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-8">
+      <form onSubmit={handleSubmit} className="space-y-6">
         {/* Section 1: Customer Identitas Wajib & Opsional */}
-        <div className="luxury-card p-5 sm:p-6 space-y-4">
-          <h3 className="font-serif text-lg font-bold text-[#4A3B40] flex items-center gap-2 border-b border-[#F8BBD0]/40 pb-2.5">
-            <User size={18} className="text-[#D4AF37]" />
-            <span>1. Data Diri Pemesan & Tanggal Treatment</span>
+        <div className="cute-card p-5 sm:p-6 space-y-4 bg-white border border-[#F8BBD0]/40">
+          <h3 className="font-serif text-base sm:text-lg font-bold text-[#4A3B40] flex items-center gap-2 border-b border-[#F8BBD0]/30 pb-2.5">
+            <User size={16} className="text-[#D4AF37]" />
+            <span>1. Data Diri Pemesan &amp; Tanggal Treatment</span>
           </h3>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -339,27 +340,27 @@ export const RegularBooking: React.FC<RegularBookingProps> = ({
         )}
 
         {/* Final Price Summary & Submit Button */}
-        <div className="luxury-card p-6 bg-gradient-to-br from-[#FFFDF9] via-[#FFF8E7] to-[#FFD1DC]/40 border-[#D4AF37] space-y-4">
-          <h3 className="font-serif text-lg font-bold text-[#4A3B40] border-b border-[#D4AF37]/30 pb-2">
-            Ringkasan Transparan Estimasi Biaya
+        <div className="cute-card p-6 bg-gradient-to-br from-[#FFFDF9] via-[#FFF8E7]/40 to-[#FFD1DC]/20 border border-[#D4AF37]/50 space-y-4 shadow-sm">
+          <h3 className="font-serif text-base sm:text-lg font-bold text-[#4A3B40] border-b border-[#D4AF37]/30 pb-2">
+            Ringkasan Biaya Reservasi
           </h3>
 
           <div className="space-y-2 text-xs sm:text-sm text-[#4A3B40]">
-            <div className="flex justify-between">
+            <div className="flex justify-between items-center">
               <span>Subtotal Layanan ({selectedServices.length} Treatment):</span>
-              <span className="font-mono font-bold">Rp {servicesSubtotal.toLocaleString('id-ID')}</span>
+              <span className="font-mono font-bold text-[#B8860B]">Rp {servicesSubtotal.toLocaleString('id-ID')}</span>
             </div>
 
-            <div className="flex justify-between">
+            <div className="flex justify-between items-center">
               <span>
-                Ongkos Transportasi ({location.isHomeService ? `Home Service • ${location.calculatedDistanceKm} km` : 'Salon Visit'}):
+                Ongkos Transportasi ({location.isHomeService ? `Home Service • ${location.calculatedDistanceKm} km` : 'Studio Visit'}):
               </span>
               <span className="font-mono font-bold">
                 {deliveryFee > 0 ? `Rp ${deliveryFee.toLocaleString('id-ID')}` : 'Rp 0 (Gratis)'}
               </span>
             </div>
 
-            <div className="flex justify-between pt-3 border-t border-[#D4AF37]/30 text-base sm:text-lg font-bold text-[#4A3B40]">
+            <div className="flex justify-between items-center pt-3 border-t border-[#D4AF37]/30 text-base sm:text-lg font-bold text-[#4A3B40]">
               <span>Total Estimasi Pembayaran:</span>
               <span className="font-mono text-[#B8860B]">
                 Rp {totalPrice.toLocaleString('id-ID')}
@@ -370,12 +371,12 @@ export const RegularBooking: React.FC<RegularBookingProps> = ({
           <div className="pt-2">
             <button
               type="submit"
-              className="w-full py-3.5 px-6 rounded-xl gold-button text-sm sm:text-base font-bold shadow-lg hover:shadow-xl hover:scale-101 transition flex items-center justify-center gap-2"
+              className="w-full py-3.5 px-6 rounded-xl gold-button text-sm sm:text-base font-bold shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2"
             >
-              <Send size={18} />
+              <Send size={16} />
               <span>Kirim Reservasi Sekarang</span>
             </button>
-            <p className="text-[11px] text-[#8C7A82] text-center mt-2">
+            <p className="text-[11px] text-[#8C7A82] text-center mt-2.5">
               Setelah dikirim, Anda dapat memantau status persetujuan reservasi kapan pun menggunakan Nomor WhatsApp Anda.
             </p>
           </div>
