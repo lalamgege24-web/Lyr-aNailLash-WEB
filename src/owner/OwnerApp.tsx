@@ -25,10 +25,9 @@ import { OwnerSettings } from './OwnerSettings';
 import { OwnerScheduleManager } from './OwnerScheduleManager';
 
 export default function OwnerApp() {
-  // Session states
-  const [currentRole, setCurrentRole] = useState<'OWNER' | 'STAFF' | null>(null);
+  // Session state: strictly OWNER
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [activeUserName, setActiveUserName] = useState('');
-  const [activeStaffData, setActiveStaffData] = useState<StaffAccount | undefined>(undefined);
 
   // Active navigation tab
   const [activeTab, setActiveTab] = useState('reservations');
@@ -67,44 +66,35 @@ export default function OwnerApp() {
     return unsubscribe;
   }, []);
 
-  const handleLoginSuccess = (
-    role: 'OWNER' | 'STAFF',
-    userName: string,
-    staffData?: StaffAccount
-  ) => {
-    setCurrentRole(role);
+  const handleLoginSuccess = (_role: 'OWNER', userName: string) => {
+    setIsLoggedIn(true);
     setActiveUserName(userName);
-    setActiveStaffData(staffData);
     setActiveTab('reservations');
   };
 
   const handleLogout = () => {
-    if (currentRole) {
-      salonStore.addAuditLog(currentRole, activeUserName, 'LOGOUT', 'Pengguna keluar sistem');
+    if (isLoggedIn) {
+      salonStore.addAuditLog('OWNER', activeUserName, 'LOGOUT', 'Owner keluar dari sistem');
     }
-    setCurrentRole(null);
+    setIsLoggedIn(false);
     setActiveUserName('');
-    setActiveStaffData(undefined);
   };
 
-  // If not logged in, render Auth screen
-  if (!currentRole) {
+  // If not logged in, render dedicated Owner Auth screen
+  if (!isLoggedIn) {
     return (
       <OwnerAuth
         settings={settings}
-        staffList={staffList}
         onLoginSuccess={handleLoginSuccess}
       />
     );
   }
 
-  const isOwner = currentRole === 'OWNER';
-
   return (
     <div className="min-h-screen bg-[#FFFDF9] text-[#4A3B40] flex flex-col font-sans">
       <OwnerHeader
         settings={settings}
-        currentRole={currentRole}
+        currentRole="OWNER"
         activeUserName={activeUserName}
         onLogout={handleLogout}
         activeTab={activeTab}
@@ -115,20 +105,20 @@ export default function OwnerApp() {
         {activeTab === 'reservations' && (
           <OwnerReservations
             reservations={reservations}
-            isOwner={isOwner}
+            isOwner={true}
             settings={settings}
             onRefresh={refreshState}
           />
         )}
 
-        {isOwner && activeTab === 'catalog' && (
+        {activeTab === 'catalog' && (
           <OwnerCatalogManager
             categories={categories}
             onRefresh={refreshState}
           />
         )}
 
-        {isOwner && activeTab === 'assets' && (
+        {activeTab === 'assets' && (
           <OwnerAssetManagers
             colors={colors}
             codes={codes}
@@ -138,13 +128,13 @@ export default function OwnerApp() {
           />
         )}
 
-        {isOwner && activeTab === 'finance' && (
+        {activeTab === 'finance' && (
           <OwnerFinance
             reservations={reservations}
           />
         )}
 
-        {isOwner && activeTab === 'members' && (
+        {activeTab === 'members' && (
           <OwnerMemberManager
             members={members}
             vouchers={vouchers}
@@ -153,7 +143,7 @@ export default function OwnerApp() {
           />
         )}
 
-        {isOwner && activeTab === 'attendance' && (
+        {activeTab === 'attendance' && (
           <OwnerStaffAttendance
             staffList={staffList}
             attendanceList={attendance}
@@ -161,14 +151,14 @@ export default function OwnerApp() {
           />
         )}
 
-        {isOwner && activeTab === 'schedule' && (
+        {activeTab === 'schedule' && (
           <OwnerScheduleManager
             operationalSchedule={settings.operationalSchedule}
             onRefresh={refreshState}
           />
         )}
 
-        {isOwner && activeTab === 'settings' && (
+        {activeTab === 'settings' && (
           <OwnerSettings
             settings={settings}
             staffList={staffList}
@@ -180,7 +170,7 @@ export default function OwnerApp() {
 
       <footer className="bg-white border-t border-[#F8BBD0]/50 py-4 px-4 text-center text-xs text-[#8C7A82]">
         <p className="font-medium">
-          {settings.storeName} Management POS • Hak Akses: {currentRole} ({activeUserName})
+          {settings.storeName} Management POS • Hak Akses: OWNER ({activeUserName}) • Terhubung ke Portal Staf di <a href="/staff" className="text-[#B8860B] font-bold underline">/staff</a>
         </p>
       </footer>
     </div>

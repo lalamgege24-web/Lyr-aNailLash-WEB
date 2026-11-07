@@ -105,19 +105,29 @@ export const OwnerHeader: React.FC<OwnerHeaderProps> = ({
                 <span className="font-serif font-bold text-lg text-[#4A3B40]">
                   {settings.storeName}
                 </span>
-                <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                  isOwner ? 'bg-[#D4AF37] text-white' : 'bg-[#FFD1DC] text-[#4A3B40]'
-                }`}>
-                  {isOwner ? 'OWNER (Hak Penuh)' : 'STAF SALON'}
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#D4AF37] text-white shadow-2xs">
+                  OWNER (Hak Penuh)
                 </span>
               </div>
               <p className="text-[11px] text-[#8C7A82]">
-                Sistem Operasional & POS Internal • Login sebagai: <strong className="text-[#4A3B40]">{activeUserName}</strong>
+                Sistem Operasional &amp; POS Internal • Login sebagai: <strong className="text-[#4A3B40]">{activeUserName}</strong>
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3">
+            {/* Quick link to separated Staff Portal */}
+            <a
+              href="/staff"
+              target="_blank"
+              rel="noreferrer"
+              className="hidden md:flex items-center gap-1.5 py-1.5 px-3 rounded-full text-xs font-semibold text-[#8C7A82] hover:text-[#4A3B40] hover:bg-[#FFF8E7] border border-[#F8BBD0]/60 transition"
+              title="Buka Portal Khusus Staf Terapis"
+            >
+              <span>Portal Staf Terapis</span>
+              <ExternalLink size={12} />
+            </a>
+
             {/* Ecosystem Link Hub Button */}
             <button
               type="button"
@@ -237,7 +247,6 @@ export const OwnerHeader: React.FC<OwnerHeaderProps> = ({
 
         {/* Navigation Tabs */}
         <nav className="flex items-center gap-1 sm:gap-2 overflow-x-auto pt-3 pb-1 border-t border-[#F8BBD0]/30 mt-2.5">
-          {/* Tabs available for Staf & Owner */}
           <button
             type="button"
             onClick={() => onSelectTab('reservations')}
@@ -247,97 +256,92 @@ export const OwnerHeader: React.FC<OwnerHeaderProps> = ({
                 : 'text-[#8C7A82] hover:text-[#4A3B40] hover:bg-[#FFD1DC]/20'
             }`}
           >
-            Jadwal & Reservasi
+            Jadwal &amp; Reservasi
           </button>
 
-          {/* Owner Only Tabs */}
-          {isOwner && (
-            <>
-              <button
-                type="button"
-                onClick={() => onSelectTab('catalog')}
-                className={`py-1.5 px-3 rounded-xl text-xs font-semibold whitespace-nowrap transition ${
-                  activeTab === 'catalog'
-                    ? 'gold-button shadow-2xs'
-                    : 'text-[#8C7A82] hover:text-[#4A3B40] hover:bg-[#FFD1DC]/20'
-                }`}
-              >
-                Katalog Bertingkat
-              </button>
+          <button
+            type="button"
+            onClick={() => onSelectTab('catalog')}
+            className={`py-1.5 px-3 rounded-xl text-xs font-semibold whitespace-nowrap transition ${
+              activeTab === 'catalog'
+                ? 'gold-button shadow-2xs'
+                : 'text-[#8C7A82] hover:text-[#4A3B40] hover:bg-[#FFD1DC]/20'
+            }`}
+          >
+            Katalog Bertingkat
+          </button>
 
-              <button
-                type="button"
-                onClick={() => onSelectTab('assets')}
-                className={`py-1.5 px-3 rounded-xl text-xs font-semibold whitespace-nowrap transition ${
-                  activeTab === 'assets'
-                    ? 'gold-button shadow-2xs'
-                    : 'text-[#8C7A82] hover:text-[#4A3B40] hover:bg-[#FFD1DC]/20'
-                }`}
-              >
-                Manager Warna, Kode & Tipe
-              </button>
+          <button
+            type="button"
+            onClick={() => onSelectTab('assets')}
+            className={`py-1.5 px-3 rounded-xl text-xs font-semibold whitespace-nowrap transition ${
+              activeTab === 'assets'
+                ? 'gold-button shadow-2xs'
+                : 'text-[#8C7A82] hover:text-[#4A3B40] hover:bg-[#FFD1DC]/20'
+            }`}
+          >
+            Manager Warna, Kode &amp; Tipe
+          </button>
 
-              <button
-                type="button"
-                onClick={() => onSelectTab('finance')}
-                className={`py-1.5 px-3 rounded-xl text-xs font-semibold whitespace-nowrap transition ${
-                  activeTab === 'finance'
-                    ? 'gold-button shadow-2xs'
-                    : 'text-[#8C7A82] hover:text-[#4A3B40] hover:bg-[#FFD1DC]/20'
-                }`}
-              >
-                Keuangan & Laporan
-              </button>
+          <button
+            type="button"
+            onClick={() => onSelectTab('finance')}
+            className={`py-1.5 px-3 rounded-xl text-xs font-semibold whitespace-nowrap transition ${
+              activeTab === 'finance'
+                ? 'gold-button shadow-2xs'
+                : 'text-[#8C7A82] hover:text-[#4A3B40] hover:bg-[#FFD1DC]/20'
+            }`}
+          >
+            Keuangan &amp; Laporan
+          </button>
 
-              <button
-                type="button"
-                onClick={() => onSelectTab('members')}
-                className={`py-1.5 px-3 rounded-xl text-xs font-semibold whitespace-nowrap transition ${
-                  activeTab === 'members'
-                    ? 'gold-button shadow-2xs'
-                    : 'text-[#8C7A82] hover:text-[#4A3B40] hover:bg-[#FFD1DC]/20'
-                }`}
-              >
-                Pengaturan Member & Voucher
-              </button>
+          <button
+            type="button"
+            onClick={() => onSelectTab('members')}
+            className={`py-1.5 px-3 rounded-xl text-xs font-semibold whitespace-nowrap transition ${
+              activeTab === 'members'
+                ? 'gold-button shadow-2xs'
+                : 'text-[#8C7A82] hover:text-[#4A3B40] hover:bg-[#FFD1DC]/20'
+            }`}
+          >
+            Pengaturan Member &amp; Voucher
+          </button>
 
-              <button
-                type="button"
-                onClick={() => onSelectTab('attendance')}
-                className={`py-1.5 px-3 rounded-xl text-xs font-semibold whitespace-nowrap transition ${
-                  activeTab === 'attendance'
-                    ? 'gold-button shadow-2xs'
-                    : 'text-[#8C7A82] hover:text-[#4A3B40] hover:bg-[#FFD1DC]/20'
-                }`}
-              >
-                Absensi Staf
-              </button>
+          <button
+            type="button"
+            onClick={() => onSelectTab('attendance')}
+            className={`py-1.5 px-3 rounded-xl text-xs font-semibold whitespace-nowrap transition ${
+              activeTab === 'attendance'
+                ? 'gold-button shadow-2xs'
+                : 'text-[#8C7A82] hover:text-[#4A3B40] hover:bg-[#FFD1DC]/20'
+            }`}
+          >
+            Absensi Staf Salon
+          </button>
 
-              <button
-                type="button"
-                onClick={() => onSelectTab('schedule')}
-                className={`py-1.5 px-3 rounded-xl text-xs font-semibold whitespace-nowrap transition ${
-                  activeTab === 'schedule'
-                    ? 'gold-button shadow-2xs'
-                    : 'text-[#8C7A82] hover:text-[#4A3B40] hover:bg-[#FFD1DC]/20'
-                }`}
-              >
-                Jam Buka, Tutup & Istirahat
-              </button>
+          <button
+            type="button"
+            onClick={() => onSelectTab('schedule')}
+            className={`py-1.5 px-3 rounded-xl text-xs font-semibold whitespace-nowrap transition ${
+              activeTab === 'schedule'
+                ? 'gold-button shadow-2xs'
+                : 'text-[#8C7A82] hover:text-[#4A3B40] hover:bg-[#FFD1DC]/20'
+            }`}
+          >
+            Jam Buka, Tutup &amp; Istirahat
+          </button>
 
-              <button
-                type="button"
-                onClick={() => onSelectTab('settings')}
-                className={`py-1.5 px-3 rounded-xl text-xs font-semibold whitespace-nowrap transition ${
-                  activeTab === 'settings'
-                    ? 'gold-button shadow-2xs'
-                    : 'text-[#8C7A82] hover:text-[#4A3B40] hover:bg-[#FFD1DC]/20'
-                }`}
-              >
-                Pengaturan Toko & PIN
-              </button>
-            </>
-          )}
+          <button
+            type="button"
+            onClick={() => onSelectTab('settings')}
+            className={`py-1.5 px-3 rounded-xl text-xs font-semibold whitespace-nowrap transition ${
+              activeTab === 'settings'
+                ? 'gold-button shadow-2xs'
+                : 'text-[#8C7A82] hover:text-[#4A3B40] hover:bg-[#FFD1DC]/20'
+            }`}
+          >
+            Pengaturan Toko &amp; PIN
+          </button>
         </nav>
       </div>
     </header>

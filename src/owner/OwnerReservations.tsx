@@ -526,7 +526,7 @@ export const OwnerReservations: React.FC<OwnerReservationsProps> = ({
               </h3>
             </div>
             <p className="text-xs text-[#8C7A82] mt-0.5">
-              Jadwal persiapan treatment esok hari untuk Owner dan Staf. {!isOwner && '🔒 Sesuai protokol, kontak pelanggan disembunyikan untuk staf.'}
+              Jadwal persiapan treatment esok hari. Owner dapat memantau rincian layanan dan mengirimkan pengingat WhatsApp langsung ke pelanggan.
             </p>
           </div>
 
@@ -534,11 +534,6 @@ export const OwnerReservations: React.FC<OwnerReservationsProps> = ({
             <span className="text-xs font-bold px-3 py-1 rounded-full bg-[#D4AF37] text-white shadow-2xs">
               {tomorrowReservations.length} Jadwal Besok
             </span>
-            {!isOwner && (
-              <span className="text-[11px] font-semibold px-2.5 py-1 rounded-full bg-rose-50 text-rose-700 border border-rose-200">
-                Staff Mode (No Contact)
-              </span>
-            )}
           </div>
         </div>
 
@@ -568,23 +563,16 @@ export const OwnerReservations: React.FC<OwnerReservationsProps> = ({
                       {res.fullName}
                     </h4>
 
-                    {/* Contact Privacy Enforcer: Staff CANNOT see or contact customer */}
-                    {isOwner ? (
-                      <p className="text-xs text-[#8C7A82] flex items-center gap-1 mt-0.5 font-mono">
-                        <Phone size={12} className="text-[#D4AF37]" />
-                        <span>{res.whatsapp}</span>
-                      </p>
-                    ) : (
-                      <p className="text-[11px] text-gray-400 italic flex items-center gap-1 mt-0.5">
-                        <span>🔒 Nomor kontak dirahasiakan (Staff Mode)</span>
-                      </p>
-                    )}
+                    <p className="text-xs text-[#8C7A82] flex items-center gap-1 mt-0.5 font-mono">
+                      <Phone size={12} className="text-[#D4AF37]" />
+                      <span>{res.whatsapp}</span>
+                    </p>
                   </div>
 
                   {/* Services & Treatment details for H-1 preparation */}
                   <div className="p-2.5 rounded-xl bg-[#FFFDF9] border border-[#F8BBD0]/50 text-xs text-[#4A3B40] space-y-1">
                     <div className="font-semibold text-[11px] text-[#B8860B] flex items-center gap-1">
-                      <span>💅 Tindakan & Detail Persiapan:</span>
+                      <span>💅 Tindakan &amp; Detail Persiapan:</span>
                     </div>
 
                     {res.services && res.services.length > 0 ? (
@@ -619,23 +607,17 @@ export const OwnerReservations: React.FC<OwnerReservationsProps> = ({
                   </div>
                 </div>
 
-                {/* WhatsApp Action: Strictly ONLY rendered for Owner. Staff CANNOT contact customer */}
+                {/* WhatsApp Action */}
                 <div className="pt-2 border-t border-gray-100 flex items-center justify-between">
-                  {isOwner ? (
-                    <a
-                      href={`https://wa.me/${res.whatsapp.replace(/\D/g, '')}?text=Halo%20Kak%20${encodeURIComponent(res.fullName)},%20kami%20dari%20Lyra's%20Nail-Lash%20mengingatkan%20jadwal%20perawatan%20cantik%20Kakak%20besok%20jam%20${encodeURIComponent(res.appointmentTime)}%20WIB.%20Sampai%20bertemu%20besok!%20✨💅`}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="py-1.5 px-3 rounded-xl bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 text-xs font-semibold flex items-center gap-1.5 transition ml-auto shadow-2xs"
-                    >
-                      <MessageCircle size={13} />
-                      <span>Kirim WA Pengingat H-1</span>
-                    </a>
-                  ) : (
-                    <span className="text-[10px] text-gray-400 italic">
-                      Staff hanya dapat melihat jadwal dan detail persiapan treatment.
-                    </span>
-                  )}
+                  <a
+                    href={`https://wa.me/${res.whatsapp.replace(/\D/g, '')}?text=Halo%20Kak%20${encodeURIComponent(res.fullName)},%20kami%20dari%20Lyra's%20Nail-Lash%20mengingatkan%20jadwal%20perawatan%20cantik%20Kakak%20besok%20jam%20${encodeURIComponent(res.appointmentTime)}%20WIB.%20Sampai%20bertemu%20besok!%20✨💅`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="py-1.5 px-3 rounded-xl bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 text-xs font-semibold flex items-center gap-1.5 transition ml-auto shadow-2xs"
+                  >
+                    <MessageCircle size={13} />
+                    <span>Kirim WA Pengingat H-1</span>
+                  </a>
                 </div>
               </div>
             ))}
