@@ -80,7 +80,7 @@ export const OwnerAuth: React.FC<OwnerAuthProps> = ({
               <KeyRound size={16} className="absolute left-3.5 top-3.5 text-[#8C7A82]" />
             </div>
             <p className="text-[11px] text-[#8C7A82] mt-1.5 text-center">
-              Hak akses penuh operasional, laporan keuangan, dan hapus riwayat. (PIN Default: <strong className="font-mono text-[#B8860B]">560605</strong>)
+              Hak akses penuh operasional, laporan keuangan, dan hapus riwayat.
             </p>
           </div>
 

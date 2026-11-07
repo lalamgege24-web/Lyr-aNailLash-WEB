@@ -269,7 +269,7 @@ export default function StaffApp() {
 
             <div className="pt-2 border-t border-[#F8BBD0]/40 text-center">
               <span className="text-[11px] text-[#8C7A82] block">
-                Akun staf terdaftar: <strong>Syafira</strong> (081234567891 / syafira123), <strong>Tiara</strong> (081234567892 / tiara123).
+                🔒 Lupa kata sandi / PIN staf? Silakan hubungi Owner Salon untuk melihat atau mereset PIN Anda.
               </span>
             </div>
           </div>

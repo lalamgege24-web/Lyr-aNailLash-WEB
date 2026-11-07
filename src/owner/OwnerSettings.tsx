@@ -13,7 +13,12 @@ import {
   Plus, 
   Trash2, 
   Check, 
-  AlertCircle 
+  AlertCircle,
+  Eye,
+  EyeOff,
+  Edit3,
+  Lock,
+  Copy
 } from 'lucide-react';
 import { StoreSettings, StaffAccount, AuditLog } from '../types/salon';
 import { salonStore } from '../services/store';
@@ -77,6 +82,47 @@ export const OwnerSettings: React.FC<OwnerSettingsProps> = ({
   const [staffRole, setStaffRole] = useState('Senior Nail Artist');
   const [staffPhone, setStaffPhone] = useState('');
   const [staffPin, setStaffPin] = useState('');
+
+  // Staff PIN Visibility & Management for Owner
+  const [revealedPins, setRevealedPins] = useState<Record<string, boolean>>({});
+  const [showAllPins, setShowAllPins] = useState(false);
+  const [editingStaffPin, setEditingStaffPin] = useState<{ id: string; name: string; currentPin: string } | null>(null);
+  const [newPinValue, setNewPinValue] = useState('');
+  const [copiedStaffId, setCopiedStaffId] = useState<string | null>(null);
+
+  const togglePinVisibility = (staffId: string) => {
+    setRevealedPins(prev => ({
+      ...prev,
+      [staffId]: !prev[staffId]
+    }));
+  };
+
+  const toggleShowAllPins = () => {
+    const nextState = !showAllPins;
+    setShowAllPins(nextState);
+    const nextMap: Record<string, boolean> = {};
+    staffList.forEach(s => {
+      nextMap[s.id] = nextState;
+    });
+    setRevealedPins(nextMap);
+  };
+
+  const handleCopyStaffPin = (staffId: string, pin: string) => {
+    navigator.clipboard.writeText(pin);
+    setCopiedStaffId(staffId);
+    setTimeout(() => setCopiedStaffId(null), 2000);
+  };
+
+  const handleSaveStaffPin = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingStaffPin || !newPinValue.trim()) return;
+    salonStore.updateStaff(editingStaffPin.id, { pin: newPinValue.trim() });
+    setNotificationMsg(`PIN untuk staf ${editingStaffPin.name} berhasil diperbarui!`);
+    setTimeout(() => setNotificationMsg(''), 3000);
+    setEditingStaffPin(null);
+    setNewPinValue('');
+    onRefresh();
+  };
 
   const [notificationMsg, setNotificationMsg] = useState('');
 
@@ -458,23 +504,48 @@ export const OwnerSettings: React.FC<OwnerSettingsProps> = ({
         </div>
       </div>
 
-      {/* SECTION 4: Akun Staf Salon (Tanpa Memperlihatkan PIN di UI Umum) */}
+      {/* SECTION 4: Akun Staf Salon & Akses Lihat PIN Staf untuk Owner */}
       <div className="luxury-card p-5 sm:p-6 bg-white border-[#F8BBD0] shadow-xs space-y-4">
-        <div className="flex items-center justify-between border-b border-[#F8BBD0]/40 pb-2">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-[#F8BBD0]/40 pb-3 gap-3">
           <div className="flex items-center gap-2">
             <UserCheck size={18} className="text-[#D4AF37]" />
-            <h3 className="font-serif font-bold text-base text-[#4A3B40]">
-              Manajemen Akun Staf Salon ({staffList.length} Staf)
-            </h3>
+            <div>
+              <h3 className="font-serif font-bold text-base text-[#4A3B40]">
+                Manajemen Akun Staf Salon &amp; Kontrol PIN ({staffList.length} Staf)
+              </h3>
+              <p className="text-xs text-[#8C7A82]">
+                Owner dapat melihat dan mereset PIN staf jika staf lupa kata sandi mereka.
+              </p>
+            </div>
           </div>
-          <button
-            type="button"
-            onClick={() => setIsAddingStaff(!isAddingStaff)}
-            className="py-1.5 px-3 rounded-xl gold-button text-xs font-bold shadow-2xs flex items-center gap-1"
-          >
-            <Plus size={13} />
-            <span>Tambah Staf</span>
-          </button>
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={toggleShowAllPins}
+              className="py-1.5 px-3 rounded-xl border border-[#D4AF37] text-[#B8860B] hover:bg-[#FFF8E7] text-xs font-semibold shadow-2xs flex items-center gap-1.5 transition"
+            >
+              {showAllPins ? <EyeOff size={13} /> : <Eye size={13} />}
+              <span>{showAllPins ? 'Sembunyikan Semua PIN' : 'Lihat Semua PIN Staf'}</span>
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setIsAddingStaff(!isAddingStaff)}
+              className="py-1.5 px-3 rounded-xl gold-button text-xs font-bold shadow-2xs flex items-center gap-1"
+            >
+              <Plus size={13} />
+              <span>Tambah Staf</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Informative notice for Owner */}
+        <div className="p-3 rounded-xl bg-[#FFF8E7]/70 border border-[#D4AF37]/30 text-xs text-[#4A3B40] flex items-start gap-2">
+          <ShieldCheck size={16} className="text-[#B8860B] shrink-0 mt-0.5" />
+          <p className="leading-relaxed text-[11px] text-[#8C7A82]">
+            <strong className="text-[#4A3B40]">Privasi Antar Staf Terlindungi:</strong> Di portal staf (<code className="text-[#B8860B]">/staff</code>), staf tidak dapat melihat PIN rekan lainnya. Hanya <strong>Owner</strong> yang berwenang melihat atau mengubah PIN terapis di halaman pengaturan ini.
+          </p>
         </div>
 
         {isAddingStaff && (
@@ -521,13 +592,13 @@ export const OwnerSettings: React.FC<OwnerSettingsProps> = ({
               <div>
                 <label className="block font-semibold mb-1">PIN Rahasia Staf:</label>
                 <input
-                  type="password"
+                  type="text"
                   required
                   maxLength={10}
                   value={staffPin}
                   onChange={(e) => setStaffPin(e.target.value)}
-                  placeholder="••••••"
-                  className="w-full py-1.5 px-3 rounded-lg border border-[#F8BBD0] bg-white font-mono text-center tracking-widest"
+                  placeholder="Contoh: rina123"
+                  className="w-full py-1.5 px-3 rounded-lg border border-[#F8BBD0] bg-white font-mono text-center"
                 />
               </div>
             </div>
@@ -550,29 +621,158 @@ export const OwnerSettings: React.FC<OwnerSettingsProps> = ({
           </form>
         )}
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          {staffList.map((st) => (
-            <div 
-              key={st.id}
-              className="p-3.5 rounded-xl bg-white border border-[#F8BBD0]/60 flex items-center justify-between gap-2 shadow-2xs"
-            >
-              <div>
-                <span className="font-semibold text-xs text-[#4A3B40] block">{st.name}</span>
-                <span className="text-[11px] text-[#B8860B] block">{st.role}</span>
-                <span className="text-[10px] text-[#8C7A82] font-mono">PIN: •••••• (Tersimpan Aman)</span>
+        {/* Staff List with visible PIN for Owner */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+          {staffList.map((st) => {
+            const isRevealed = !!revealedPins[st.id];
+
+            return (
+              <div 
+                key={st.id}
+                className="p-4 rounded-2xl bg-white border border-[#F8BBD0] hover:border-[#D4AF37] transition shadow-2xs space-y-2.5 flex flex-col justify-between"
+              >
+                <div className="space-y-1.5">
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <span className="font-serif font-bold text-sm text-[#4A3B40] block">{st.name}</span>
+                      <span className="text-[11px] font-medium text-[#B8860B]">{st.role}</span>
+                    </div>
+                    <span className="text-[10px] px-2 py-0.5 rounded-full font-bold bg-emerald-100 text-emerald-800">
+                      Aktif
+                    </span>
+                  </div>
+
+                  <p className="text-xs text-[#8C7A82] flex items-center gap-1 font-mono">
+                    <Phone size={12} className="text-[#D4AF37]" />
+                    <span>{st.phone}</span>
+                  </p>
+
+                  {/* PIN Display with Eye Toggle for Owner */}
+                  <div className="p-2 rounded-xl bg-[#FFFDF9] border border-[#F8BBD0]/60 flex items-center justify-between gap-2">
+                    <div className="flex items-center gap-1.5">
+                      <Lock size={12} className="text-[#B8860B]" />
+                      <span className="text-[11px] text-[#8C7A82]">PIN Staf:</span>
+                      {isRevealed ? (
+                        <span className="font-mono font-bold text-xs bg-emerald-50 text-emerald-800 px-2 py-0.5 rounded border border-emerald-200 select-all">
+                          {st.pin}
+                        </span>
+                      ) : (
+                        <span className="font-mono text-xs text-gray-400 tracking-widest">
+                          ••••••••
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="flex items-center gap-1">
+                      {isRevealed && (
+                        <button
+                          type="button"
+                          onClick={() => handleCopyStaffPin(st.id, st.pin)}
+                          className="p-1 text-gray-500 hover:text-[#B8860B] rounded"
+                          title="Salin PIN Staf"
+                        >
+                          <span className="text-[10px] font-bold">
+                            {copiedStaffId === st.id ? '✓' : <Copy size={12} />}
+                          </span>
+                        </button>
+                      )}
+
+                      <button
+                        type="button"
+                        onClick={() => togglePinVisibility(st.id)}
+                        className="p-1 text-[#8C7A82] hover:text-[#4A3B40] rounded"
+                        title={isRevealed ? 'Sembunyikan PIN' : 'Lihat PIN Staf'}
+                      >
+                        {isRevealed ? <EyeOff size={13} /> : <Eye size={13} />}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="pt-2 border-t border-gray-100 flex items-center justify-between text-xs">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setEditingStaffPin({ id: st.id, name: st.name, currentPin: st.pin });
+                      setNewPinValue(st.pin);
+                    }}
+                    className="text-[#B8860B] hover:text-[#4A3B40] font-semibold text-[11px] flex items-center gap-1 hover:underline"
+                  >
+                    <Edit3 size={12} />
+                    <span>Ubah PIN</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleDeleteStaff(st.id)}
+                    className="p-1 text-rose-400 hover:text-rose-600 rounded-lg transition"
+                    title="Hapus Akun Staf"
+                  >
+                    <Trash2 size={13} />
+                  </button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Modal for Editing Staff PIN by Owner */}
+        {editingStaffPin && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-fadeIn">
+            <div className="w-full max-w-sm bg-[#FFFDF9] rounded-2xl p-6 shadow-2xl border border-[#F8BBD0] space-y-4">
+              <div className="flex items-center justify-between border-b border-[#F8BBD0]/40 pb-2">
+                <div className="flex items-center gap-2">
+                  <KeyRound size={16} className="text-[#B8860B]" />
+                  <h4 className="font-serif font-bold text-sm text-[#4A3B40]">
+                    Ubah PIN Staf: {editingStaffPin.name}
+                  </h4>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setEditingStaffPin(null)}
+                  className="text-gray-400 hover:text-gray-600 text-xs font-bold"
+                >
+                  ✕
+                </button>
               </div>
 
-              <button
-                type="button"
-                onClick={() => handleDeleteStaff(st.id)}
-                className="p-1.5 text-red-400 hover:text-red-600 rounded-lg"
-                title="Hapus Akun Staf"
-              >
-                <Trash2 size={14} />
-              </button>
+              <form onSubmit={handleSaveStaffPin} className="space-y-3 text-xs">
+                <div>
+                  <label className="block font-semibold mb-1 text-[#4A3B40]">
+                    Masukkan PIN Baru untuk {editingStaffPin.name}:
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={newPinValue}
+                    onChange={(e) => setNewPinValue(e.target.value)}
+                    placeholder="Contoh: syafira2026"
+                    className="w-full py-2 px-3 rounded-xl border border-[#F8BBD0] bg-white font-mono text-center tracking-wider text-sm font-bold text-[#4A3B40]"
+                  />
+                  <p className="text-[11px] text-[#8C7A82] mt-1">
+                    PIN ini digunakan oleh terapis untuk masuk ke portal <code className="text-[#B8860B]">/staff</code>.
+                  </p>
+                </div>
+
+                <div className="flex gap-2 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setEditingStaffPin(null)}
+                    className="flex-1 py-2 rounded-xl border border-gray-200 text-gray-600 font-semibold text-xs"
+                  >
+                    Batal
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex-1 py-2 rounded-xl gold-button font-bold text-xs shadow-xs"
+                  >
+                    Simpan PIN
+                  </button>
+                </div>
+              </form>
             </div>
-          ))}
-        </div>
+          </div>
+        )}
       </div>
 
       {/* SECTION 5: Log Keluar-Masuk (Audit Trail) */}
