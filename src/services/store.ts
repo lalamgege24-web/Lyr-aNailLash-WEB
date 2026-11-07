@@ -142,11 +142,11 @@ class SalonStore {
     // 2. Setup Server-Sent Events (SSE) for instantaneous push
     this.setupSSE();
 
-    // 3. Fallback polling every 3.5 seconds to guarantee 100% reliability across proxies/devices
+    // 3. Ultra-responsive polling every 2.0 seconds to guarantee instant multi-browser synchronization
     if (typeof window !== 'undefined' && !this.pollIntervalId) {
       this.pollIntervalId = setInterval(() => {
         this.syncWithBackend();
-      }, 3500);
+      }, 2000);
     }
   }
 
@@ -157,6 +157,12 @@ class SalonStore {
         const data = await res.json();
         if (data.reservations && Array.isArray(data.reservations)) {
           this.mergeReservationsFromServer(data.reservations);
+        }
+        if (data.attendance && Array.isArray(data.attendance)) {
+          this.setItem(STORAGE_KEYS.ATTENDANCE, data.attendance, false);
+        }
+        if (data.staff && Array.isArray(data.staff)) {
+          this.setItem(STORAGE_KEYS.STAFF, data.staff, false);
         }
         if (data.settings) {
           this.mergeSettingsFromServer(data.settings);
@@ -207,6 +213,23 @@ class SalonStore {
         }
       });
 
+      this.eventSource.addEventListener('ATTENDANCE_RECORDED', (e: MessageEvent) => {
+        try {
+          const parsed = JSON.parse(e.data);
+          const rec: StaffAttendance = parsed.data;
+          const current = this.getAttendance();
+          const existing = current.findIndex(a => a.id === rec.id);
+          if (existing >= 0) {
+            current[existing] = rec;
+            this.setItem(STORAGE_KEYS.ATTENDANCE, [...current], true);
+          } else {
+            this.setItem(STORAGE_KEYS.ATTENDANCE, [rec, ...current], true);
+          }
+        } catch (err) {
+          console.error('Error handling ATTENDANCE_RECORDED SSE:', err);
+        }
+      });
+
       this.eventSource.addEventListener('ATTENDANCE_DELETED', (e: MessageEvent) => {
         try {
           const parsed = JSON.parse(e.data);
@@ -215,6 +238,15 @@ class SalonStore {
           this.setItem(STORAGE_KEYS.ATTENDANCE, current.filter(a => a.id !== id), true);
         } catch (err) {
           console.error('Error handling ATTENDANCE_DELETED SSE:', err);
+        }
+      });
+
+      this.eventSource.addEventListener('STAFF_UPDATED', (e: MessageEvent) => {
+        try {
+          const parsed = JSON.parse(e.data);
+          this.setItem(STORAGE_KEYS.STAFF, parsed.data, true);
+        } catch (err) {
+          console.error('Error handling STAFF_UPDATED SSE:', err);
         }
       });
 
@@ -235,7 +267,7 @@ class SalonStore {
       this.eventSource.onerror = () => {
         // SSE disconnected, will automatically reconnect or fallback to periodic poll
         if (this.eventSource && this.eventSource.readyState === EventSource.CLOSED) {
-          setTimeout(() => this.setupSSE(), 5000);
+          setTimeout(() => this.setupSSE(), 3000);
         }
       };
     } catch (err) {
@@ -248,10 +280,22 @@ class SalonStore {
     this.isSyncingWithServer = true;
 
     try {
-      const res = await fetch('/api/reservations');
-      if (res.ok) {
-        const serverReservations: Reservation[] = await res.json();
+      const [resReservations, resAttendance] = await Promise.all([
+        fetch('/api/reservations'),
+        fetch('/api/attendance')
+      ]);
+
+      if (resReservations.ok) {
+        const serverReservations: Reservation[] = await resReservations.json();
         this.mergeReservationsFromServer(serverReservations);
+      }
+
+      if (resAttendance.ok) {
+        const serverAttendance: StaffAttendance[] = await resAttendance.json();
+        const localAttendance = this.getAttendance();
+        if (JSON.stringify(localAttendance) !== JSON.stringify(serverAttendance)) {
+          this.setItem(STORAGE_KEYS.ATTENDANCE, serverAttendance, true);
+        }
       }
     } catch {
       // Ignore network errors in background
@@ -805,12 +849,29 @@ class SalonStore {
     const list = this.getAttendance();
     const newAtt: StaffAttendance = { ...att, id: `att-${Date.now()}` };
     this.setItem(STORAGE_KEYS.ATTENDANCE, [newAtt, ...list]);
+
+    // Send to backend so owner sees attendance in real-time on any browser
+    fetch('/api/attendance', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newAtt)
+    }).catch(err => console.warn('Failed to sync attendance to server:', err));
+
     return newAtt;
   }
 
   public updateAttendance(id: string, partial: Partial<StaffAttendance>): void {
     const list = this.getAttendance().map(a => a.id === id ? { ...a, ...partial } : a);
     this.setItem(STORAGE_KEYS.ATTENDANCE, list);
+
+    const updated = list.find(a => a.id === id);
+    if (updated) {
+      fetch('/api/attendance', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(updated)
+      }).catch(err => console.warn('Failed to sync updated attendance to server:', err));
+    }
   }
 
   public deleteAttendance(id: string): boolean {

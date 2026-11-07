@@ -731,6 +731,41 @@
   ],
   "reservations": [
     {
+      "bookingCode": "LNL-LIVE-9999",
+      "type": "REGULER",
+      "fullName": "Gita Gutawa (Multi-Browser Test)",
+      "whatsapp": "081299998888",
+      "appointmentDate": "2026-11-08",
+      "appointmentTime": "15:00",
+      "location": {
+        "isHomeService": false,
+        "city": "Jakarta Barat",
+        "district": "Cengkareng",
+        "village": "Cengkareng Timur",
+        "detailAddress": "Studio Mall Taman Palem Lt G Blok A 30B"
+      },
+      "services": [
+        {
+          "categoryId": "cat_lash",
+          "categoryName": "Eyelash Extensions",
+          "subCategoryId": "sub_classic",
+          "subCategoryName": "Classic Natural Look",
+          "price": 175000,
+          "selectedColors": [
+            "Hitam Pekat Natural"
+          ],
+          "selectedExtensionLengthMm": 13,
+          "selectedAccessories": []
+        }
+      ],
+      "totalPrice": 175000,
+      "paymentStatus": "BELUM_BAYAR",
+      "status": "PENDING",
+      "notes": "Pesanan live masuk dari browser customer!",
+      "id": "res-1794028115833-5boxw",
+      "createdAt": "2026-11-07T05:08:35.833Z"
+    },
+    {
       "id": "res-101",
       "bookingCode": "LNL-20261031-01",
       "type": "REGULER",

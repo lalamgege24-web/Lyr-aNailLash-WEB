@@ -86,7 +86,14 @@ export const OwnerReservations: React.FC<OwnerReservationsProps> = ({
   const finishedCount = reservations.filter(r => r.status === 'FINISHED').length;
   const totalCount = reservations.length;
 
-  // 1. Jadwal Treatment Hari Ini (Chronological morning to night)
+  // 1. Antrean Reservasi Pending Masuk Real-Time
+  const pendingReservations = useMemo(() => {
+    return reservations
+      .filter(r => r.status === 'PENDING')
+      .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
+  }, [reservations]);
+
+  // 2. Jadwal Treatment Hari Ini (Chronological morning to night)
   const todayReservations = useMemo(() => {
     return reservations
       .filter(r => r.appointmentDate === todayDateStr)
@@ -98,7 +105,7 @@ export const OwnerReservations: React.FC<OwnerReservationsProps> = ({
       .sort((a, b) => a.appointmentTime.localeCompare(b.appointmentTime));
   }, [reservations, todayDateStr, todaySearchQuery]);
 
-  // 2. Action H-1 Reminders (Tomorrow's schedule)
+  // 3. Action H-1 Reminders (Tomorrow's schedule)
   const tomorrowReservations = useMemo(() => {
     return reservations.filter(r => r.appointmentDate === tomorrowDateStr && r.status !== 'REJECTED');
   }, [reservations, tomorrowDateStr]);
@@ -262,6 +269,251 @@ export const OwnerReservations: React.FC<OwnerReservationsProps> = ({
           </div>
         </div>
       </div>
+
+      {/* SECTION: ANTREAN RESERVASI MASUK REAL-TIME (Live Incoming Queue) */}
+      <section className={`rounded-2xl transition-all duration-300 p-5 ${
+        pendingReservations.length > 0
+          ? 'bg-gradient-to-r from-[#FFFDF9] via-[#FFF8E7] to-[#FFD1DC]/40 border-2 border-[#D4AF37] shadow-md ring-2 ring-[#D4AF37]/20'
+          : 'bg-white border border-[#F8BBD0] shadow-xs'
+      }`}>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3.5 border-b border-[#D4AF37]/30">
+          <div className="flex items-center gap-3">
+            <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold shrink-0 ${
+              pendingReservations.length > 0 
+                ? 'bg-[#D4AF37] text-white shadow-xs animate-bounce' 
+                : 'bg-[#FFF8E7] text-[#B8860B] border border-[#D4AF37]/40'
+            }`}>
+              <Sparkles size={20} />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h3 className="font-serif font-bold text-lg text-[#4A3B40]">
+                  Antrean Reservasi Masuk Baru (Live Queue)
+                </h3>
+                <span className={`text-xs font-bold px-2.5 py-0.5 rounded-full ${
+                  pendingReservations.length > 0
+                    ? 'bg-rose-500 text-white animate-pulse'
+                    : 'bg-emerald-100 text-emerald-800'
+                }`}>
+                  {pendingReservations.length > 0 ? `${pendingReservations.length} Menunggu Konfirmasi` : 'Siaga Aktif'}
+                </span>
+              </div>
+              <p className="text-xs text-[#8C7A82] mt-0.5">
+                Reservasi masuk otomatis dari semua browser pelanggan. Owner dapat langsung menyetujui, diskusi, atau hapus riwayat.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={handleTestChime}
+              className="py-1.5 px-3 rounded-xl bg-white border border-[#D4AF37] text-[#B8860B] hover:bg-[#FFF8E7] text-xs font-semibold flex items-center gap-1.5 shadow-2xs transition"
+              title="Tes Bunyi Bel Masuk"
+            >
+              <Volume2 size={13} />
+              <span>Tes Bel</span>
+            </button>
+            <span className="text-[11px] font-mono px-2 py-1 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
+              <span>Real-Time Sync</span>
+            </span>
+          </div>
+        </div>
+
+        {pendingReservations.length === 0 ? (
+          <div className="py-7 text-center space-y-2">
+            <div className="w-12 h-12 rounded-full bg-[#FFF8E7] text-[#B8860B] flex items-center justify-center mx-auto border border-[#D4AF37]/30">
+              <CheckCircle2 size={24} />
+            </div>
+            <p className="font-serif font-bold text-sm text-[#4A3B40]">
+              Semua Reservasi Masuk Sudah Ditindaklanjuti
+            </p>
+            <p className="text-xs text-[#8C7A82] max-w-md mx-auto">
+              Tidak ada reservasi pending saat ini. Ketika pelanggan dari browser lain mengirim reservasi, pesanan akan langsung muncul seketika di sini dengan suara bel!
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-4 pt-4">
+            {pendingReservations.map((res) => (
+              <div
+                key={res.id}
+                className="p-4 sm:p-5 rounded-2xl bg-white border-2 border-[#D4AF37]/60 shadow-sm hover:shadow-md transition space-y-3.5"
+              >
+                {/* Header row: Booking Code, DateTime, and Type */}
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-gray-100 pb-2.5">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-mono text-sm font-bold px-2.5 py-0.5 rounded-md bg-[#D4AF37] text-white">
+                      {res.bookingCode}
+                    </span>
+                    <span className="text-xs font-semibold px-2.5 py-0.5 rounded-md bg-[#FFF8E7] text-[#B8860B] border border-[#D4AF37]/30">
+                      📅 {res.appointmentDate} • ⏰ {res.appointmentTime} WIB
+                    </span>
+                    <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-[#FFD1DC] text-[#4A3B40]">
+                      {res.type}
+                    </span>
+                    <span className="text-[11px] font-medium px-2 py-0.5 rounded-full bg-purple-50 text-purple-700 border border-purple-200">
+                      📍 {res.location.isHomeService ? `Home Service (${res.location.village})` : 'Datang ke Studio'}
+                    </span>
+                  </div>
+
+                  {/* Price */}
+                  <div className="text-right">
+                    <span className="text-xs text-[#8C7A82] block">Total Tagihan:</span>
+                    <span className="font-mono text-base sm:text-lg font-bold text-[#B8860B]">
+                      Rp {res.totalPrice.toLocaleString('id-ID')}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Customer Details & Services breakdown */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5 text-xs">
+                  {/* Customer Info */}
+                  <div className="p-3 rounded-xl bg-[#FFFDF9] border border-[#F8BBD0]/60 space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold text-sm text-[#4A3B40] flex items-center gap-1.5">
+                        <User size={15} className="text-[#D4AF37]" />
+                        <span>{res.fullName}</span>
+                      </span>
+                      <a
+                        href={`https://wa.me/${res.whatsapp.replace(/\D/g, '')}?text=Halo%20Kak%20${encodeURIComponent(res.fullName)},%20kami%20dari%20Lyra's%20Nail-Lash%20mengenai%20reservasi%20${encodeURIComponent(res.bookingCode)}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-emerald-700 hover:text-emerald-800 font-semibold flex items-center gap-1 text-[11px] bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200"
+                      >
+                        <MessageCircle size={12} />
+                        <span>{res.whatsapp}</span>
+                      </a>
+                    </div>
+
+                    {res.location.isHomeService && (
+                      <p className="text-[11px] text-[#8C7A82]">
+                        🏠 Alamat: <span className="text-[#4A3B40] font-medium">{res.location.streetAddress || res.location.village}</span>
+                        {res.location.calculatedDistanceKm ? ` (Jarak: ${res.location.calculatedDistanceKm} km)` : ''}
+                      </p>
+                    )}
+
+                    {(res.location.notes || res.ownerNotes) && (
+                      <p className="text-[11px] text-[#8C7A82] italic bg-white p-2 rounded-lg border border-[#F8BBD0]/40">
+                        💬 Catatan: &quot;{res.location.notes || res.ownerNotes}&quot;
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Services & Selections */}
+                  <div className="p-3 rounded-xl bg-[#FFFDF9] border border-[#F8BBD0]/60 space-y-1.5">
+                    <span className="font-bold text-[11px] text-[#B8860B] block uppercase tracking-wider">
+                      💅 Rincian Pilihan Treatment:
+                    </span>
+                    {res.services && res.services.length > 0 ? (
+                      res.services.map((s, idx) => (
+                        <div key={idx} className="text-xs space-y-0.5 pb-1 border-b border-[#F8BBD0]/30 last:border-0 last:pb-0">
+                          <div className="flex items-center justify-between font-semibold text-[#4A3B40]">
+                            <span>• {s.subSubCategoryName || s.subCategoryName}</span>
+                            <span className="font-mono text-[#B8860B]">Rp {s.price.toLocaleString('id-ID')}</span>
+                          </div>
+                          {s.selectedColors && s.selectedColors.length > 0 && (
+                            <p className="text-[11px] text-[#8C7A82]">
+                              Warna: <span className="text-[#4A3B40] font-medium">{s.selectedColors.join(', ')}</span>
+                            </p>
+                          )}
+                          {s.selectedExtensionLengthMm && (
+                            <p className="text-[11px] text-emerald-700 font-semibold">
+                              Extension: {s.selectedExtensionLengthMm} mm
+                            </p>
+                          )}
+                          {s.selectedAccessories && s.selectedAccessories.length > 0 && (
+                            <div className="text-[11px] text-purple-700 flex items-center gap-1.5 flex-wrap">
+                              <span>Aksesoris:</span>
+                              {s.selectedAccessories.map((acc, aIdx) => (
+                                <span key={aIdx} className="bg-purple-100 text-purple-800 px-1.5 py-0.2 rounded text-[10px] font-medium">
+                                  {acc.name}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                          {s.referencePhotoUrl && (
+                            <a
+                              href={s.referencePhotoUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="text-[11px] text-[#B8860B] underline font-semibold block"
+                            >
+                              Lihat Foto Referensi Desain
+                            </a>
+                          )}
+                        </div>
+                      ))
+                    ) : res.groupMembers && res.groupMembers.length > 0 ? (
+                      <div className="text-xs space-y-1">
+                        <p className="font-semibold text-purple-800">
+                          Rombongan {res.groupMembers.length} Orang (Ketua: {res.groupMembers[0]?.fullName})
+                        </p>
+                        {res.groupMembers.map((m, mIdx) => (
+                          <div key={mIdx} className="text-[11px] text-[#4A3B40] pl-2 border-l-2 border-purple-200">
+                            <strong>{m.fullName}:</strong> {m.services.map(s => s.subSubCategoryName || s.subCategoryName).join(', ')}
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-xs text-[#8C7A82]">Layanan Standar</p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Direct Action Buttons for Incoming Reservation */}
+                <div className="pt-2 border-t border-gray-100 flex flex-wrap items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setReservationToDelete(res)}
+                      className="py-1.5 px-3 rounded-xl border border-rose-200 text-rose-600 hover:bg-rose-50 text-xs font-semibold flex items-center gap-1.5 transition"
+                      title="Hapus riwayat reservasi pelanggan"
+                    >
+                      <Trash2 size={13} />
+                      <span>Hapus</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setEditingRes(res)}
+                      className="py-1.5 px-3 rounded-xl border border-gray-200 text-gray-700 hover:bg-gray-50 text-xs font-semibold flex items-center gap-1.5 transition"
+                    >
+                      <Edit3 size={13} />
+                      <span>Edit</span>
+                    </button>
+                  </div>
+
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <button
+                      type="button"
+                      onClick={() => handleUpdateStatus(res.id, 'REJECTED')}
+                      className="py-1.5 px-3 rounded-xl border border-rose-300 text-rose-700 hover:bg-rose-50 text-xs font-semibold transition"
+                    >
+                      Tolak
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleUpdateStatus(res.id, 'NEEDS_DISCUSSION')}
+                      className="py-1.5 px-3 rounded-xl bg-sky-50 text-sky-700 hover:bg-sky-100 border border-sky-200 text-xs font-semibold transition"
+                    >
+                      💬 Perlu Diskusi
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleUpdateStatus(res.id, 'APPROVED')}
+                      className="py-1.5 px-4 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white text-xs font-bold shadow-xs flex items-center gap-1.5 transition hover:scale-102"
+                    >
+                      <Check size={14} />
+                      <span>Setujui &amp; Konfirmasi</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
 
       {/* SECTION 2: JADWAL RESERVASI H-1 (Dapat Dilihat Staf & Owner • Staf Tidak Bisa Menghubungi Customer) */}
       <div className="luxury-card p-5 bg-gradient-to-r from-[#FFFDF9] via-[#FFF8E7] to-[#FFD1DC]/30 border-[#D4AF37]/50 shadow-xs space-y-4">

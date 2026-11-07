@@ -179,10 +179,17 @@ app.get('/api/reservations', (_req: Request, res: Response) => {
 
 app.post('/api/reservations', (req: Request, res: Response) => {
   try {
-    const newRes: Reservation = req.body;
-    if (!newRes || !newRes.id) {
+    const body = req.body;
+    if (!body || (!body.fullName && !body.id && !body.bookingCode)) {
       return res.status(400).json({ error: 'Data reservasi tidak valid' });
     }
+
+    const newRes: Reservation = {
+      ...body,
+      id: body.id || `res-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+      createdAt: body.createdAt || new Date().toISOString(),
+      status: body.status || 'PENDING'
+    };
 
     // Add to top of list
     const existingIndex = db.reservations.findIndex((r) => r.id === newRes.id);
@@ -235,6 +242,53 @@ app.delete('/api/reservations/:id', (req: Request, res: Response) => {
     saveDb(db);
     broadcast('RESERVATION_DELETED', { id, bookingCode: deletedRes?.bookingCode });
     return res.json({ success: true, id, message: 'Riwayat reservasi berhasil dihapus' });
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+// Staff endpoints
+app.get('/api/staff', (_req: Request, res: Response) => {
+  res.json(db.staff);
+});
+
+app.post('/api/staff', (req: Request, res: Response) => {
+  try {
+    const staffList = req.body;
+    if (Array.isArray(staffList)) {
+      db.staff = staffList;
+      saveDb(db);
+      broadcast('STAFF_UPDATED', db.staff);
+      return res.json(db.staff);
+    }
+    return res.status(400).json({ error: 'Data staf tidak valid' });
+  } catch (err: any) {
+    return res.status(500).json({ error: err.message });
+  }
+});
+
+// Attendance endpoints
+app.get('/api/attendance', (_req: Request, res: Response) => {
+  res.json(db.attendance);
+});
+
+app.post('/api/attendance', (req: Request, res: Response) => {
+  try {
+    const record = req.body;
+    if (!record || !record.id) {
+      return res.status(400).json({ error: 'Data absensi tidak valid' });
+    }
+
+    const existingIndex = db.attendance.findIndex(a => a.id === record.id);
+    if (existingIndex >= 0) {
+      db.attendance[existingIndex] = { ...db.attendance[existingIndex], ...record };
+    } else {
+      db.attendance = [record, ...db.attendance];
+    }
+
+    saveDb(db);
+    broadcast('ATTENDANCE_RECORDED', record);
+    return res.status(201).json(record);
   } catch (err: any) {
     return res.status(500).json({ error: err.message });
   }
@@ -631,6 +685,21 @@ async function startServer() {
       appType: 'spa'
     });
 
+    // Clean URL rewrites for dedicated role portals
+    app.use((req: Request, _res: Response, next) => {
+      const urlPath = req.url.split('?')[0];
+      const query = req.url.includes('?') ? '?' + req.url.split('?')[1] : '';
+
+      if (urlPath === '/owner' || urlPath === '/owner/') {
+        req.url = '/owner.html' + query;
+      } else if (urlPath === '/staff' || urlPath === '/staff/') {
+        req.url = '/staff.html' + query;
+      } else if (urlPath === '/customer' || urlPath === '/customer/') {
+        req.url = '/index.html' + query;
+      }
+      next();
+    });
+
     app.use(vite.middlewares);
   } else {
     const distPath = path.resolve(__dirname, 'dist');
@@ -639,6 +708,8 @@ async function startServer() {
     app.get('*', (req: Request, res: Response) => {
       if (req.path.startsWith('/owner')) {
         res.sendFile(path.join(distPath, 'owner.html'));
+      } else if (req.path.startsWith('/staff')) {
+        res.sendFile(path.join(distPath, 'staff.html'));
       } else {
         res.sendFile(path.join(distPath, 'index.html'));
       }

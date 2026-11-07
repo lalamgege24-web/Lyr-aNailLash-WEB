@@ -15,6 +15,8 @@ export const CustomerHeader: React.FC<CustomerHeaderProps> = ({
   onOpenStatusCheck,
   onGoHome
 }) => {
+  const [showHub, setShowHub] = React.useState(false);
+
   return (
     <header className="sticky top-0 z-40 bg-[#FFFDF9]/95 backdrop-blur-md border-b border-[#F8BBD0]/60 shadow-xs">
       {/* Elegant Studio Notice Bar */}
@@ -103,15 +105,63 @@ export const CustomerHeader: React.FC<CustomerHeaderProps> = ({
             <span>Cek Status</span>
           </button>
 
-          {/* Internal Owner & POS Portal Switcher */}
-          <a
-            href="/owner.html"
-            title="Portal Operasional Owner & POS"
-            className="p-2 rounded-full text-[#8C7A82] hover:text-[#4A3B40] hover:bg-[#FFF8E7] border border-transparent hover:border-[#D4AF37]/40 transition flex items-center gap-1 text-xs"
-          >
-            <Shield size={16} className="text-[#D4AF37]" />
-            <span className="hidden md:inline font-semibold text-[11px]">Owner / POS</span>
-          </a>
+          {/* Internal Portal Dropdown / Link Hub */}
+          <div className="relative group">
+            <button
+              type="button"
+              onClick={() => setShowHub(!showHub)}
+              title="Pilihan Portal Sistem (Owner, Staf, Pelanggan)"
+              className="p-2 rounded-full text-[#8C7A82] hover:text-[#4A3B40] hover:bg-[#FFF8E7] border border-[#D4AF37]/40 transition flex items-center gap-1 text-xs"
+            >
+              <Shield size={16} className="text-[#D4AF37]" />
+              <span className="hidden md:inline font-semibold text-[11px]">Portal Salon</span>
+            </button>
+
+            {showHub && (
+              <div className="absolute right-0 top-full mt-2 w-72 bg-[#FFFDF9] rounded-2xl p-4 shadow-xl border border-[#F8BBD0] z-50 animate-fadeIn space-y-2.5">
+                <div className="flex items-center justify-between border-b border-[#F8BBD0]/40 pb-2">
+                  <span className="font-serif font-bold text-xs text-[#4A3B40]">
+                    Link Terpisah Ekosistem Salon
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setShowHub(false)}
+                    className="text-gray-400 hover:text-gray-600 text-xs font-bold"
+                  >
+                    ✕
+                  </button>
+                </div>
+
+                <div className="space-y-1.5 text-xs">
+                  <a
+                    href="/owner"
+                    className="p-2 rounded-xl bg-white hover:bg-[#FFF8E7] border border-[#F8BBD0]/60 flex items-center justify-between transition group/item"
+                  >
+                    <div>
+                      <span className="font-bold text-[#4A3B40] block">Portal Owner (B2B)</span>
+                      <span className="text-[10px] text-[#8C7A82]">Kelola Reservasi, Keuangan &amp; POS</span>
+                    </div>
+                    <span className="text-[10px] font-bold text-[#B8860B] group-hover/item:translate-x-0.5 transition-transform">→</span>
+                  </a>
+
+                  <a
+                    href="/staff"
+                    className="p-2 rounded-xl bg-white hover:bg-[#FFF8E7] border border-[#F8BBD0]/60 flex items-center justify-between transition group/item"
+                  >
+                    <div>
+                      <span className="font-bold text-[#4A3B40] block">Portal Staf Terapis (B2B)</span>
+                      <span className="text-[10px] text-[#8C7A82]">Presensi Kehadiran &amp; Jadwal H-1</span>
+                    </div>
+                    <span className="text-[10px] font-bold text-[#B8860B] group-hover/item:translate-x-0.5 transition-transform">→</span>
+                  </a>
+
+                  <div className="p-2 rounded-xl bg-[#FFF8E7]/60 border border-[#D4AF37]/30 text-[10px] text-[#8C7A82] leading-relaxed">
+                    💡 Buka di browser terpisah untuk mencoba sinkronisasi multi-browser secara real-time.
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </header>

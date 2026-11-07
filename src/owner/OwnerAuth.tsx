@@ -137,7 +137,7 @@ export const OwnerAuth: React.FC<OwnerAuthProps> = ({
                 <KeyRound size={16} className="absolute left-3.5 top-3.5 text-[#8C7A82]" />
               </div>
               <p className="text-[11px] text-[#8C7A82] mt-1.5 text-center">
-                Hak akses penuh seluruh modul keuangan, katalog, absensi, dan data rahasia.
+                Hak akses penuh seluruh modul keuangan, katalog, absensi, dan data rahasia. (PIN Default: <strong className="font-mono text-[#B8860B]">560605</strong>)
               </p>
             </div>
 

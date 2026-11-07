@@ -16,6 +16,7 @@ export default defineConfig(() => {
         input: {
           main: path.resolve(import.meta.dirname, 'index.html'),
           owner: path.resolve(import.meta.dirname, 'owner.html'),
+          staff: path.resolve(import.meta.dirname, 'staff.html'),
         },
       },
     },
