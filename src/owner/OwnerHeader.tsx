@@ -116,15 +116,27 @@ export const OwnerHeader: React.FC<OwnerHeaderProps> = ({
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3">
+            {/* Direct Quick Link to Customer Portal */}
+            <a
+              href="/"
+              target="_blank"
+              rel="noreferrer"
+              className="flex items-center gap-1.5 py-1.5 px-3 sm:px-3.5 rounded-full text-xs font-bold text-[#4A3B40] bg-[#FFD1DC]/40 hover:bg-[#FFD1DC]/80 border border-[#F8BBD0] shadow-2xs transition hover:scale-102"
+              title="Buka Halaman Utama Pelanggan (B2C)"
+            >
+              <span>🛍️ Portal Customer</span>
+              <ExternalLink size={12} />
+            </a>
+
             {/* Quick link to separated Staff Portal */}
             <a
               href="/staff"
               target="_blank"
               rel="noreferrer"
-              className="hidden md:flex items-center gap-1.5 py-1.5 px-3 rounded-full text-xs font-semibold text-[#8C7A82] hover:text-[#4A3B40] hover:bg-[#FFF8E7] border border-[#F8BBD0]/60 transition"
+              className="hidden sm:flex items-center gap-1.5 py-1.5 px-3 rounded-full text-xs font-semibold text-[#8C7A82] hover:text-[#4A3B40] hover:bg-[#FFF8E7] border border-[#F8BBD0]/60 transition"
               title="Buka Portal Khusus Staf Terapis"
             >
-              <span>Portal Staf Terapis</span>
+              <span>💼 Portal Staf</span>
               <ExternalLink size={12} />
             </a>
 

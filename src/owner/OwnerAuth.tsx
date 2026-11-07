@@ -113,13 +113,17 @@ export const OwnerAuth: React.FC<OwnerAuthProps> = ({
           </a>
         </div>
 
-        {/* Back to Customer Web */}
-        <div className="text-center pt-2 border-t border-[#F8BBD0]/40">
+        {/* Quick Links to Customer Portal */}
+        <div className="pt-2 border-t border-[#F8BBD0]/40">
           <a
             href="/"
-            className="text-xs text-[#8C7A82] hover:text-[#4A3B40] hover:underline"
+            className="w-full py-2.5 px-3.5 rounded-xl bg-gradient-to-r from-[#FFF5F7] via-white to-[#FFF8E7] border border-[#F8BBD0] hover:border-[#D4AF37] text-xs font-bold text-[#4A3B40] hover:text-[#B8860B] flex items-center justify-between shadow-2xs transition group"
           >
-            ← Kembali ke Portal Reservasi Customer
+            <span className="flex items-center gap-2">
+              <span className="text-base">🛍️</span>
+              <span>Buka Website / Portal Pelanggan (B2C)</span>
+            </span>
+            <span className="text-[#B8860B] group-hover:translate-x-1 transition-transform font-bold">→</span>
           </a>
         </div>
       </div>
